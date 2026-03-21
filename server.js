@@ -9,6 +9,7 @@ const wss = new WebSocketServer({ server });
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'ping-pong.html')));
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'ping-pong.html')));
 
 // ─── State ──────────────────────────────────────────────────────────────────
 // rooms: Map<code, { host: ws, guest: ws|null, created: number }>
