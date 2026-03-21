@@ -751,7 +751,7 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
   </div>
   <div id="pJ" class="ocard hidden">
     <h3>Unirse a sala</h3>
-    <input type="text" id="joinCode" placeholder="Código (6 letras)" maxlength="6"
+    <input type="text" id="joinCode" placeholder="Código (6 caracteres)" maxlength="6"
       style="letter-spacing:.18em;text-transform:uppercase"
       oninput="this.value=this.value.toUpperCase()">
     <div class="stxt"><span class="dot" id="dJ"></span><span id="lJ">Introduce el código</span></div>
@@ -2019,7 +2019,7 @@ let wsReady = false;
 
 function getMyName(){ return (document.getElementById('nOnline').value.trim()||'JUGADOR').toUpperCase().slice(0,14); }
 function genCode(){
-  const ch='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const ch='ABCDEFGHJKLMNPQRSTUVWXYZ';
   return Array.from({length:6},()=>ch[Math.floor(Math.random()*ch.length)]).join('');
 }
 function showTab(t){
@@ -2162,7 +2162,7 @@ function showTabAndEnsureRoom(t){
 
 // ── Join ───────────────────────────────────────────────────────────────────
 function doJoin(){
-  const code=document.getElementById('joinCode').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  const code=document.getElementById('joinCode').value.trim().toUpperCase().replace(/[^A-Z]/g,'');
   if(code.length<4){ setDot('J','er','Código muy corto'); return; }
   setDot('J','co','Conectando…'); document.getElementById('joinBtn').disabled=true;
   netRole='guest'; myCode=null;
@@ -2237,7 +2237,14 @@ function handleNet(d){
       launchOnline();
       break;
     case 'mv':   if(netRole==='host')pd2.y=d.y; else pd1.y=d.y; break;
-    case 'ball': if(netRole==='guest'&&ball){ball.x=d.x;ball.y=d.y;ball.vx=d.vx;ball.vy=d.vy;} break;
+    case 'ball':
+      if(netRole==='guest'&&ball){
+        // Interpolate toward received position to smooth latency
+        ball.x+=(d.x-ball.x)*.4;
+        ball.y+=(d.y-ball.y)*.4;
+        ball.vx=d.vx; ball.vy=d.vy;
+      }
+      break;
     case 'goal': if(netRole==='guest')goal(d.s); break;
     case 'reset':if(netRole==='guest')resetBall(d.s===1?2:1); break;
     case 'end':  if(netRole==='guest')endMatch(d.w); break;
