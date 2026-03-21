@@ -2071,13 +2071,12 @@ function handleServerMsg(msg){
     // ── Both players connected ──
     case 'peer_joined':
       if(netRole==='host'){
-        setDot('C','ok','¡Oponente conectado! Lanzando…');
-        document.getElementById('waitLbl').textContent='¡Oponente encontrado!';
+        setDot('C','ok','¡Oponente conectado! Iniciando…');
+        document.getElementById('waitLbl').textContent='¡Oponente encontrado! La partida arranca en un momento…';
         document.getElementById('waitLbl').style.color='#00cc66';
-        // Small delay so both sides are ready before handshake
         setTimeout(()=>wsSend({t:'hi', name:getMyName(), wp:winPts, sk:skin}), 200);
       } else {
-        setDot('J','ok','¡Conectado!');
+        setDot('J','ok','¡Conectado! Esperando al anfitrión…');
         setTimeout(()=>wsSend({t:'hi', name:getMyName()}), 200);
       }
       break;
@@ -2218,7 +2217,8 @@ function handleNet(d){
         p1Name=getMyName(); p2Name=(d.name||'PONG').toUpperCase();
         if(d.wp) winPts=d.wp;
         wsSend({t:'start', n1:p1Name, n2:p2Name, wp:winPts, sk:skin});
-        launchOnline();
+        // Give guest time to receive 'start' before host hides screens
+        setTimeout(()=>launchOnline(), 400);
       }
       break;
     case 'start':
