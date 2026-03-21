@@ -2138,14 +2138,18 @@ function startOnlineLobby(){
   document.getElementById('mmCancel').style.display='none';
   netRole=null; myCode=null;
 
-  // Connect once — create room only when on the Create tab
+  // Just connect — do NOT auto-create a room.
+  // Room is created only when user is on the Create tab and clicks nothing else.
   connectWS(()=>{ createRoom(); });
 }
 
 // ── Create room ────────────────────────────────────────────────────────────
 function createRoom(){
-  if(netRole==='host') return; // already have a room
-  const code=genCode(); myCode=code; netRole='host';
+  if(netRole==='host' && myCode) return; // already have a room
+  // Tell server to release any previous room this WS had
+  wsSend({t:'leave'});
+  netRole='host'; myCode=null;
+  const code=genCode(); myCode=code;
   setDot('C','co','Creando sala…');
   wsSend({t:'create', code});
 }
@@ -2161,9 +2165,12 @@ function doJoin(){
   const code=document.getElementById('joinCode').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
   if(code.length<4){ setDot('J','er','Código muy corto'); return; }
   setDot('J','co','Conectando…'); document.getElementById('joinBtn').disabled=true;
-  // Reset role so we don't re-create a host room
   netRole='guest'; myCode=null;
-  connectWS(()=>{ wsSend({t:'join', code}); });
+  // Leave any existing room on server, then join the target room
+  connectWS(()=>{
+    wsSend({t:'leave'});
+    setTimeout(()=>wsSend({t:'join', code}), 100);
+  });
 }
 
 // ── Matchmaking ────────────────────────────────────────────────────────────
@@ -2173,7 +2180,10 @@ function startMM(){
   document.getElementById('mmSpin').style.display='';
   document.getElementById('mmGo').style.display='none';
   document.getElementById('mmCancel').style.display='';
-  connectWS(()=>{ wsSend({t:'mm_search', name:getMyName()}); });
+  connectWS(()=>{
+    wsSend({t:'leave'});
+    setTimeout(()=>wsSend({t:'mm_search', name:getMyName()}), 100);
+  });
 }
 function cancelMM(){
   mmActive=false;
