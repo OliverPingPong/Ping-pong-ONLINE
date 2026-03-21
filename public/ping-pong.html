@@ -738,7 +738,7 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
   <input type="text" id="nOnline" placeholder="Tu nombre" maxlength="14">
   <div class="onote">⚠️ Requiere internet · Mejor en HTTPS (GitHub Pages, Netlify…)</div>
   <div class="tabs">
-    <button class="tab on" id="tC" onclick="showTab('C')">🔑 Crear</button>
+    <button class="tab on" id="tC" onclick="showTabAndEnsureRoom('C')">🔑 Crear</button>
     <button class="tab"    id="tJ" onclick="showTab('J')">🚪 Unirse</button>
     <button class="tab"    id="tM" onclick="showTab('M')">🎲 Aleatorio</button>
   </div>
@@ -2029,13 +2029,16 @@ function showTab(t){
   });
 }
 
-// ── WebSocket connect ──────────────────────────────────────────────────────
+// ── WebSocket: ONE persistent connection per session ──────────────────────
+// Connect once; reuse for all lobby actions (create/join/matchmaking)
 function connectWS(onOpen){
+  // Reuse existing open connection
+  if(ws && ws.readyState===1){ if(onOpen) onOpen(); return; }
+  // Close broken connection
   if(ws){ try{ws.close();}catch(e){} ws=null; }
   wsReady=false;
-  try{
-    ws = new WebSocket(wsUrl());
-  } catch(e){
+  try{ ws = new WebSocket(wsUrl()); }
+  catch(e){
     setDot('C','er','No se puede conectar al servidor');
     setDot('J','er','Sin servidor');
     setDot('M2','er','Sin servidor');
@@ -2043,7 +2046,7 @@ function connectWS(onOpen){
   }
   ws.onopen = ()=>{ wsReady=true; if(onOpen) onOpen(); };
   ws.onmessage = e=>{ try{ handleServerMsg(JSON.parse(e.data)); }catch(ex){} };
-  ws.onerror = ()=>{ wsReady=false; setDot('C','er','Error de conexión'); };
+  ws.onerror = ()=>{ wsReady=false; };
   ws.onclose = ()=>{
     wsReady=false;
     if(gameRunning) onDisconn();
@@ -2071,11 +2074,11 @@ function handleServerMsg(msg){
         setDot('C','ok','¡Oponente conectado! Lanzando…');
         document.getElementById('waitLbl').textContent='¡Oponente encontrado!';
         document.getElementById('waitLbl').style.color='#00cc66';
-        // Host initiates handshake
-        wsSend({t:'hi', name:getMyName(), wp:winPts, sk:skin});
+        // Small delay so both sides are ready before handshake
+        setTimeout(()=>wsSend({t:'hi', name:getMyName(), wp:winPts, sk:skin}), 200);
       } else {
         setDot('J','ok','¡Conectado!');
-        wsSend({t:'hi', name:getMyName()});
+        setTimeout(()=>wsSend({t:'hi', name:getMyName()}), 200);
       }
       break;
 
@@ -2088,11 +2091,14 @@ function handleServerMsg(msg){
       netRole = msg.role;
       setDot('M2','ok','¡Oponente encontrado!');
       document.getElementById('mmSpin').style.display='none';
-      if(netRole==='host'){
-        wsSend({t:'hi', name:getMyName(), wp:winPts, sk:skin});
-      } else {
-        wsSend({t:'hi', name:getMyName()});
-      }
+      // Small delay so relay is set up on both sides before handshake
+      setTimeout(()=>{
+        if(netRole==='host'){
+          wsSend({t:'hi', name:getMyName(), wp:winPts, sk:skin});
+        } else {
+          wsSend({t:'hi', name:getMyName()});
+        }
+      }, 300);
       break;
 
     // ── Partner disconnected ──
@@ -2119,6 +2125,7 @@ function netSend(data){ wsSend(data); }
 
 // ── Lobby UI ───────────────────────────────────────────────────────────────
 function startOnlineLobby(){
+  // Reset UI and state
   setDot('C','co','Conectando al servidor…');
   document.getElementById('codeBox').textContent='——————';
   document.getElementById('codeBox').classList.remove('cp');
@@ -2130,29 +2137,39 @@ function startOnlineLobby(){
   document.getElementById('mmSpin').style.display='none';
   document.getElementById('mmGo').style.display='';
   document.getElementById('mmCancel').style.display='none';
+  netRole=null; myCode=null;
 
-  // Connect WebSocket then auto-create a room (for the Create tab)
-  connectWS(()=>{
-    const code=genCode(); myCode=code; netRole='host';
-    wsSend({t:'create', code});
-  });
+  // Connect once — create room only when on the Create tab
+  connectWS(()=>{ createRoom(); });
 }
 
-// ── Create ────────────────────────────────────────────────────────────────
-// (Room is created automatically on lobby open — nothing extra needed)
+// ── Create room ────────────────────────────────────────────────────────────
+function createRoom(){
+  if(netRole==='host') return; // already have a room
+  const code=genCode(); myCode=code; netRole='host';
+  setDot('C','co','Creando sala…');
+  wsSend({t:'create', code});
+}
+
+// ── Tab switch: if user goes to Create tab, ensure room exists ─────────────
+function showTabAndEnsureRoom(t){
+  showTab(t);
+  if(t==='C' && ws && ws.readyState===1) createRoom();
+}
 
 // ── Join ───────────────────────────────────────────────────────────────────
 function doJoin(){
   const code=document.getElementById('joinCode').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
   if(code.length<4){ setDot('J','er','Código muy corto'); return; }
   setDot('J','co','Conectando…'); document.getElementById('joinBtn').disabled=true;
-  netRole='guest';
+  // Reset role so we don't re-create a host room
+  netRole='guest'; myCode=null;
   connectWS(()=>{ wsSend({t:'join', code}); });
 }
 
 // ── Matchmaking ────────────────────────────────────────────────────────────
 function startMM(){
-  mmActive=true;
+  mmActive=true; netRole=null; myCode=null;
   setDot('M2','co','Buscando…');
   document.getElementById('mmSpin').style.display='';
   document.getElementById('mmGo').style.display='none';
