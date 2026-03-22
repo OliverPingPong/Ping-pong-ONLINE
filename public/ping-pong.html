@@ -600,6 +600,30 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
     </div>
   </div>
 
+  <!-- Temporizador -->
+  <div class="set-group">
+    <div class="set-group-title">⏱️ Temporizador de partido</div>
+
+    <div class="set-row">
+      <div class="set-label">Activar temporizador
+        <span>Cuenta atrás por partido</span>
+      </div>
+      <div class="toggle-wrap" onclick="toggleSetting('timerOn')">
+        <div class="toggle" id="togTimerOn"></div>
+        <span class="toggle-lbl" id="lblTimerOn">OFF</span>
+      </div>
+    </div>
+
+    <div class="set-row" id="timerDurationRow" style="opacity:.4;pointer-events:none">
+      <div class="set-label">Duración
+        <span id="timerValLabel">Sin límite</span>
+      </div>
+      <input type="range" class="set-slider" id="slTimer" min="1" max="10" value="3"
+        oninput="setTimerDuration(this.value)">
+      <div class="set-val" id="valTimer">3 min</div>
+    </div>
+  </div>
+
   <button class="btn sm" onclick="goTo('sMenu')">✔ Guardar y volver</button>
 </div>
 
@@ -791,6 +815,7 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
     <div class="hml"   id="hMode">1P</div>
     <div class="hpz"   id="hPause" style="display:none">PAUSA</div>
     <div class="hmatch" id="hMatch" style="display:none"></div>
+    <div class="hmatch" id="hTimer" style="display:none;color:var(--acc)"></div>
   </div>
   <div class="hp hp2" style="align-items:flex-end">
     <div class="hn" id="hN2">PONG</div>
@@ -1037,14 +1062,16 @@ function buildPodium(){
 //  SETTINGS
 // ═══════════════════════════════════════════
 const CFG = {
-  musicVol:    70,   // 0-100
-  brightness:  100,  // 50-150
+  musicVol:    70,
+  brightness:  100,
   sndBall:     true,
   sndGoal:     true,
   sndFanfare:  true,
   particles:   true,
   aiChat:      true,
   aiVsAiChat:  false,
+  timerOn:     false,
+  timerMins:   3,
 };
 
 // Brightness filter overlay (applied via canvas globalAlpha complement)
@@ -1080,24 +1107,42 @@ function updateSliderFill(id, val, min, max){
 
 function toggleSetting(key){
   CFG[key]=!CFG[key];
-  const tog=document.getElementById('tog'+key.charAt(0).toUpperCase()+key.slice(1));
-  const lbl=document.getElementById('lbl'+key.charAt(0).toUpperCase()+key.slice(1));
+  const capKey=key.charAt(0).toUpperCase()+key.slice(1);
+  const tog=document.getElementById('tog'+capKey);
+  const lbl=document.getElementById('lbl'+capKey);
   if(tog) tog.classList.toggle('on', CFG[key]);
   if(lbl) lbl.textContent=CFG[key]?'ON':'OFF';
+  // Special: enable/disable timer duration row
+  if(key==='timerOn'){
+    const row=document.getElementById('timerDurationRow');
+    if(row){ row.style.opacity=CFG.timerOn?'1':'0.4'; row.style.pointerEvents=CFG.timerOn?'all':'none'; }
+  }
+}
+
+function setTimerDuration(val){
+  CFG.timerMins=parseInt(val);
+  document.getElementById('valTimer').textContent=CFG.timerMins+' min';
+  document.getElementById('timerValLabel').textContent=CFG.timerMins+' minutos por partido';
+  updateSliderFill('slTimer', val, 1, 10);
 }
 
 function initSettingsUI(){
   updateSliderFill('slMusic',  CFG.musicVol,   0,   100);
   updateSliderFill('slBright', CFG.brightness, 50,  150);
+  updateSliderFill('slTimer',  CFG.timerMins,  1,   10);
   document.getElementById('slMusic').value  = CFG.musicVol;
   document.getElementById('slBright').value = CFG.brightness;
-  // Sync toggles
-  ['sndBall','sndGoal','sndFanfare','particles','aiChat','aiVsAiChat'].forEach(key=>{
-    const tog=document.getElementById('tog'+key.charAt(0).toUpperCase()+key.slice(1));
-    const lbl=document.getElementById('lbl'+key.charAt(0).toUpperCase()+key.slice(1));
+  document.getElementById('slTimer').value  = CFG.timerMins;
+  document.getElementById('valTimer').textContent = CFG.timerMins+' min';
+  ['sndBall','sndGoal','sndFanfare','particles','aiChat','aiVsAiChat','timerOn'].forEach(key=>{
+    const capKey=key.charAt(0).toUpperCase()+key.slice(1);
+    const tog=document.getElementById('tog'+capKey);
+    const lbl=document.getElementById('lbl'+capKey);
     if(tog) tog.classList.toggle('on', CFG[key]);
     if(lbl) lbl.textContent=CFG[key]?'ON':'OFF';
   });
+  const row=document.getElementById('timerDurationRow');
+  if(row){ row.style.opacity=CFG.timerOn?'1':'0.4'; row.style.pointerEvents=CFG.timerOn?'all':'none'; }
 }
 
 // ═══════════════════════════════════════════
@@ -1170,6 +1215,21 @@ const GY2=()=>H/2+GH()/2;
 
 let ball={},pd1={},pd2={};
 let sc1=0,sc2=0,goalCd=0,flashA=0,flashC='#fff';
+let goldenGoal=false;
+let matchTimerEnd=0; // timestamp when match ends (0 = no timer)
+
+function getEffectiveWinPts(){
+  // Deuce rules (ejemplo con winPts=7):
+  // 6-6 → jugar hasta 8
+  // 7-7 → jugar hasta 9
+  // 8-8 → GOL DE ORO (muerte súbita)
+  const target=winPts;
+  if(sc1!==sc2) return target; // no empate, regla normal
+  if(sc1===target+1){ goldenGoal=true; return target+1; } // 8-8 → gol de oro
+  if(sc1===target)   return target+2; // 7-7 → jugar hasta 9
+  if(sc1===target-1) return target+1; // 6-6 → jugar hasta 8
+  return target;
+}
 let parts=[],confs=[],crowd=[];
 let goalTm=null;
 
@@ -1189,7 +1249,8 @@ function resetBall(scorer){
 }
 
 function initGame(){
-  sc1=0;sc2=0;paused=false;goalCd=0;parts=[];confs=[];flashA=0;
+  sc1=0;sc2=0;paused=false;goalCd=0;parts=[];confs=[];flashA=0;goldenGoal=false;
+  matchTimerEnd = CFG.timerOn ? Date.now() + CFG.timerMins*60000 : 0;
   // Reset AI target cache for fresh start each match
   aiCache.L.lastVx=0; aiCache.L.target=H/2||0;
   aiCache.R.lastVx=0; aiCache.R.target=H/2||0;
@@ -1430,6 +1491,32 @@ function moveCpu(pd, isLeft, d){
 function updateGame(){
   if(paused||goalCd>0){goalCd=Math.max(0,goalCd-1);return;}
 
+  // ── Timer countdown ──
+  if(matchTimerEnd>0 && !paused){
+    const rem=Math.max(0, matchTimerEnd-Date.now());
+    const mins=Math.floor(rem/60000);
+    const secs=Math.floor((rem%60000)/1000);
+    const timerEl=document.getElementById('hTimer');
+    if(timerEl){
+      timerEl.style.display='block';
+      timerEl.textContent=`⏱ ${mins}:${secs.toString().padStart(2,'0')}`;
+      timerEl.style.color=rem<30000?'#ff4455':rem<60000?'#ffa500':'var(--acc)';
+    }
+    if(rem<=0){
+      matchTimerEnd=0;
+      // Time's up — whoever leads wins; if tied, sudden death
+      if(sc1!==sc2){ endMatch(sc1>sc2?1:2); return; }
+      // Tied: golden goal
+      goldenGoal=true;
+      document.getElementById('oTxt').textContent='⚽ ¡PRÓRROGA!';
+      document.getElementById('oTxt').style.color='#ffe44d';
+      document.getElementById('oSub').textContent='¡El siguiente gol gana!';
+      document.getElementById('pbtn').style.display='none';
+      document.getElementById('overlay').classList.add('show');
+      setTimeout(()=>document.getElementById('overlay').classList.remove('show'),2500);
+    }
+  }
+
   const ps=H*.008, br=Math.max(4,BR());
 
   // Apply touch joystick input first
@@ -1544,6 +1631,7 @@ function goal(scorer){
   if(goalCd>0)return;
   goalCd=180;
   if(scorer===1)sc1++;else sc2++;
+  goldenGoal=false; // recalc each goal
   updateHUD();
   crowd.forEach(p=>p.cheer=true);
   setTimeout(()=>crowd.forEach(p=>p.cheer=false),3000);
@@ -1557,20 +1645,36 @@ function goal(scorer){
   }
   const c=scorer===1?col().a:col().b;
   flashC=c;flashA=.62;
-  document.getElementById('oTxt').textContent='⚽ GOL!';
-  document.getElementById('oTxt').style.color=c;
-  document.getElementById('oSub').textContent=`¡${scorer===1?p1Name:p2Name} anota!`;
+
+  // Check golden goal BEFORE showing message
+  const effectiveWin = getEffectiveWinPts();
+  const isMatchWinner = (scorer===1&&sc1>=effectiveWin)||(scorer===2&&sc2>=effectiveWin);
+  const isGoldenGoal  = goldenGoal;
+
+  if(isGoldenGoal){
+    document.getElementById('oTxt').textContent='🥇 ¡¡¡GOL DE ORO!!!';
+    document.getElementById('oTxt').style.color='#ffe44d';
+    document.getElementById('oSub').textContent=`¡${scorer===1?p1Name:p2Name} GANA!`;
+  } else if(isMatchWinner){
+    document.getElementById('oTxt').textContent='🏆 ¡GOL!';
+    document.getElementById('oTxt').style.color=c;
+    document.getElementById('oSub').textContent=`¡${scorer===1?p1Name:p2Name} GANA!`;
+  } else {
+    document.getElementById('oTxt').textContent='⚽ GOL!';
+    document.getElementById('oTxt').style.color=c;
+    document.getElementById('oSub').textContent=`¡${scorer===1?p1Name:p2Name} anota!`;
+  }
   document.getElementById('pbtn').style.display='none';
   document.getElementById('overlay').classList.add('show');
   if(goalTm)clearTimeout(goalTm);
   goalTm=setTimeout(()=>{
     document.getElementById('overlay').classList.remove('show');
-    if(sc1>=winPts||sc2>=winPts){endMatch(sc1>=winPts?1:2);}
+    if(isMatchWinner||isGoldenGoal){endMatch(sc1>=sc2?1:2);}
     else{
       resetBall(scorer===1?2:1);
       if(mode==='online'&&netRole==='host')netSend({t:'reset',s:scorer});
     }
-  },2200);
+  },isGoldenGoal?3500:2200);
 }
 
 function endMatch(winner){
@@ -1629,7 +1733,7 @@ function nextMatchOrMenu(){
   }
 }
 
-function restartGame(){document.getElementById('wins').classList.remove('show');startGameLoop();}
+function restartGame(){document.getElementById('wins').classList.remove('show');clearChat();startGameLoop();}
 
 function backToMenu(){
   gameRunning=false;stopMusic();cancelAnimationFrame(animId);
@@ -1711,6 +1815,9 @@ function updateHUD(){
   } else {
     hm.style.display='none';
   }
+  // Hide timer if not active
+  const ht=document.getElementById('hTimer');
+  if(ht && matchTimerEnd===0) ht.style.display='none';
 }
 
 // ═══════════════════════════════════════════
