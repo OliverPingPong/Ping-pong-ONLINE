@@ -109,6 +109,7 @@ wss.on('connection', ws => {
   ws._room  = null;
   ws._role  = null;
   ws._token = null;
+  ws.binaryType = 'nodebuffer'; // ensure text frames
   log('Connected, total:', wss.clients.size);
 
   ws.on('message', raw => {
