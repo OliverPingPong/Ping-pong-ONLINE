@@ -1359,7 +1359,7 @@ document.addEventListener('keydown',e=>{
   K[e.key]=true;
   // Don't trigger pause if user is typing in the chat input
   const chatFocused = document.activeElement === document.getElementById('chatInput');
-  if(!chatFocused && (e.key==='p'||e.key==='P'||e.key==='Escape')&&gameRunning&&mode!=='online') togglePause();
+  if(!chatFocused && (e.key==='p'||e.key==='P'||e.key==='Escape')&&gameRunning) togglePause();
 });
 document.addEventListener('keyup',e=>{K[e.key]=false;});
 
@@ -1467,15 +1467,25 @@ function updateGame(){
       if(K['s']||K['S']||K['ArrowDown']){pd1.y=Math.min(FB()-pd1.h/2,pd1.y+ps);mv=true;}
       if(mv) netSend({t:'mv',y:pd1.y});
     } else {
+      // Guest: move own paddle, send position, then SKIP physics (host drives ball)
+      const prevY=pd2.y;
       let mv=false;
       if(K['w']||K['W']||K['ArrowUp'])  {pd2.y=Math.max(FT()+pd2.h/2,pd2.y-ps);mv=true;}
       if(K['s']||K['S']||K['ArrowDown']){pd2.y=Math.min(FB()-pd2.h/2,pd2.y+ps);mv=true;}
+      // Also send if joystick moved paddle
+      if(!mv && pd2.y!==prevY) mv=true;
       if(mv) netSend({t:'mv',y:pd2.y});
+      // Guest skips ball physics — just render flash and return
+      if(flashA>0){
+        const rgb=h2r(flashC.length>=7?flashC:'#ff2244');
+        CX.fillStyle=`rgba(${rgb[0]},${rgb[1]},${rgb[2]},${flashA})`;
+        CX.fillRect(0,0,W,H); flashA=Math.max(0,flashA-.03);
+      }
       return;
     }
   }
 
-  // ── ball ──
+  // ── ball (host only) ──
   const cfg=diffCfg();
   ball.tr=ball.tr||[];
   ball.tr.push({x:ball.x,y:ball.y});
@@ -2381,6 +2391,17 @@ function launchOnline(){
   gameRunning=true; paused=false;
   document.getElementById('hud').classList.remove('hidden');
   updateHUD();
+  showChatBtn(true);
+  // Show touch pause button and joysticks
+  const tp=document.getElementById('touchPause');
+  if(tp) tp.style.display='block';
+  // Update touch joystick visibility for online mode
+  const jL=document.getElementById('joyLeft');
+  const jR=document.getElementById('joyRight');
+  if(jL&&jR){
+    if(netRole==='host'){ jL.style.display='flex'; jR.style.display='none'; document.getElementById('jLbl1').textContent='TÚ'; }
+    else                { jL.style.display='none'; jR.style.display='flex'; document.getElementById('jLbl2').textContent='TÚ'; }
+  }
   if(musicOn) startMusic();
   // Start the real game loop
   function loop(ts){
