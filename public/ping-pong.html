@@ -1467,21 +1467,12 @@ function updateGame(){
       if(K['s']||K['S']||K['ArrowDown']){pd1.y=Math.min(FB()-pd1.h/2,pd1.y+ps);mv=true;}
       if(mv) netSend({t:'mv',y:pd1.y});
     } else {
-      // Guest: move own paddle, send position, then SKIP physics (host drives ball)
-      const prevY=pd2.y;
-      let mv=false;
-      if(K['w']||K['W']||K['ArrowUp'])  {pd2.y=Math.max(FT()+pd2.h/2,pd2.y-ps);mv=true;}
-      if(K['s']||K['S']||K['ArrowDown']){pd2.y=Math.min(FB()-pd2.h/2,pd2.y+ps);mv=true;}
-      // Also send if joystick moved paddle
-      if(!mv && pd2.y!==prevY) mv=true;
-      if(mv) netSend({t:'mv',y:pd2.y});
-      // Guest skips ball physics — just render flash and return
-      if(flashA>0){
-        const rgb=h2r(flashC.length>=7?flashC:'#ff2244');
-        CX.fillStyle=`rgba(${rgb[0]},${rgb[1]},${rgb[2]},${flashA})`;
-        CX.fillRect(0,0,W,H); flashA=Math.max(0,flashA-.03);
-      }
-      return;
+      // GUEST: only moves own paddle and sends position. NO physics at all.
+      const prevY = pd2.y;
+      if(K['w']||K['W']||K['ArrowUp'])   pd2.y=Math.max(FT()+pd2.h/2, pd2.y-ps);
+      if(K['s']||K['S']||K['ArrowDown']) pd2.y=Math.min(FB()-pd2.h/2, pd2.y+ps);
+      if(pd2.y !== prevY) netSend({t:'mv', y:pd2.y});
+      return; // <-- STOP HERE. Host drives the ball.
     }
   }
 
@@ -1695,7 +1686,7 @@ function startGameLoop(){
     drawConfs();
     animId=requestAnimationFrame(loop);
   }
-  requestAnimationFrame(loop);
+  animId=requestAnimationFrame(loop);
 }
 
 // ═══════════════════════════════════════════
@@ -2057,7 +2048,7 @@ function connectWS(onOpen){
     return;
   }
   ws.onopen = ()=>{ wsReady=true; if(onOpen) onOpen(); };
-  ws.onmessage = e=>{ try{ handleServerMsg(JSON.parse(e.data)); }catch(ex){} };
+  ws.onmessage = e=>{ try{ handleServerMsg(JSON.parse(e.data)); }catch(ex){ console.error('WS msg error:',ex,e.data); } };
   ws.onerror = ()=>{ wsReady=false; };
   ws.onclose = ()=>{
     wsReady=false;
@@ -2303,6 +2294,11 @@ function handleServerMsg(msg){
       }
       break;
 
+    // ── Chat message from partner ────────────────────────────────────────────
+    case 'chat':
+      receiveChatMsg(msg.msg||'');
+      break;
+
     // ── Game messages relayed from partner ───────────────────────────────────
     default:
       handleNet(msg);
@@ -2367,12 +2363,12 @@ function handleNet(d){
   switch(d.t){
     case 'mv':   if(netRole==='host')pd2.y=d.y; else pd1.y=d.y; break;
     case 'ball':
-      if(netRole==='guest'&&ball){
-        // If far away (e.g. after reset), snap immediately
-        const dist=Math.hypot(d.x-ball.x, d.y-ball.y);
-        if(dist>W*0.15){ ball.x=d.x; ball.y=d.y; }
-        else{ ball.x+=(d.x-ball.x)*.55; ball.y+=(d.y-ball.y)*.55; }
-        ball.vx=d.vx; ball.vy=d.vy;
+      // Guest: directly assign host ball position. No local physics.
+      if(netRole==='guest' && ball){
+        ball.x  = d.x;
+        ball.y  = d.y;
+        ball.vx = d.vx;
+        ball.vy = d.vy;
       }
       break;
     case 'goal': if(netRole==='guest')goal(d.s); break;
@@ -2387,10 +2383,10 @@ function handleNet(d){
 // ── launchOnline ─────────────────────────────────────────────────────────────
 function launchOnline(){
   document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
-  // Cancel whatever loop was running (countdown loop or nothing)
-  if(animId){ cancelAnimationFrame(animId); animId=null; }
-  // Always do a clean start
-  if(!gameRunning) initGame();
+  // Cancel ALL pending animation frames safely
+  cancelAnimationFrame(animId); animId=null;
+  // Init game only if not already initialized by countdown
+  if(!gameRunning || !ball || !ball.vx) initGame();
   gameRunning=true; paused=false;
   document.getElementById('hud').classList.remove('hidden');
   updateHUD();
