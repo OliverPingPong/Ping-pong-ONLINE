@@ -1,5 +1,5 @@
 {
-  "name": "Ping-vs-Pong Game",
+  "name": "Ping Pong: Game",
   "version": "1.0.0",
   "description": "Ping vs Pong multiplayer game server",
   "main": "server.js",
