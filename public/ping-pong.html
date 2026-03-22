@@ -2331,9 +2331,18 @@ function showCountdown(n){
   // Prepare canvas — init game if needed, keep paused until GO
   if(!gameRunning){
     initGame(); gameRunning=true; paused=true;
-    // Draw one frame so field is visible during countdown
-    CX.clearRect(0,0,W,H);
-    drawField(); drawCrowd(0); drawPaddle(pd1,true); drawPaddle(pd2,false); drawBall();
+    // Start the loop paused so the field renders during countdown
+    document.getElementById('hud').classList.remove('hidden');
+    updateHUD();
+    function countdownLoop(ts){
+      if(!gameRunning) return;
+      CX.clearRect(0,0,W,H);
+      drawField(); drawCrowd(ts); drawParticles();
+      drawPaddle(pd1,true); drawPaddle(pd2,false); drawBall();
+      drawConfs();
+      animId=requestAnimationFrame(countdownLoop);
+    }
+    animId=requestAnimationFrame(countdownLoop);
   }
 }
 function hideCountdown(){
@@ -2365,9 +2374,24 @@ function handleNet(d){
 // ── launchOnline ─────────────────────────────────────────────────────────────
 function launchOnline(){
   document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
-  if(!gameRunning){initGame();gameRunning=true;paused=false;startGameLoop();}
-  else{paused=false;}
-  if(musicOn)startMusic();
+  // Cancel whatever loop was running (countdown loop or nothing)
+  if(animId){ cancelAnimationFrame(animId); animId=null; }
+  // Always do a clean start
+  if(!gameRunning) initGame();
+  gameRunning=true; paused=false;
+  document.getElementById('hud').classList.remove('hidden');
+  updateHUD();
+  if(musicOn) startMusic();
+  // Start the real game loop
+  function loop(ts){
+    CX.clearRect(0,0,W,H);
+    drawField(); drawCrowd(ts); drawParticles();
+    drawPaddle(pd1,true); drawPaddle(pd2,false); drawBall();
+    if(gameRunning&&!paused) updateGame();
+    drawConfs();
+    animId=requestAnimationFrame(loop);
+  }
+  animId=requestAnimationFrame(loop);
 }
 
 // ── onDisconn ─────────────────────────────────────────────────────────────────
