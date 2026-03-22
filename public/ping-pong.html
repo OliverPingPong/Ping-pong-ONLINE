@@ -744,7 +744,7 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
   </div>
   <div id="pC" class="ocard">
     <h3>Crear sala privada</h3>
-    <div class="stxt"><span class="dot co" id="dC"></span><span id="lC">Cargando…</span></div>
+    <div class="stxt"><span class="dot" id="dC"></span><span id="lC">Pulsa para crear sala</span></div>
     <div class="code" id="codeBox" onclick="copyCode()">——————</div>
     <div class="tip">Comparte este código. Clic para copiar.</div>
     <div class="stxt" id="waitLbl" style="color:#555">Esperando oponente…</div>
@@ -1663,7 +1663,8 @@ function resumeGame(){if(paused)togglePause();}
 //  GAME LOOP
 // ═══════════════════════════════════════════
 function startGameLoop(){
-  initGame();gameRunning=true;paused=false;
+  initGame();gameRunning=true;
+  if(mode!=='online') paused=false; // online keeps paused until 'go'
   clearChat();
   document.getElementById('hud').classList.remove('hidden');
   showChatBtn(true);
@@ -2057,6 +2058,119 @@ function wsSend(obj){
   try{ if(ws && ws.readyState===1) ws.send(JSON.stringify(obj)); }catch(e){}
 }
 
+// ── Lobby UI ──────────────────────────────────────────────────────────────
+function startOnlineLobby(){
+  // Reset UI
+  setDot('C','','Conectando…');
+  document.getElementById('codeBox').textContent='——————';
+  document.getElementById('codeBox').classList.remove('cp');
+  document.getElementById('waitLbl').textContent='Esperando oponente…';
+  document.getElementById('waitLbl').style.color='#555';
+  setDot('J','','Introduce el código');
+  document.getElementById('joinBtn').disabled=false;
+  setDot('M2','','Listo');
+  document.getElementById('mmSpin').style.display='none';
+  document.getElementById('mmGo').style.display='';
+  document.getElementById('mmCancel').style.display='none';
+  netRole=null; myCode=null;
+  // Connect WS — room created only when user is on the Create tab
+  connectWS(()=>{
+    // Only auto-create if Create tab is active (default)
+    if(document.getElementById('pC') && !document.getElementById('pC').classList.contains('hidden')){
+      createRoom();
+    }
+  });
+}
+
+function createRoom(){
+  if(netRole==='host' && myCode) return; // already have a room
+  wsSend({t:'leave'});
+  netRole='host'; myCode=null;
+  const code=genCode(); myCode=code;
+  setDot('C','co','Creando sala…');
+  wsSend({t:'create', code});
+}
+
+function showTabAndEnsureRoom(t){
+  showTab(t);
+  // Only create room if we're on Create tab and don't already have a code showing
+  const codeShowing = document.getElementById('codeBox').textContent.length===6 &&
+                      !document.getElementById('codeBox').textContent.includes('—');
+  if(t==='C' && !codeShowing) connectWS(()=>createRoom());
+}
+
+function doJoin(){
+  const code=document.getElementById('joinCode').value.trim().toUpperCase().replace(/[^A-Z]/g,'');
+  if(code.length<4){ setDot('J','er','Código muy corto'); return; }
+  setDot('J','co','Conectando…');
+  document.getElementById('joinBtn').disabled=true;
+  netRole='guest'; myCode=code;
+  connectWS(()=>{
+    wsSend({t:'leave'});
+    setTimeout(()=>wsSend({t:'join', code, name:getMyName()}), 150);
+  });
+}
+
+function startMM(){
+  mmActive=true; netRole=null; myCode=null;
+  setDot('M2','co','Buscando…');
+  document.getElementById('mmSpin').style.display='';
+  document.getElementById('mmGo').style.display='none';
+  document.getElementById('mmCancel').style.display='';
+  connectWS(()=>{
+    wsSend({t:'leave'});
+    setTimeout(()=>wsSend({t:'mm_search', name:getMyName()}), 150);
+  });
+}
+
+function cancelMM(){
+  mmActive=false;
+  wsSend({t:'mm_cancel'});
+  setDot('M2','','Cancelado');
+  document.getElementById('mmSpin').style.display='none';
+  document.getElementById('mmGo').style.display='';
+  document.getElementById('mmCancel').style.display='none';
+}
+
+function leaveOnline(){
+  mmActive=false;
+  wsSend({t:'leave'});
+  if(ws){ try{ws.close();}catch(e){} ws=null; }
+  goTo('sMode');
+}
+
+function startPing(){
+  if(pingTimer)clearInterval(pingTimer);
+  pingTimer=setInterval(()=>wsSend({t:'ping',ts:Date.now()}),5000);
+}
+
+function destroyPeer(){
+  if(pingTimer){clearInterval(pingTimer);pingTimer=null;}
+  if(ws){try{ws.close();}catch(e){}ws=null;}
+  wsReady=false;
+}
+
+function setDot(id,cls,txt){
+  const dot=document.getElementById('d'+id),lbl=document.getElementById('l'+id);
+  if(dot)dot.className='dot'+(cls?' '+cls:'');
+  if(lbl)lbl.textContent=txt;
+}
+
+function copyCode(){
+  const code=document.getElementById('codeBox').textContent;
+  if(!code||code.includes('—'))return;
+  const show=()=>{
+    document.getElementById('codeBox').classList.add('cp');
+    document.getElementById('codeBox').textContent='✔ COPIADO';
+    setTimeout(()=>{
+      document.getElementById('codeBox').classList.remove('cp');
+      document.getElementById('codeBox').textContent=myCode||code;
+    },1500);
+  };
+  if(navigator.clipboard)navigator.clipboard.writeText(code).then(show).catch(()=>{});
+  else{const t=document.createElement('textarea');t.value=code;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();show();}
+}
+
 // ── Handle messages from server ────────────────────────────────────────────
 function handleServerMsg(msg){
   switch(msg.t){
@@ -2214,8 +2328,13 @@ function showCountdown(n){
   countdownEl.style.animation='cdfade .8s ease-out';
   // Hide all screens so you can see the field behind
   document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
-  // Make sure canvas is ready
-  if(!gameRunning){ initGame(); gameRunning=true; paused=true; startGameLoop(); }
+  // Prepare canvas — init game if needed, keep paused until GO
+  if(!gameRunning){
+    initGame(); gameRunning=true; paused=true;
+    // Draw one frame so field is visible during countdown
+    CX.clearRect(0,0,W,H);
+    drawField(); drawCrowd(0); drawPaddle(pd1,true); drawPaddle(pd2,false); drawBall();
+  }
 }
 function hideCountdown(){
   if(countdownEl) countdownEl.style.display='none';
@@ -2243,11 +2362,16 @@ function handleNet(d){
   }
 }
 
-// ── Copy room code ─────────────────────────────────────────────────────────
-function launchOnline(){document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));if(!gameRunning){initGame();gameRunning=true;paused=false;startGameLoop();}else{paused=false;}if(musicOn)startMusic();}
-function startPing(){if(pingTimer)clearInterval(pingTimer);pingTimer=setInterval(()=>wsSend({t:'ping',ts:Date.now()}),5000);}
+// ── launchOnline ─────────────────────────────────────────────────────────────
+function launchOnline(){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+  if(!gameRunning){initGame();gameRunning=true;paused=false;startGameLoop();}
+  else{paused=false;}
+  if(musicOn)startMusic();
+}
+
+// ── onDisconn ─────────────────────────────────────────────────────────────────
 function onDisconn(){
-  // Try to reconnect using stored token
   const token = myCode ? localStorage.getItem('pvp_token_'+myCode) : null;
   if(token && myCode && gameRunning){
     paused=true;
@@ -2256,9 +2380,7 @@ function onDisconn(){
     document.getElementById('oSub').textContent='Intentando reconectar…';
     document.getElementById('pbtn').style.display='none';
     document.getElementById('overlay').classList.add('show');
-    setTimeout(()=>{
-      connectWS(()=>{ wsSend({t:'join', code:myCode, token}); });
-    }, 1500);
+    setTimeout(()=>{ connectWS(()=>{ wsSend({t:'join', code:myCode, token}); }); }, 1500);
     return;
   }
   if(!gameRunning) return;
@@ -2268,16 +2390,6 @@ function onDisconn(){
   document.getElementById('oSub').textContent='El oponente abandonó';
   document.getElementById('pbtn').style.display='flex';
   document.getElementById('overlay').classList.add('show');
-}
-function netSend(data){try{if(conn&&conn.open)conn.send(data);}catch(e){}}
-function destroyPeer(){if(pingTimer){clearInterval(pingTimer);pingTimer=null;}if(ws){try{ws.close();}catch(e){}ws=null;}wsReady=false;}
-function setDot(id,cls,txt){const dot=document.getElementById('d'+id),lbl=document.getElementById('l'+id);if(dot)dot.className='dot'+(cls?' '+cls:'');if(lbl)lbl.textContent=txt;}
-function copyCode(){
-  const code=document.getElementById('codeBox').textContent;
-  if(!code||code.includes('—'))return;
-  const show=()=>{document.getElementById('codeBox').classList.add('cp');document.getElementById('codeBox').textContent='✔ COPIADO';setTimeout(()=>{document.getElementById('codeBox').classList.remove('cp');document.getElementById('codeBox').textContent=myCode||code;},1500);};
-  if(navigator.clipboard)navigator.clipboard.writeText(code).then(show).catch(()=>{});
-  else{const t=document.createElement('textarea');t.value=code;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();show();}
 }
 
 // ═══════════════════════════════════════════
