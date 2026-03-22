@@ -751,7 +751,7 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
   </div>
   <div id="pJ" class="ocard hidden">
     <h3>Unirse a sala</h3>
-    <input type="text" id="joinCode" placeholder="Código (6 letras)" maxlength="6"
+    <input type="text" id="joinCode" placeholder="Código (6 caracteres)" maxlength="6"
       style="letter-spacing:.18em;text-transform:uppercase"
       oninput="this.value=this.value.toUpperCase()">
     <div class="stxt"><span class="dot" id="dJ"></span><span id="lJ">Introduce el código</span></div>
@@ -1518,11 +1518,11 @@ function updateGame(){
   // goals
   const gy1=GY1(),gy2=GY2();
   if(ball.x-br<=W*.03-W*.022){
-    if(ball.y>=gy1&&ball.y<=gy2){goal(2);if(mode==='online')netSend({t:'goal',s:2});}
+    if(ball.y>=gy1&&ball.y<=gy2){goal(2);if(mode==='online'){netSend({t:'goal',s:2});wsSend({t:'score',h:sc1,g:sc2+1});}}
     else{ball.vx=Math.abs(ball.vx);sndWall();}
   }
   if(ball.x+br>=W*.97+W*.022){
-    if(ball.y>=gy1&&ball.y<=gy2){goal(1);if(mode==='online')netSend({t:'goal',s:1});}
+    if(ball.y>=gy1&&ball.y<=gy2){goal(1);if(mode==='online'){netSend({t:'goal',s:1});wsSend({t:'score',h:sc1+1,g:sc2});}}
     else{ball.vx=-Math.abs(ball.vx);sndWall();}
   }
 
@@ -2061,185 +2061,174 @@ function wsSend(obj){
 function handleServerMsg(msg){
   switch(msg.t){
 
-    // ── Room created (I'm host) ──
+    // ── Room created (host) ──────────────────────────────────────────────────
     case 'created':
       myCode = msg.code;
+      if(msg.token) localStorage.setItem('pvp_token_'+msg.code, msg.token);
       document.getElementById('codeBox').textContent = msg.code;
       setDot('C','ok','Sala lista — comparte el código');
+      // Tell server our name
+      wsSend({t:'host_name', name:getMyName()});
       break;
 
-    // ── Both players connected ──
+    // ── Partner joined — countdown handled by server ─────────────────────────
     case 'peer_joined':
+      if(msg.token) localStorage.setItem('pvp_token_'+(myCode||''), msg.token);
       if(netRole==='host'){
-        setDot('C','ok','¡Oponente conectado! Iniciando…');
-        document.getElementById('waitLbl').textContent='¡Oponente encontrado! La partida arranca en un momento…';
+        setDot('C','ok','¡Oponente conectado!');
+        document.getElementById('waitLbl').textContent='¡Oponente encontrado! Preparando partida…';
         document.getElementById('waitLbl').style.color='#00cc66';
-        setTimeout(()=>wsSend({t:'hi', name:getMyName(), wp:winPts, sk:skin}), 200);
       } else {
-        setDot('J','ok','¡Conectado! Esperando al anfitrión…');
-        setTimeout(()=>wsSend({t:'hi', name:getMyName()}), 200);
+        setDot('J','ok','¡Conectado! Preparando partida…');
       }
       break;
 
-    // ── Matchmaking responses ──
+    // ── Server tells host the guest name ────────────────────────────────────
+    case 'set_names':
+      if(netRole==='host'){
+        p1Name = getMyName().toUpperCase();
+        p2Name = (msg.guestName||'PONG').toUpperCase();
+      }
+      break;
+
+    // ── Match info sent to both ──────────────────────────────────────────────
+    case 'match_info':
+      p1Name = (msg.hostName||'PING').toUpperCase();
+      p2Name = (msg.guestName||'PONG').toUpperCase();
+      if(netRole==='guest') p2Name = getMyName().toUpperCase();
+      if(netRole==='host')  p1Name = getMyName().toUpperCase();
+      break;
+
+    // ── Countdown ────────────────────────────────────────────────────────────
+    case 'countdown':
+      showCountdown(msg.n);
+      break;
+
+    // ── GO — launch the game ─────────────────────────────────────────────────
+    case 'go':
+      hideCountdown();
+      launchOnline();
+      break;
+
+    // ── Matchmaking ──────────────────────────────────────────────────────────
     case 'mm_waiting':
-      setDot('M2','co','Esperando oponente en sala aleatoria…');
+      setDot('M2','co','Esperando oponente…');
       netRole='host';
       break;
     case 'mm_matched':
       netRole = msg.role;
-      setDot('M2','ok','¡Oponente encontrado!');
+      myCode  = msg.code;
+      if(msg.token) localStorage.setItem('pvp_token_'+msg.code, msg.token);
+      setDot('M2','ok','¡Oponente encontrado! Preparando…');
       document.getElementById('mmSpin').style.display='none';
-      // Small delay so relay is set up on both sides before handshake
-      setTimeout(()=>{
-        if(netRole==='host'){
-          wsSend({t:'hi', name:getMyName(), wp:winPts, sk:skin});
-        } else {
-          wsSend({t:'hi', name:getMyName()});
-        }
-      }, 300);
+      if(netRole==='host') wsSend({t:'host_name', name:getMyName()});
       break;
 
-    // ── Partner disconnected ──
+    // ── Reconnection ─────────────────────────────────────────────────────────
+    case 'reconnected':
+      netRole = msg.role;
+      setDot('C','ok','¡Reconectado!');
+      setDot('J','ok','¡Reconectado!');
+      if(gameRunning){
+        document.getElementById('oTxt').textContent='';
+        document.getElementById('overlay').classList.remove('show');
+      }
+      break;
+    case 'partner_reconnected':
+      if(gameRunning){
+        document.getElementById('oTxt').textContent='';
+        document.getElementById('overlay').classList.remove('show');
+      }
+      break;
+
+    // ── Score sync from server ───────────────────────────────────────────────
+    case 'score':
+      if(netRole==='guest'){ sc1=msg.h; sc2=msg.g; updateHUD(); }
+      break;
+
+    // ── Partner disconnected ─────────────────────────────────────────────────
     case 'partner_left':
-      onDisconn();
+      if(gameRunning){
+        paused=true;
+        document.getElementById('oTxt').textContent='📡 Oponente desconectado';
+        document.getElementById('oTxt').style.color='#ff4455';
+        document.getElementById('oSub').textContent='Esperando reconexión… (30s)';
+        document.getElementById('pbtn').style.display='none';
+        document.getElementById('overlay').classList.add('show');
+        // After 30s give up
+        setTimeout(()=>{
+          if(document.getElementById('overlay').classList.contains('show')){
+            onDisconn();
+          }
+        }, 30000);
+      } else {
+        setDot('C','er','El oponente se fue');
+        setDot('J','er','El oponente se fue');
+      }
       break;
 
-    // ── Error ──
+    // ── Error ────────────────────────────────────────────────────────────────
     case 'error':
       setDot('C','er', msg.msg||'Error');
       setDot('J','er', msg.msg||'Error');
       document.getElementById('joinBtn').disabled=false;
+      // If code clash, retry with a new code
+      if(msg.msg&&msg.msg.includes('en uso') && netRole==='host'){
+        setTimeout(()=>createRoom(), 500);
+      }
       break;
 
-    // ── Game messages (relayed from partner) ──
+    // ── Game messages relayed from partner ───────────────────────────────────
     default:
       handleNet(msg);
       break;
   }
 }
 
-// ── netSend: relay game data through server ────────────────────────────────
+// ── netSend ──────────────────────────────────────────────────────────────────
 function netSend(data){ wsSend(data); }
 
-// ── Lobby UI ───────────────────────────────────────────────────────────────
-function startOnlineLobby(){
-  // Reset UI and state
-  setDot('C','co','Conectando al servidor…');
-  document.getElementById('codeBox').textContent='——————';
-  document.getElementById('codeBox').classList.remove('cp');
-  document.getElementById('waitLbl').textContent='Esperando oponente…';
-  document.getElementById('waitLbl').style.color='#555';
-  setDot('J','','Introduce el código');
-  document.getElementById('joinBtn').disabled=false;
-  setDot('M2','','Listo');
-  document.getElementById('mmSpin').style.display='none';
-  document.getElementById('mmGo').style.display='';
-  document.getElementById('mmCancel').style.display='none';
-  netRole=null; myCode=null;
-
-  // Just connect — do NOT auto-create a room.
-  // Room is created only when user is on the Create tab and clicks nothing else.
-  connectWS(()=>{ createRoom(); });
+// ── Countdown overlay ────────────────────────────────────────────────────────
+let countdownEl = null;
+function showCountdown(n){
+  if(!countdownEl){
+    countdownEl=document.createElement('div');
+    countdownEl.id='onlineCountdown';
+    countdownEl.style.cssText=`
+      position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+      z-index:500;pointer-events:none;
+      font-family:'Orbitron',monospace;font-size:clamp(5rem,20vw,12rem);
+      font-weight:900;color:var(--acc);text-shadow:0 0 60px #ffe44d88;
+      animation:cdfade .8s ease-out;
+    `;
+    const style=document.createElement('style');
+    style.textContent='@keyframes cdfade{from{transform:scale(2);opacity:0;}to{transform:scale(1);opacity:1;}}';
+    document.head.appendChild(style);
+    document.body.appendChild(countdownEl);
+  }
+  countdownEl.textContent=n;
+  countdownEl.style.display='flex';
+  // Reset animation
+  countdownEl.style.animation='none';
+  void countdownEl.offsetWidth;
+  countdownEl.style.animation='cdfade .8s ease-out';
+  // Hide all screens so you can see the field behind
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+  // Make sure canvas is ready
+  if(!gameRunning){ initGame(); gameRunning=true; paused=true; startGameLoop(); }
+}
+function hideCountdown(){
+  if(countdownEl) countdownEl.style.display='none';
+  paused=false;
 }
 
-// ── Create room ────────────────────────────────────────────────────────────
-function createRoom(){
-  if(netRole==='host' && myCode) return; // already have a room
-  // Tell server to release any previous room this WS had
-  wsSend({t:'leave'});
-  netRole='host'; myCode=null;
-  const code=genCode(); myCode=code;
-  setDot('C','co','Creando sala…');
-  wsSend({t:'create', code});
-}
-
-// ── Tab switch: if user goes to Create tab, ensure room exists ─────────────
-function showTabAndEnsureRoom(t){
-  showTab(t);
-  if(t==='C' && ws && ws.readyState===1) createRoom();
-}
-
-// ── Join ───────────────────────────────────────────────────────────────────
-function doJoin(){
-  const code=document.getElementById('joinCode').value.trim().toUpperCase().replace(/[^A-Z]/g,'');
-  if(code.length<4){ setDot('J','er','Código muy corto'); return; }
-  setDot('J','co','Conectando…'); document.getElementById('joinBtn').disabled=true;
-  netRole='guest'; myCode=null;
-  // Leave any existing room on server, then join the target room
-  connectWS(()=>{
-    wsSend({t:'leave'});
-    setTimeout(()=>wsSend({t:'join', code}), 100);
-  });
-}
-
-// ── Matchmaking ────────────────────────────────────────────────────────────
-function startMM(){
-  mmActive=true; netRole=null; myCode=null;
-  setDot('M2','co','Buscando…');
-  document.getElementById('mmSpin').style.display='';
-  document.getElementById('mmGo').style.display='none';
-  document.getElementById('mmCancel').style.display='';
-  connectWS(()=>{
-    wsSend({t:'leave'});
-    setTimeout(()=>wsSend({t:'mm_search', name:getMyName()}), 100);
-  });
-}
-function cancelMM(){
-  mmActive=false;
-  wsSend({t:'mm_cancel'});
-  setDot('M2','','Cancelado');
-  document.getElementById('mmSpin').style.display='none';
-  document.getElementById('mmGo').style.display='';
-  document.getElementById('mmCancel').style.display='none';
-}
-function leaveOnline(){
-  mmActive=false;
-  if(ws){ try{ws.close();}catch(e){} ws=null; }
-  goTo('sMode');
-}
-
-// ── Ping loop (keep-alive) ─────────────────────────────────────────────────
-function startPing(){ if(pingTimer)clearInterval(pingTimer); pingTimer=setInterval(()=>wsSend({t:'ping',ts:Date.now()}),5000); }
-
-// ── Disconnect ─────────────────────────────────────────────────────────────
-function onDisconn(){
-  if(!gameRunning)return;
-  gameRunning=false;stopMusic();cancelAnimationFrame(animId);
-  document.getElementById('oTxt').textContent='📡 Desconectado';
-  document.getElementById('oTxt').style.color='#ff4455';
-  document.getElementById('oSub').textContent='El oponente abandonó';
-  document.getElementById('pbtn').style.display='flex';
-  document.getElementById('overlay').classList.add('show');
-}
-function destroyPeer(){
-  if(pingTimer){clearInterval(pingTimer);pingTimer=null;}
-  if(ws){try{ws.close();}catch(e){}ws=null;}
-  wsReady=false;
-}
-
-// ── Handshake handler (called from handleServerMsg via handleNet) ──────────
+// ── Handshake / game messages from partner ────────────────────────────────────
 function handleNet(d){
   if(!d||!d.t)return;
   switch(d.t){
-    case 'hi':
-      if(netRole==='host'){
-        p1Name=getMyName(); p2Name=(d.name||'PONG').toUpperCase();
-        if(d.wp) winPts=d.wp;
-        wsSend({t:'start', n1:p1Name, n2:p2Name, wp:winPts, sk:skin});
-        // Give guest time to receive 'start' before host hides screens
-        setTimeout(()=>launchOnline(), 400);
-      }
-      break;
-    case 'start':
-      p1Name=(d.n1||'PING').toUpperCase(); p2Name=getMyName();
-      if(d.wp) winPts=d.wp; if(d.sk!=null) skin=d.sk;
-      launchOnline();
-      break;
     case 'mv':   if(netRole==='host')pd2.y=d.y; else pd1.y=d.y; break;
     case 'ball':
       if(netRole==='guest'&&ball){
-        // Interpolate toward received position to smooth latency
         ball.x+=(d.x-ball.x)*.4;
         ball.y+=(d.y-ball.y)*.4;
         ball.vx=d.vx; ball.vy=d.vy;
@@ -2255,11 +2244,33 @@ function handleNet(d){
 }
 
 // ── Copy room code ─────────────────────────────────────────────────────────
-function launchOnline(){document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));startGameLoop();}
-function startPing(){if(pingTimer)clearInterval(pingTimer);pingTimer=setInterval(()=>{if(conn&&conn.open)netSend({t:'ping',ts:Date.now()});},2000);}
-function onDisconn(){if(!gameRunning)return;gameRunning=false;stopMusic();cancelAnimationFrame(animId);document.getElementById('oTxt').textContent='📡 Desconectado';document.getElementById('oTxt').style.color='#ff4455';document.getElementById('oSub').textContent='El oponente abandonó';document.getElementById('pbtn').style.display='flex';document.getElementById('overlay').classList.add('show');}
+function launchOnline(){document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));if(!gameRunning){initGame();gameRunning=true;paused=false;startGameLoop();}else{paused=false;}if(musicOn)startMusic();}
+function startPing(){if(pingTimer)clearInterval(pingTimer);pingTimer=setInterval(()=>wsSend({t:'ping',ts:Date.now()}),5000);}
+function onDisconn(){
+  // Try to reconnect using stored token
+  const token = myCode ? localStorage.getItem('pvp_token_'+myCode) : null;
+  if(token && myCode && gameRunning){
+    paused=true;
+    document.getElementById('oTxt').textContent='📡 Reconectando…';
+    document.getElementById('oTxt').style.color='#ffe44d';
+    document.getElementById('oSub').textContent='Intentando reconectar…';
+    document.getElementById('pbtn').style.display='none';
+    document.getElementById('overlay').classList.add('show');
+    setTimeout(()=>{
+      connectWS(()=>{ wsSend({t:'join', code:myCode, token}); });
+    }, 1500);
+    return;
+  }
+  if(!gameRunning) return;
+  gameRunning=false; stopMusic(); cancelAnimationFrame(animId);
+  document.getElementById('oTxt').textContent='📡 Desconectado';
+  document.getElementById('oTxt').style.color='#ff4455';
+  document.getElementById('oSub').textContent='El oponente abandonó';
+  document.getElementById('pbtn').style.display='flex';
+  document.getElementById('overlay').classList.add('show');
+}
 function netSend(data){try{if(conn&&conn.open)conn.send(data);}catch(e){}}
-function destroyPeer(){if(pingTimer){clearInterval(pingTimer);pingTimer=null;}try{if(conn){conn.close();conn=null;}}catch(e){}try{if(peer){peer.destroy();peer=null;}}catch(e){}}
+function destroyPeer(){if(pingTimer){clearInterval(pingTimer);pingTimer=null;}if(ws){try{ws.close();}catch(e){}ws=null;}wsReady=false;}
 function setDot(id,cls,txt){const dot=document.getElementById('d'+id),lbl=document.getElementById('l'+id);if(dot)dot.className='dot'+(cls?' '+cls:'');if(lbl)lbl.textContent=txt;}
 function copyCode(){
   const code=document.getElementById('codeBox').textContent;
