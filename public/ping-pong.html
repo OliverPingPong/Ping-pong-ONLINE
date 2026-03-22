@@ -2048,7 +2048,15 @@ function connectWS(onOpen){
     return;
   }
   ws.onopen = ()=>{ wsReady=true; if(onOpen) onOpen(); };
-  ws.onmessage = e=>{ try{ handleServerMsg(JSON.parse(e.data)); }catch(ex){ console.error('WS msg error:',ex,e.data); } };
+  ws.binaryType = 'blob';
+  ws.onmessage = e=>{
+    // Handle both text and Blob frames
+    if(e.data instanceof Blob){
+      e.data.text().then(txt=>{ try{ handleServerMsg(JSON.parse(txt)); }catch(ex){ console.error('WS msg error:',ex,txt); } });
+    } else {
+      try{ handleServerMsg(JSON.parse(e.data)); }catch(ex){ console.error('WS msg error:',ex,e.data); }
+    }
+  };
   ws.onerror = ()=>{ wsReady=false; };
   ws.onclose = ()=>{
     wsReady=false;
