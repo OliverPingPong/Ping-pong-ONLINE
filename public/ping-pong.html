@@ -1498,7 +1498,7 @@ function updateGame(){
     ball.vx=(ball.vx>0?1:-1)*sp*Math.cos(a);
     ball.vy=Math.abs(sp*Math.sin(a))||sp*.35;
     sndWall();
-    if(mode==='online')netSend({t:'ball',x:ball.x,y:ball.y,vx:ball.vx,vy:ball.vy});
+    if(mode==='online'&&netRole==='host')netSend({t:'ball',x:ball.x,y:ball.y,vx:ball.vx,vy:ball.vy});
   }
   if(ball.y+br>FB()){
     ball.y=FB()-br;ball.vy=-Math.abs(ball.vy);
@@ -1506,7 +1506,7 @@ function updateGame(){
     ball.vx=(ball.vx>0?1:-1)*sp*Math.cos(a);
     ball.vy=-(Math.abs(sp*Math.sin(a))||sp*.35);
     sndWall();
-    if(mode==='online')netSend({t:'ball',x:ball.x,y:ball.y,vx:ball.vx,vy:ball.vy});
+    if(mode==='online'&&netRole==='host')netSend({t:'ball',x:ball.x,y:ball.y,vx:ball.vx,vy:ball.vy});
   }
 
   // paddles
@@ -1515,14 +1515,14 @@ function updateGame(){
     const ry=(ball.y-pd1.y)/(pd1.h/2),ba=ry*60*Math.PI/180,sp=Math.min(Math.hypot(ball.vx,ball.vy)*1.04,cfg.max);
     ball.vx=sp*Math.cos(ba);ball.vy=sp*Math.sin(ba);
     sndHit('ping');spawnParts(ball.x,ball.y,col().a);
-    if(mode==='online')netSend({t:'ball',x:ball.x,y:ball.y,vx:ball.vx,vy:ball.vy});
+    if(mode==='online'&&netRole==='host')netSend({t:'ball',x:ball.x,y:ball.y,vx:ball.vx,vy:ball.vy});
   }
   if(ball.vx>0&&ball.x+br>=pd2.x-pd2.w/2&&ball.x-br<=pd2.x+pd2.w/2&&ball.y>=pd2.y-pd2.h/2&&ball.y<=pd2.y+pd2.h/2){
     ball.x=pd2.x-pd2.w/2-br;
     const ry=(ball.y-pd2.y)/(pd2.h/2),ba=ry*60*Math.PI/180,sp=Math.min(Math.hypot(ball.vx,ball.vy)*1.04,cfg.max);
     ball.vx=-sp*Math.cos(ba);ball.vy=sp*Math.sin(ba);
     sndHit('pong');spawnParts(ball.x,ball.y,col().b);
-    if(mode==='online')netSend({t:'ball',x:ball.x,y:ball.y,vx:ball.vx,vy:ball.vy});
+    if(mode==='online'&&netRole==='host')netSend({t:'ball',x:ball.x,y:ball.y,vx:ball.vx,vy:ball.vy});
   }
 
   // goals
@@ -1536,7 +1536,8 @@ function updateGame(){
     else{ball.vx=-Math.abs(ball.vx);sndWall();}
   }
 
-  if(mode==='online')netSend({t:'ball',x:ball.x,y:ball.y,vx:ball.vx,vy:ball.vy});
+  // Host sends ball position every frame so guest stays in sync
+  if(mode==='online'&&netRole==='host')netSend({t:'ball',x:ball.x,y:ball.y,vx:ball.vx,vy:ball.vy});
 
   if(flashA>0){
     const rgb=h2r(flashC.length>=7?flashC:'#ff2244');
@@ -2367,8 +2368,10 @@ function handleNet(d){
     case 'mv':   if(netRole==='host')pd2.y=d.y; else pd1.y=d.y; break;
     case 'ball':
       if(netRole==='guest'&&ball){
-        ball.x+=(d.x-ball.x)*.4;
-        ball.y+=(d.y-ball.y)*.4;
+        // If far away (e.g. after reset), snap immediately
+        const dist=Math.hypot(d.x-ball.x, d.y-ball.y);
+        if(dist>W*0.15){ ball.x=d.x; ball.y=d.y; }
+        else{ ball.x+=(d.x-ball.x)*.55; ball.y+=(d.y-ball.y)*.55; }
         ball.vx=d.vx; ball.vy=d.vy;
       }
       break;
@@ -2663,7 +2666,8 @@ function sendChatInput(){
 
 // Called from handleNet when opponent sends a chat message online
 function receiveChatMsg(text){
-  appendMsg(text, false, p2Name);
+  const senderName = netRole==='host' ? p2Name : p1Name;
+  appendMsg(text, false, senderName);
   const isEmoji=/^\p{Emoji}/u.test(text) && [...text].length<=3;
   if(isEmoji) flyEmoji(text, false);
   else showSpeechBubble(text, false);
