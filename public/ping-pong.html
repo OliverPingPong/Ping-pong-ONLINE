@@ -1159,6 +1159,26 @@ function tone(f,t,d,v=0.4){
     o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+d);
   }catch(e){}
 }
+
+// ── Impact boom: low thud + distortion burst ──────────────────────────────
+function sndImpact(){
+  try{
+    // Deep thud
+    const o=AC.createOscillator(), g=AC.createGain();
+    o.type='sine'; o.frequency.setValueAtTime(80,AC.currentTime);
+    o.frequency.exponentialRampToValueAtTime(30,AC.currentTime+.18);
+    g.gain.setValueAtTime(.9,AC.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.22);
+    o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+.25);
+    // Sharp crack
+    const o2=AC.createOscillator(), g2=AC.createGain();
+    o2.type='sawtooth'; o2.frequency.value=220;
+    g2.gain.setValueAtTime(.6,AC.currentTime);
+    g2.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.08);
+    o2.connect(g2);g2.connect(AC.destination);o2.start();o2.stop(AC.currentTime+.1);
+  }catch(e){}
+}
+
 function sndHit(w){
   if(!CFG.sndBall) return;
   const f=w==='ping'?900:560;
@@ -1166,8 +1186,11 @@ function sndHit(w){
 }
 function sndGoal(){
   if(!CFG.sndGoal) return;
-  for(let i=0;i<6;i++)setTimeout(()=>tone(200+Math.random()*300,'sine',.4,.12),i*80);
-  setTimeout(()=>[500,400,500,350].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.2,.2),i*180)),500);
+  sndImpact(); // boom on goal
+  setTimeout(()=>{
+    for(let i=0;i<6;i++)setTimeout(()=>tone(200+Math.random()*300,'sine',.4,.12),i*80);
+    setTimeout(()=>[500,400,500,350].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.2,.2),i*180)),500);
+  },80);
 }
 function sndWall(){
   if(!CFG.sndBall) return;
@@ -1176,6 +1199,29 @@ function sndWall(){
 function sndFanfare(){
   if(!CFG.sndFanfare) return;
   [523,659,784,1047].forEach((f,i)=>setTimeout(()=>{tone(f,'sine',.4,.3);tone(f*.5,'triangle',.4,.15);},i*160));
+}
+
+// ── Screen shake ──────────────────────────────────────────────────────────
+function screenShake(intensity=12, duration=400){
+  const canvas=document.getElementById('gameCanvas');
+  const conf=document.getElementById('confCanvas');
+  const start=Date.now();
+  function shake(){
+    const elapsed=Date.now()-start;
+    if(elapsed>=duration){ canvas.style.transform=''; conf.style.transform=''; return; }
+    const decay=1-elapsed/duration;
+    const dx=(Math.random()-.5)*intensity*decay;
+    const dy=(Math.random()-.5)*intensity*decay;
+    canvas.style.transform=`translate(${dx}px,${dy}px)`;
+    conf.style.transform=`translate(${dx}px,${dy}px)`;
+    requestAnimationFrame(shake);
+  }
+  requestAnimationFrame(shake);
+}
+
+// ── Vibration ─────────────────────────────────────────────────────────────
+function vibrate(pattern){
+  if(navigator.vibrate) navigator.vibrate(pattern);
 }
 
 let musIv=null;
@@ -1644,12 +1690,16 @@ function goal(scorer){
     aiCommentGoal(aiIsLeft ? scorer===1 : scorer===2);
   }
   const c=scorer===1?col().a:col().b;
-  flashC=c;flashA=.62;
+  flashC=c; flashA = isGoldenGoal ? 0.85 : isMatchWinner ? 0.75 : 0.65;
 
   // Check golden goal BEFORE showing message
   const effectiveWin = getEffectiveWinPts();
   const isMatchWinner = (scorer===1&&sc1>=effectiveWin)||(scorer===2&&sc2>=effectiveWin);
   const isGoldenGoal  = goldenGoal;
+
+  // Impact effects — intensity depends on importance of the goal
+  screenShake(isGoldenGoal ? 20 : isMatchWinner ? 16 : 12, isGoldenGoal ? 600 : 380);
+  vibrate(isGoldenGoal ? [80,40,80,40,120] : isMatchWinner ? [80,40,80] : [60,30,60]);
 
   if(isGoldenGoal){
     document.getElementById('oTxt').textContent='🥇 ¡¡¡GOL DE ORO!!!';
