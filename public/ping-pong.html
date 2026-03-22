@@ -1690,12 +1690,13 @@ function goal(scorer){
     aiCommentGoal(aiIsLeft ? scorer===1 : scorer===2);
   }
   const c=scorer===1?col().a:col().b;
-  flashC=c; flashA = isGoldenGoal ? 0.85 : isMatchWinner ? 0.75 : 0.65;
 
-  // Check golden goal BEFORE showing message
+  // Compute golden goal / match winner FIRST before using them
   const effectiveWin = getEffectiveWinPts();
   const isMatchWinner = (scorer===1&&sc1>=effectiveWin)||(scorer===2&&sc2>=effectiveWin);
   const isGoldenGoal  = goldenGoal;
+
+  flashC=c; flashA = isGoldenGoal ? 0.85 : isMatchWinner ? 0.75 : 0.65;
 
   // Impact effects — intensity depends on importance of the goal
   screenShake(isGoldenGoal ? 20 : isMatchWinner ? 16 : 12, isGoldenGoal ? 600 : 380);
