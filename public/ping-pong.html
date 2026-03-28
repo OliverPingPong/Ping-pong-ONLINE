@@ -79,23 +79,97 @@ input[type=text]:focus{border-color:var(--acc);}
 #gameCanvas{display:block;position:absolute;inset:0;width:100%;height:100%;}
 #confCanvas{position:absolute;inset:0;pointer-events:none;z-index:40;width:100%;height:100%;}
 
-#hud{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;
-  justify-content:space-between;padding:9px 20px 5px;
-  background:linear-gradient(to bottom,rgba(0,0,0,.75) 0%,transparent 100%);
-  z-index:10;pointer-events:none;}
+/* ══ SCOREBOARD HUD ══ */
+#hud{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  z-index:10;pointer-events:none;
+  display:flex;flex-direction:column;align-items:center;
+}
 #hud.hidden{display:none;}
-.hp{display:flex;flex-direction:column;align-items:center;min-width:100px;}
-.hn{font-family:'Orbitron',monospace;font-size:clamp(.55rem,1.7vw,.8rem);font-weight:700;letter-spacing:.09em;}
-.hs{font-family:'Orbitron',monospace;font-size:clamp(1.6rem,4.2vw,2.8rem);font-weight:900;line-height:1;}
-.hp1 .hn,.hp1 .hs{color:var(--p1);text-shadow:0 0 16px #ff224455;}
-.hp2 .hn,.hp2 .hs{color:var(--p2);text-shadow:0 0 16px #2266ff55;}
-.hc{display:flex;flex-direction:column;align-items:center;gap:2px;}
-.hml{font-family:'Orbitron',monospace;font-size:clamp(.4rem,1.1vw,.58rem);letter-spacing:.14em;color:#888;text-transform:uppercase;}
-.hpz{font-family:'Orbitron',monospace;font-size:clamp(.42rem,1.1vw,.6rem);color:var(--acc);letter-spacing:.14em;animation:bl 1s step-end infinite;}
+
+/* Outer panel — metallic dark */
+.sb-panel{
+  display:flex;align-items:stretch;
+  background:linear-gradient(180deg,#1a1c22 0%,#0d0e12 60%,#1a1c22 100%);
+  border:2px solid #2a2d38;
+  border-top:none;
+  border-radius:0 0 14px 14px;
+  box-shadow:0 8px 40px rgba(0,0,0,.7),inset 0 1px 0 #3a3d4a;
+  overflow:hidden;
+  min-width:min(460px,90vw);
+}
+
+/* Thin accent bar at very top */
+.sb-topbar{
+  height:3px;width:100%;
+  background:linear-gradient(90deg,transparent,var(--acc),transparent);
+  flex-shrink:0;
+}
+
+/* Timer bar above the main panel */
+.sb-timer-bar{
+  width:100%;
+  background:linear-gradient(180deg,#111318,#0a0c12);
+  border-bottom:1px solid #2a2d38;
+  display:flex;align-items:center;justify-content:center;
+  padding:3px 0 2px;
+  gap:8px;
+}
+.sb-timer-val{
+  font-family:'Orbitron',monospace;font-size:clamp(.9rem,2.8vw,1.4rem);
+  font-weight:900;letter-spacing:.18em;
+  color:#e8b800;
+  text-shadow:0 0 12px #ffd70088;
+}
+.sb-mode-lbl{
+  font-family:'Orbitron',monospace;font-size:clamp(.38rem,.9vw,.52rem);
+  letter-spacing:.18em;color:#555;text-transform:uppercase;
+}
+
+/* Player side */
+.sb-side{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:6px 16px;gap:1px;flex:1;
+}
+.sb-name{
+  font-family:'Orbitron',monospace;font-size:clamp(.5rem,1.5vw,.72rem);
+  font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;
+}
+.sb-score{
+  font-family:'Orbitron',monospace;font-weight:900;line-height:1;
+  font-size:clamp(2.2rem,6vw,3.8rem);
+  /* LED-style: slightly dim "ghost" segments */
+  text-shadow:0 0 20px currentColor;
+  letter-spacing:-.02em;
+}
+.sb-side.left .sb-name,.sb-side.left .sb-score{ color:var(--p1); }
+.sb-side.right .sb-name,.sb-side.right .sb-score{ color:var(--p2); }
+
+/* Center divider */
+.sb-center{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:6px 12px;gap:3px;
+  border-left:1px solid #2a2d38;
+  border-right:1px solid #2a2d38;
+}
+.sb-sep{
+  font-family:'Orbitron',monospace;font-size:clamp(1.8rem,4.5vw,3rem);
+  font-weight:900;color:#333;line-height:1;
+}
+.sb-sub{
+  font-family:'Orbitron',monospace;font-size:clamp(.32rem,.75vw,.46rem);
+  letter-spacing:.16em;color:#444;text-transform:uppercase;text-align:center;
+}
+.sb-pause-lbl{
+  font-family:'Orbitron',monospace;font-size:clamp(.4rem,1vw,.56rem);
+  color:var(--acc);letter-spacing:.14em;animation:bl 1s step-end infinite;
+}
 @keyframes bl{50%{opacity:0;}}
-/* Tournament match badge in HUD */
-.hmatch{font-family:'Orbitron',monospace;font-size:clamp(.38rem,.9vw,.52rem);
-  letter-spacing:.1em;color:var(--pur);text-transform:uppercase;}
+.sb-match{
+  font-family:'Orbitron',monospace;font-size:clamp(.32rem,.75vw,.44rem);
+  letter-spacing:.1em;color:var(--pur);text-transform:uppercase;text-align:center;
+}
 
 #overlay{position:absolute;inset:0;display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:13px;
@@ -162,19 +236,20 @@ input[type=text]:focus{border-color:var(--acc);}
 .joy-wrap.left{left:0;padding-left:8px;}
 .joy-wrap.right{right:0;padding-right:8px;}
 .joy-zone{
-  width:110px;height:110px;border-radius:50%;
-  background:rgba(255,255,255,.04);
-  border:2px solid rgba(255,255,255,.12);
+  width:130px;height:130px;border-radius:50%;
+  background:rgba(255,255,255,.05);
+  border:2px solid rgba(255,255,255,.15);
   position:relative;touch-action:none;
   display:flex;align-items:center;justify-content:center;
 }
 .joy-knob{
-  width:44px;height:44px;border-radius:50%;
-  background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.55),rgba(255,255,255,.18));
-  border:2px solid rgba(255,255,255,.35);
+  width:52px;height:52px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.7),rgba(255,255,255,.25));
+  border:2px solid rgba(255,255,255,.5);
   position:absolute;pointer-events:none;
-  transition:transform .05s;
-  box-shadow:0 2px 12px rgba(0,0,0,.4);
+  /* NO transition — zero lag, instant follow */
+  box-shadow:0 3px 16px rgba(0,0,0,.5);
+  will-change:transform;
 }
 .joy-label{
   font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:.12em;
@@ -807,19 +882,31 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
 
 <!-- HUD -->
 <div id="hud" class="hidden">
-  <div class="hp hp1">
-    <div class="hn" id="hN1">PING</div>
-    <div class="hs" id="hS1">0</div>
+  <div class="sb-topbar"></div>
+  <!-- Timer bar (only visible when timer is on) -->
+  <div class="sb-timer-bar" id="sbTimerBar" style="display:none">
+    <span class="sb-mode-lbl" id="hMode">1P</span>
+    <span class="sb-timer-val" id="hTimer">⏱ 3:00</span>
   </div>
-  <div class="hc">
-    <div class="hml"   id="hMode">1P</div>
-    <div class="hpz"   id="hPause" style="display:none">PAUSA</div>
-    <div class="hmatch" id="hMatch" style="display:none"></div>
-    <div class="hmatch" id="hTimer" style="display:none;color:var(--acc)"></div>
-  </div>
-  <div class="hp hp2" style="align-items:flex-end">
-    <div class="hn" id="hN2">PONG</div>
-    <div class="hs" id="hS2">0</div>
+  <!-- Main scoreboard panel -->
+  <div class="sb-panel">
+    <!-- Left: J1 -->
+    <div class="sb-side left">
+      <div class="sb-name" id="hN1">PING</div>
+      <div class="sb-score" id="hS1">0</div>
+    </div>
+    <!-- Center -->
+    <div class="sb-center">
+      <div class="sb-sep">:</div>
+      <div class="sb-sub" id="hModeSub">1P</div>
+      <div class="sb-pause-lbl" id="hPause" style="display:none">PAUSA</div>
+      <div class="sb-match" id="hMatch" style="display:none"></div>
+    </div>
+    <!-- Right: J2 -->
+    <div class="sb-side right">
+      <div class="sb-name" id="hN2">PONG</div>
+      <div class="sb-score" id="hS2">0</div>
+    </div>
   </div>
 </div>
 
@@ -1544,9 +1631,8 @@ function updateGame(){
     const secs=Math.floor((rem%60000)/1000);
     const timerEl=document.getElementById('hTimer');
     if(timerEl){
-      timerEl.style.display='block';
       timerEl.textContent=`⏱ ${mins}:${secs.toString().padStart(2,'0')}`;
-      timerEl.style.color=rem<30000?'#ff4455':rem<60000?'#ffa500':'var(--acc)';
+      timerEl.style.color=rem<30000?'#ff4455':rem<60000?'#ffa500':'#e8b800';
     }
     if(rem<=0){
       matchTimerEnd=0;
@@ -1600,12 +1686,26 @@ function updateGame(){
       if(K['s']||K['S']||K['ArrowDown']){pd1.y=Math.min(FB()-pd1.h/2,pd1.y+ps);mv=true;}
       if(mv) netSend({t:'mv',y:pd1.y});
     } else {
-      // GUEST: only moves own paddle and sends position. NO physics at all.
+      // GUEST: move own paddle, send if changed, then predict ball movement
       const prevY = pd2.y;
       if(K['w']||K['W']||K['ArrowUp'])   pd2.y=Math.max(FT()+pd2.h/2, pd2.y-ps);
       if(K['s']||K['S']||K['ArrowDown']) pd2.y=Math.min(FB()-pd2.h/2, pd2.y+ps);
       if(pd2.y !== prevY) netSend({t:'mv', y:pd2.y});
-      return; // <-- STOP HERE. Host drives the ball.
+      // Client-side prediction: extrapolate ball using received velocity
+      // This smooths out lag without affecting game logic (host is authoritative)
+      if(ball && ball.vx){
+        ball.x += ball.vx;
+        ball.y += ball.vy;
+        // Bounce prediction so ball doesn't fly off screen visually
+        if(ball.y-br < FT()){ ball.y=FT()+br; ball.vy=Math.abs(ball.vy); }
+        if(ball.y+br > FB()){ ball.y=FB()-br; ball.vy=-Math.abs(ball.vy); }
+      }
+      if(flashA>0){
+        const rgb=h2r(flashC.length>=7?flashC:'#ff2244');
+        CX.fillStyle=`rgba(${rgb[0]},${rgb[1]},${rgb[2]},${flashA})`;
+        CX.fillRect(0,0,W,H); flashA=Math.max(0,flashA-.03);
+      }
+      return;
     }
   }
 
@@ -1853,7 +1953,12 @@ function updateHUD(){
   document.getElementById('hS1').textContent=sc1;
   document.getElementById('hS2').textContent=sc2;
   const modeLabel=mode==='single'?'1P':mode==='multi'?'LOCAL':mode==='tourn'?'TORNEO':'ONLINE';
-  document.getElementById('hMode').textContent=modeLabel;
+  // Update both mode labels (timer bar and center)
+  const hMode=document.getElementById('hMode');
+  const hModeSub=document.getElementById('hModeSub');
+  if(hMode) hMode.textContent=modeLabel;
+  if(hModeSub) hModeSub.textContent=modeLabel;
+  // Apply skin colors
   const c=col();
   [['#hN1',c.a],['#hS1',c.a],['#hN2',c.b],['#hS2',c.b]]
     .forEach(([id,clr])=>{const el=document.querySelector(id);if(el)el.style.color=clr;});
@@ -1866,9 +1971,11 @@ function updateHUD(){
   } else {
     hm.style.display='none';
   }
-  // Hide timer if not active
+  // Timer bar visibility
+  const timerBar=document.getElementById('sbTimerBar');
+  if(timerBar) timerBar.style.display=CFG.timerOn?'flex':'none';
   const ht=document.getElementById('hTimer');
-  if(ht && matchTimerEnd===0) ht.style.display='none';
+  if(ht && matchTimerEnd===0 && CFG.timerOn) ht.textContent='⏱ '+CFG.timerMins+':00';
 }
 
 // ═══════════════════════════════════════════
@@ -2029,14 +2136,27 @@ const isTouchDevice=()=>'ontouchstart' in window||navigator.maxTouchPoints>0;
 // Virtual axis values updated by joystick
 const joyAxis={L:{y:0}, R:{y:0}};
 
+// Roblox-style joystick: knob follows finger freely within the zone circle.
+// The vertical axis value is proportional to how far the finger is from center.
 function setupJoystick(zoneEl, knobEl, axisKey){
-  let active=false, startY=0, touchId=null;
-  const R=zoneEl.getBoundingClientRect;
-  const MAX=28; // max knob travel px
+  let active=false, touchId=null;
 
-  function getCenter(){
+  function getZoneCenter(){
     const r=zoneEl.getBoundingClientRect();
-    return {x:r.left+r.width/2, y:r.top+r.height/2};
+    return {x:r.left+r.width/2, y:r.top+r.height/2, R:r.width/2};
+  }
+
+  function updateKnob(cx,cy,fx,fy,R){
+    const dx=fx-cx, dy=fy-cy;
+    const dist=Math.hypot(dx,dy);
+    const maxR=R-26; // keep knob inside zone
+    const clamped=Math.min(dist,maxR);
+    const angle=Math.atan2(dy,dx);
+    const kx=Math.cos(angle)*clamped;
+    const ky=Math.sin(angle)*clamped;
+    knobEl.style.transform=`translate(${kx}px,${ky}px)`;
+    // Only Y axis matters for paddle movement
+    joyAxis[axisKey].y=ky/maxR; // -1 (up) to +1 (down)
   }
 
   zoneEl.addEventListener('touchstart',e=>{
@@ -2044,18 +2164,17 @@ function setupJoystick(zoneEl, knobEl, axisKey){
     if(active) return;
     const t=e.changedTouches[0];
     touchId=t.identifier;
-    startY=t.clientY;
     active=true;
+    const {x,y,R}=getZoneCenter();
+    updateKnob(x,y,t.clientX,t.clientY,R);
   },{passive:false});
 
   document.addEventListener('touchmove',e=>{
     if(!active) return;
     for(const t of e.changedTouches){
       if(t.identifier!==touchId) continue;
-      const dy=t.clientY - startY;
-      const clamped=Math.max(-MAX,Math.min(MAX,dy));
-      joyAxis[axisKey].y=clamped/MAX; // -1 to +1
-      knobEl.style.transform=`translateY(${clamped}px)`;
+      const {x,y,R}=getZoneCenter();
+      updateKnob(x,y,t.clientX,t.clientY,R);
     }
   },{passive:false});
 
@@ -2064,7 +2183,7 @@ function setupJoystick(zoneEl, knobEl, axisKey){
       if(t.identifier!==touchId) continue;
       active=false; touchId=null;
       joyAxis[axisKey].y=0;
-      knobEl.style.transform='translateY(0px)';
+      knobEl.style.transform='translate(0px,0px)';
     }
   }
   document.addEventListener('touchend',end,{passive:true});
@@ -2103,6 +2222,9 @@ function initTouchControls(){
     tp.style.display='block';
   }
 
+  // Expose updateVisibility so launchOnline can call it too
+  window.updateTouchVisibility = updateVisibility;
+
   // Hook into startGameLoop to show controls
   const _orig=window.startGameLoop;
   window.startGameLoop=function(){
@@ -2134,18 +2256,23 @@ function initTouchControls(){
 // Inject joystick input into updateGame — called at top of controls section
 function applyJoyInput(ps){
   if(!isTouchDevice()) return;
-  const DEAD=0.12;
   const yL=joyAxis.L.y, yR=joyAxis.R.y;
+  // Speed is directly proportional to joystick deflection (0=stop, 1=full speed)
+  // No dead zone — small movements = slow, full push = full speed
+  const spd=ps*1.6;
 
-  if(mode==='single'||( mode==='tourn' && trnFixtures.length>0 && !trnPlayers[trnFixtures[trnMatchIdx].i].isCpu)||
-     (mode==='online'&&netRole==='host')){
-    if(yL<-DEAD) pd1.y=Math.max(FT()+pd1.h/2, pd1.y + yL*ps*1.4);
-    if(yL> DEAD) pd1.y=Math.min(FB()-pd1.h/2, pd1.y + yL*ps*1.4);
+  const moveL=(mode==='single')||
+    (mode==='tourn'&&trnFixtures.length>0&&!trnPlayers[trnFixtures[trnMatchIdx].i].isCpu)||
+    (mode==='online'&&netRole==='host');
+  const moveR=(mode==='multi')||
+    (mode==='tourn'&&trnFixtures.length>0&&!trnPlayers[trnFixtures[trnMatchIdx].j].isCpu)||
+    (mode==='online'&&netRole==='guest');
+
+  if(moveL && yL!==0){
+    pd1.y=Math.max(FT()+pd1.h/2, Math.min(FB()-pd1.h/2, pd1.y + yL*spd));
   }
-  if(mode==='multi'||(mode==='tourn' && trnFixtures.length>0 && !trnPlayers[trnFixtures[trnMatchIdx].j].isCpu)||
-     (mode==='online'&&netRole==='guest')){
-    if(yR<-DEAD) pd2.y=Math.max(FT()+pd2.h/2, pd2.y + yR*ps*1.4);
-    if(yR> DEAD) pd2.y=Math.min(FB()-pd2.h/2, pd2.y + yR*ps*1.4);
+  if(moveR && yR!==0){
+    pd2.y=Math.max(FT()+pd2.h/2, Math.min(FB()-pd2.h/2, pd2.y + yR*spd));
   }
 }
 
@@ -2529,12 +2656,13 @@ function handleNet(d){
   switch(d.t){
     case 'mv':   if(netRole==='host')pd2.y=d.y; else pd1.y=d.y; break;
     case 'ball':
-      // Guest: directly assign host ball position. No local physics.
+      // Guest: set position from host + mark receive time for prediction
       if(netRole==='guest' && ball){
-        ball.x  = d.x;
-        ball.y  = d.y;
-        ball.vx = d.vx;
-        ball.vy = d.vy;
+        ball.x   = d.x;
+        ball.y   = d.y;
+        ball.vx  = d.vx;
+        ball.vy  = d.vy;
+        ball._rx = performance.now(); // receive timestamp
       }
       break;
     case 'goal': if(netRole==='guest')goal(d.s); break;
@@ -2557,16 +2685,10 @@ function launchOnline(){
   document.getElementById('hud').classList.remove('hidden');
   updateHUD();
   showChatBtn(true);
-  // Show touch pause button and joysticks
+  // Show touch UI using the same visibility logic as all other modes
   const tp=document.getElementById('touchPause');
   if(tp) tp.style.display='block';
-  // Update touch joystick visibility for online mode
-  const jL=document.getElementById('joyLeft');
-  const jR=document.getElementById('joyRight');
-  if(jL&&jR){
-    if(netRole==='host'){ jL.style.display='flex'; jR.style.display='none'; document.getElementById('jLbl1').textContent='TÚ'; }
-    else                { jL.style.display='none'; jR.style.display='flex'; document.getElementById('jLbl2').textContent='TÚ'; }
-  }
+  if(window.updateTouchVisibility) setTimeout(window.updateTouchVisibility, 50);
   if(musicOn) startMusic();
   // Start the real game loop
   function loop(ts){
