@@ -1311,22 +1311,59 @@ function vibrate(pattern){
   if(navigator.vibrate) navigator.vibrate(pattern);
 }
 
+// ── Music system: different tracks for menu, settings, game ─────────────────
 let musIv=null;
+let currentMusicCtx='game'; // 'menu' | 'settings' | 'game'
+
+// Menu music: upbeat arpegio (like table tennis training feel)
+const MENU_NOTES  =[330,392,440,523,440,392,330,294,330,392,440,392];
+// Settings music: calm melodic ping-pong melody
+const SETT_NOTES  =[523,494,440,392,440,494,523,587,523,494,440,494];
+// Game music: energetic arpegio (original)
+const GAME_NOTES  =[261,330,392,523,392,330,261,196,220,261];
+
+function getNotes(){
+  if(currentMusicCtx==='menu')     return MENU_NOTES;
+  if(currentMusicCtx==='settings') return SETT_NOTES;
+  return GAME_NOTES;
+}
+
+function getMusicSpeed(){
+  if(currentMusicCtx==='menu')     return 280; // slightly faster, upbeat
+  if(currentMusicCtx==='settings') return 380; // slower, calm
+  return 320; // game
+}
+
+function getMusicWave(){
+  if(currentMusicCtx==='menu')     return 'square';
+  if(currentMusicCtx==='settings') return 'sine';
+  return 'triangle';
+}
+
 function startMusic(){
-  if(!musicOn)return;
-  const ns=[261,330,392,523,392,330,261,196,220,261];let ni=0;
-  const vol=(CFG.musicVol/100)*0.12; // scale 0–0.12
+  if(!musicOn) return;
+  stopMusic();
+  const ns=getNotes(); let ni=0;
+  const vol=(CFG.musicVol/100)*0.1;
+  const wave=getMusicWave();
+  const speed=getMusicSpeed();
   musIv=setInterval(()=>{
-    if(!musicOn)return;
+    if(!musicOn) return;
     const o=AC.createOscillator(),g=AC.createGain();
-    o.type='triangle';o.frequency.value=ns[ni++%ns.length];
+    o.type=wave; o.frequency.value=ns[ni++%ns.length];
     g.gain.setValueAtTime(vol,AC.currentTime);
     g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.28);
     o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+.3);
-  },320);
+  },speed);
 }
 function stopMusic(){if(musIv){clearInterval(musIv);musIv=null;}}
 function toggleMusic(){musicOn=!musicOn;document.getElementById('mBtn').textContent=musicOn?'🎵':'🔇';if(musicOn)startMusic();else stopMusic();}
+
+function setMusicContext(ctx){
+  if(currentMusicCtx===ctx) return;
+  currentMusicCtx=ctx;
+  if(musicOn){ stopMusic(); startMusic(); }
+}
 
 // ═══════════════════════════════════════════
 //  CANVAS
@@ -1342,7 +1379,7 @@ const PH=()=>Math.max(44,H*.092);          // shorter paddle
 const BR=()=>Math.max(4, W*.011);
 const FT=()=>H*.12;
 const FB=()=>H-H*.12;
-const GH=()=>(FB()-FT())*.42;             // bigger goal (was .28)
+const GH=()=>(FB()-FT())*.55;             // clear goal area (55% of field)
 const GY1=()=>H/2-GH()/2;
 const GY2=()=>H/2+GH()/2;
 
@@ -1567,9 +1604,9 @@ function diffCfgFor(d){
   // cpu  = max px/frame the paddle moves
   // spd  = initial ball speed
   // max  = max ball speed
-  if(d==='easy')   return{cpu:4.2, spd:5.5, max:14};
-  if(d==='medium') return{cpu:6.2, spd:7.5, max:20};
-  return                 {cpu:8.8, spd:10,  max:28};
+  if(d==='easy')   return{cpu:3.2, spd:5.5, max:14};   // slow reaction
+  if(d==='medium') return{cpu:5.5, spd:7.5, max:20};   // moderate
+  return                 {cpu:8.8, spd:10,  max:28};   // near-perfect
 }
 
 // d = difficulty string for THIS specific AI
@@ -1584,8 +1621,9 @@ function aiTarget(paddleX, isLeft, d){
     let steps=0;
     const heading = isLeft ? bvx<0 : bvx>0;
     if(!heading){
-      // Ball moving away — drift loosely toward center
-      const wander=(Math.random()-0.5)*GH()*0.35;
+      // Ball moving away — AI repositions based on difficulty
+      const wanderScale = d==='easy' ? 1.2 : d==='medium' ? 0.6 : 0.2;
+      const wander=(Math.random()-0.5)*GH()*wanderScale;
       c.target=H/2+wander;
       return c.target;
     }
@@ -1597,11 +1635,13 @@ function aiTarget(paddleX, isLeft, d){
       if(isLeft  && bx<=paddleX) break;
       if(!isLeft && bx>=paddleX) break;
     }
-    // Error: easy misses often but is not completely blind
-    //        medium misses occasionally
-    //        hard almost never misses
-    const errScale = d==='easy' ? 0.9 : d==='medium' ? 0.38 : 0.08;
-    const err=(Math.random()-0.5)*PH()*errScale;
+    // Error applied to predicted landing Y:
+    // easy   — large random error, misses ~60% of shots
+    // medium — moderate error, misses ~30% of shots
+    // hard   — tiny error, almost never misses
+    const goalH = GH(); // use goal height as error reference
+    const errScale = d==='easy' ? 1.4 : d==='medium' ? 0.55 : 0.08;
+    const err=(Math.random()-0.5)*goalH*errScale;
     c.target=Math.max(ft+PH()/2, Math.min(fb-PH()/2, by+err));
   }
   return c.target;
@@ -1896,7 +1936,9 @@ function backToMenu(){
   document.getElementById('hint').textContent='';
   document.getElementById('overlay').classList.remove('show');
   document.getElementById('pbtn').style.display='none';
+  setMusicContext('menu');
   goTo('sMenu');
+  if(musicOn) startMusic();
 }
 
 function togglePause(){
@@ -1925,6 +1967,7 @@ function startGameLoop(){
   clearChat();
   document.getElementById('hud').classList.remove('hidden');
   showChatBtn(true);
+  setMusicContext('game');
   if(musicOn)startMusic();
   // If CPU vs CPU with chat on, start with a greeting exchange
   if(mode==='tourn' && CFG.aiVsAiChat && isCpuVsCpu()){
@@ -1984,6 +2027,15 @@ function updateHUD(){
 function goTo(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
   const el=document.getElementById(id);if(el)el.classList.remove('hidden');
+  // Switch music context based on destination screen
+  if(id==='sMenu'||id==='sMode'||id==='s1P'||id==='s2P'||id==='sSkins'||
+     id==='sTournSetup'||id==='sTournStandings'||id==='sTournFinal'||id==='sOnline'){
+    setMusicContext('menu');
+    if(musicOn&&!musIv) startMusic();
+  } else if(id==='sSettings'){
+    setMusicContext('settings');
+    if(musicOn&&!musIv) startMusic();
+  }
 }
 function setMode(m){
   mode=m;
@@ -3028,13 +3080,11 @@ function aiCommentGoal(scorerIsAI){
   // CPU vs CPU case
   if(isCpuVsCpu()){
     if(!CFG.aiVsAiChat) return;
-    const fx=trnFixtures[trnMatchIdx];
-    const scorerName = scorer===1 ? trnPlayers[fx.i].name : trnPlayers[fx.j].name;
     const ctxA = scorerIsAI
       ? 'Acabo de marcar un gol. Di algo breve y triunfal (1 frase).'
       : 'Mi rival acaba de marcar un gol. Reacciona brevemente (1 frase).';
     const ctxB = scorerIsAI
-      ? 'El rival está celebrando su gol. Respóndele brevemente (1 frase).' 
+      ? 'El rival está celebrando su gol. Respóndele brevemente (1 frase).'
       : 'Acabo de marcar un gol. Di algo triunfal brevemente (1 frase).';
     setTimeout(()=>cpuVsCpuExchange(ctxA, ctxB), 800+Math.random()*400);
     return;
@@ -3092,7 +3142,12 @@ function clearChat(){
 // ═══════════════════════════════════════════
 buildSkins();
 initTouchControls();
+setMusicContext('menu');
 goTo('sMenu');
+// Start menu music after first user interaction (browser autoplay policy)
+document.addEventListener('click', ()=>{ if(musicOn&&!musIv) startMusic(); }, {once:true});
+document.addEventListener('keydown', ()=>{ if(musicOn&&!musIv) startMusic(); }, {once:true});
+document.addEventListener('touchstart', ()=>{ if(musicOn&&!musIv) startMusic(); }, {once:true});
 </script>
 </body>
 </html>
