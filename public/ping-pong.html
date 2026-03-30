@@ -1373,15 +1373,15 @@ let customAudioEl = null; // currently playing HTML audio element
 // Menu: upbeat table-tennis feel — brighter notes, faster
 const MENU_NOTES = [392,440,523,587,523,440,392,349,392,440,523,440,392,349,330,349];
 // Settings: calm melodic — slow, warm sine wave
-const SETT_NOTES = [523,493,440,392,349,392,440,493,523,493,523,587,523,493,440,392];
+const SETT_NOTES = [262,294,330,349,330,294,262,247,262,294,330,294,262,247,220,247]; // low octave, more audible on sine
 // Game: energetic arpegio (original feel)
 const GAME_NOTES = [261,330,392,523,392,330,261,196,220,261,330,392];
 
 // Volume multipliers per context (normalized so all feel similar)
-const CTX_VOL  = { menu:0.07, settings:0.09, game:0.10 };
+const CTX_VOL  = { menu:0.08, settings:0.28, game:0.10 };  // settings much louder
 const CTX_WAVE = { menu:'square', settings:'sine', game:'triangle' };
-const CTX_SPD  = { menu:260, settings:420, game:320 };
-const CTX_DUR  = { menu:.22, settings:.35, game:.26 };
+const CTX_SPD  = { menu:260, settings:480, game:320 };  // settings slower = longer sustain
+const CTX_DUR  = { menu:.22, settings:.55, game:.26 };  // settings notes ring longer
 
 function _getNotes(){ return currentMusicCtx==='menu'?MENU_NOTES:currentMusicCtx==='settings'?SETT_NOTES:GAME_NOTES; }
 
@@ -1570,16 +1570,20 @@ function drawField(){
   CX.beginPath();CX.moveTo(W/2,ft+4);CX.lineTo(W/2,ft+fh-8);CX.stroke();
   CX.setLineDash([]);
   CX.beginPath();arc(W/2,H/2,Math.min(W,H)*.08,0,Math.PI*2);CX.stroke();
-  const gbW=W*.07,gbH=fh*.4,gbY=H/2-gbH/2;
-  CX.strokeRect(W*.03,gbY,gbW,gbH);CX.strokeRect(W*.97-gbW,gbY,gbW,gbH);
+  // Goalpost box matches actual goal detection zone
+  const gbW=W*.04,gbH=GH(),gbY=GY1();
+  CX.strokeStyle='rgba(255,255,255,.7)';CX.lineWidth=3;
+  CX.strokeRect(W*.03-gbW,gbY,gbW,gbH);CX.strokeRect(W*.97,gbY,gbW,gbH);
+  CX.lineWidth=2;CX.strokeStyle='rgba(255,255,255,.5)';
   CX.fillStyle='rgba(255,255,255,.5)';
   [W*.12,W*.88,W/2].forEach((x,i)=>{CX.beginPath();arc(x,H/2,i===2?4:3,0,Math.PI*2);CX.fill();});
-  const gh=fh*.28,gy=H/2-gh/2,gw=W*.022;
-  CX.strokeStyle='rgba(255,255,255,.22)';CX.lineWidth=1;
-  for(let x=0;x<gw;x+=8){CX.beginPath();CX.moveTo(W*.03-gw+x,gy);CX.lineTo(W*.03-gw+x,gy+gh);CX.stroke();}
-  for(let y=gy;y<gy+gh;y+=8){CX.beginPath();CX.moveTo(W*.03-gw,y);CX.lineTo(W*.03,y);CX.stroke();}
-  for(let x=0;x<gw;x+=8){CX.beginPath();CX.moveTo(W*.97+x,gy);CX.lineTo(W*.97+x,gy+gh);CX.stroke();}
-  for(let y=gy;y<gy+gh;y+=8){CX.beginPath();CX.moveTo(W*.97,y);CX.lineTo(W*.97+gw,y);CX.stroke();}
+  // Net matches exact goal detection zone (GH = 55% of field)
+  const gh=GH(),gy=GY1(),gw=W*.04; // deeper net, matches goal area
+  CX.strokeStyle='rgba(255,255,255,.28)';CX.lineWidth=1;
+  for(let x=0;x<=gw;x+=10){CX.beginPath();CX.moveTo(W*.03-gw+x,gy);CX.lineTo(W*.03-gw+x,gy+gh);CX.stroke();}
+  for(let y=gy;y<=gy+gh;y+=10){CX.beginPath();CX.moveTo(W*.03-gw,y);CX.lineTo(W*.03,y);CX.stroke();}
+  for(let x=0;x<=gw;x+=10){CX.beginPath();CX.moveTo(W*.97+x,gy);CX.lineTo(W*.97+x,gy+gh);CX.stroke();}
+  for(let y=gy;y<=gy+gh;y+=10){CX.beginPath();CX.moveTo(W*.97,y);CX.lineTo(W*.97+gw,y);CX.stroke();}
   CX.lineWidth=2;
 }
 function drawCrowd(ts){
@@ -1696,9 +1700,9 @@ function diffCfgFor(d){
   // cpu  = max px/frame the paddle moves
   // spd  = initial ball speed
   // max  = max ball speed
-  if(d==='easy')   return{cpu:3.2, spd:5.5, max:14};   // slow reaction
-  if(d==='medium') return{cpu:5.5, spd:7.5, max:20};   // moderate
-  return                 {cpu:8.8, spd:10,  max:28};   // near-perfect
+  if(d==='easy')   return{cpu:4.5, spd:5.5, max:14};   // moves, but aims badly
+  if(d==='medium') return{cpu:6.5, spd:7.5, max:20};   // moves well, some aim error
+  return                 {cpu:9.2, spd:10,  max:28};   // near-perfect
 }
 
 // d = difficulty string for THIS specific AI
@@ -1713,10 +1717,10 @@ function aiTarget(paddleX, isLeft, d){
     let steps=0;
     const heading = isLeft ? bvx<0 : bvx>0;
     if(!heading){
-      // Ball moving away — AI repositions based on difficulty
-      const wanderScale = d==='easy' ? 1.2 : d==='medium' ? 0.6 : 0.2;
-      const wander=(Math.random()-0.5)*GH()*wanderScale;
-      c.target=H/2+wander;
+      // Ball moving away — AI tracks ball Y loosely (looks like it's trying)
+      // Easy drifts more, hard tracks precisely
+      const lag = d==='easy' ? 0.35 : d==='medium' ? 0.65 : 0.90;
+      c.target = c.target + (ball.y - c.target) * lag;
       return c.target;
     }
     while(steps<800){
@@ -1732,7 +1736,8 @@ function aiTarget(paddleX, isLeft, d){
     // medium — moderate error, misses ~30% of shots
     // hard   — tiny error, almost never misses
     const goalH = GH(); // use goal height as error reference
-    const errScale = d==='easy' ? 1.4 : d==='medium' ? 0.55 : 0.08;
+    // easy: misses often but reaches ball area; medium: occasionally misses; hard: precise
+    const errScale = d==='easy' ? 0.85 : d==='medium' ? 0.38 : 0.06;
     const err=(Math.random()-0.5)*goalH*errScale;
     c.target=Math.max(ft+PH()/2, Math.min(fb-PH()/2, by+err));
   }
@@ -3011,17 +3016,15 @@ function appendMsg(text, fromMe, senderName, isTyping=false){
   log.appendChild(wrap);
   log.scrollTop=log.scrollHeight;
 
-  // If it's an incoming message and the panel is closed, open it automatically
+  // Notify of new message via button pulse only — don't auto-open panel
   if(!fromMe && !isTyping && !chatOpen){
-    chatOpen=true;
-    document.getElementById('chatPanel').classList.add('open');
-    // Pulse the chat button to draw attention
     const btn=document.getElementById('chatBtn');
     if(btn){
       btn.style.borderColor='var(--acc)';
       btn.style.color='var(--acc)';
+      // Show unread count
       btn.textContent='💬';
-      setTimeout(()=>{ btn.style.borderColor=''; btn.style.color=''; },3000);
+      setTimeout(()=>{ btn.style.borderColor=''; btn.style.color=''; },4000);
     }
   }
 }
