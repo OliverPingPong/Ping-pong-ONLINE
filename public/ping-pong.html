@@ -628,6 +628,54 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
     </div>
   </div>
 
+  <!-- Música personalizada -->
+  <div class="set-group">
+    <div class="set-group-title">🎵 Música personalizada</div>
+    <div class="set-label" style="font-size:.78rem;color:#666;margin-bottom:4px">
+      Sube un MP3 desde tu dispositivo para cada pantalla.<br>
+      <span>Si no subes nada, se usa la música integrada.</span>
+    </div>
+
+    <!-- Menú -->
+    <div class="set-row" style="flex-direction:column;align-items:flex-start;gap:5px">
+      <div class="set-label">🏠 Menú principal</div>
+      <div style="display:flex;gap:8px;align-items:center;width:100%">
+        <label class="btn sm" style="cursor:pointer;flex:1;text-align:center;font-size:.58rem" id="customMusicBtn_menu">
+          📂 Subir música para el menú
+          <input type="file" accept="audio/*" style="display:none"
+            onchange="loadCustomMusic('menu',this.files[0])">
+        </label>
+        <button class="btn sm" style="font-size:.55rem;padding:6px 10px" onclick="clearCustomMusic('menu')">✕</button>
+      </div>
+    </div>
+
+    <!-- Ajustes -->
+    <div class="set-row" style="flex-direction:column;align-items:flex-start;gap:5px">
+      <div class="set-label">⚙️ Ajustes</div>
+      <div style="display:flex;gap:8px;align-items:center;width:100%">
+        <label class="btn sm" style="cursor:pointer;flex:1;text-align:center;font-size:.58rem" id="customMusicBtn_settings">
+          📂 Subir música para ajustes
+          <input type="file" accept="audio/*" style="display:none"
+            onchange="loadCustomMusic('settings',this.files[0])">
+        </label>
+        <button class="btn sm" style="font-size:.55rem;padding:6px 10px" onclick="clearCustomMusic('settings')">✕</button>
+      </div>
+    </div>
+
+    <!-- Partido -->
+    <div class="set-row" style="flex-direction:column;align-items:flex-start;gap:5px">
+      <div class="set-label">🏓 Partida</div>
+      <div style="display:flex;gap:8px;align-items:center;width:100%">
+        <label class="btn sm" style="cursor:pointer;flex:1;text-align:center;font-size:.58rem" id="customMusicBtn_game">
+          📂 Subir música para el partido
+          <input type="file" accept="audio/*" style="display:none"
+            onchange="loadCustomMusic('game',this.files[0])">
+        </label>
+        <button class="btn sm" style="font-size:.55rem;padding:6px 10px" onclick="clearCustomMusic('game')">✕</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Visual -->
   <div class="set-group">
     <div class="set-group-title">🌟 Visual</div>
@@ -1181,8 +1229,10 @@ function setMusicVol(val){
   CFG.musicVol=val;
   document.getElementById('valMusic').textContent=val;
   updateSliderFill('slMusic', val, 0, 100);
-  // Restart music loop with new volume baked in
-  if(musicOn){ stopMusic(); startMusic(); }
+  // Update custom audio volume live if playing
+  if(customAudioEl) customAudioEl.volume=Math.max(0,Math.min(1,val/100));
+  // Restart built-in music with new volume
+  if(musicOn && !customAudioEl){ stopMusic(); startMusic(); }
 }
 
 function updateSliderFill(id, val, min, max){
@@ -1311,59 +1361,101 @@ function vibrate(pattern){
   if(navigator.vibrate) navigator.vibrate(pattern);
 }
 
-// ── Music system: different tracks for menu, settings, game ─────────────────
+// ── Music system ────────────────────────────────────────────────────────────
 let musIv=null;
-let currentMusicCtx='game'; // 'menu' | 'settings' | 'game'
+let currentMusicCtx='menu';
 
-// Menu music: upbeat arpegio (like table tennis training feel)
-const MENU_NOTES  =[330,392,440,523,440,392,330,294,330,392,440,392];
-// Settings music: calm melodic ping-pong melody
-const SETT_NOTES  =[523,494,440,392,440,494,523,587,523,494,440,494];
-// Game music: energetic arpegio (original)
-const GAME_NOTES  =[261,330,392,523,392,330,261,196,220,261];
+// Custom audio elements (from uploaded files)
+const customAudio = { menu: null, settings: null, game: null };
+let customAudioEl = null; // currently playing HTML audio element
 
-function getNotes(){
-  if(currentMusicCtx==='menu')     return MENU_NOTES;
-  if(currentMusicCtx==='settings') return SETT_NOTES;
-  return GAME_NOTES;
-}
+// ── Built-in melodies ────────────────────────────────────────────────────────
+// Menu: upbeat table-tennis feel — brighter notes, faster
+const MENU_NOTES = [392,440,523,587,523,440,392,349,392,440,523,440,392,349,330,349];
+// Settings: calm melodic — slow, warm sine wave
+const SETT_NOTES = [523,493,440,392,349,392,440,493,523,493,523,587,523,493,440,392];
+// Game: energetic arpegio (original feel)
+const GAME_NOTES = [261,330,392,523,392,330,261,196,220,261,330,392];
 
-function getMusicSpeed(){
-  if(currentMusicCtx==='menu')     return 280; // slightly faster, upbeat
-  if(currentMusicCtx==='settings') return 380; // slower, calm
-  return 320; // game
-}
+// Volume multipliers per context (normalized so all feel similar)
+const CTX_VOL  = { menu:0.07, settings:0.09, game:0.10 };
+const CTX_WAVE = { menu:'square', settings:'sine', game:'triangle' };
+const CTX_SPD  = { menu:260, settings:420, game:320 };
+const CTX_DUR  = { menu:.22, settings:.35, game:.26 };
 
-function getMusicWave(){
-  if(currentMusicCtx==='menu')     return 'square';
-  if(currentMusicCtx==='settings') return 'sine';
-  return 'triangle';
-}
+function _getNotes(){ return currentMusicCtx==='menu'?MENU_NOTES:currentMusicCtx==='settings'?SETT_NOTES:GAME_NOTES; }
 
 function startMusic(){
   if(!musicOn) return;
   stopMusic();
-  const ns=getNotes(); let ni=0;
-  const vol=(CFG.musicVol/100)*0.1;
-  const wave=getMusicWave();
-  const speed=getMusicSpeed();
+  // If user has uploaded a custom track for this context, play that
+  const customSrc = customAudio[currentMusicCtx];
+  if(customSrc){
+    customAudioEl = new Audio(customSrc);
+    customAudioEl.loop=true;
+    customAudioEl.volume=Math.max(0,Math.min(1,CFG.musicVol/100));
+    customAudioEl.play().catch(()=>{});
+    return;
+  }
+  // Built-in synthesized music
+  const ns=_getNotes(); let ni=0;
+  const vol=(CFG.musicVol/100)*CTX_VOL[currentMusicCtx];
+  const wave=CTX_WAVE[currentMusicCtx];
+  const speed=CTX_SPD[currentMusicCtx];
+  const dur=CTX_DUR[currentMusicCtx];
   musIv=setInterval(()=>{
     if(!musicOn) return;
-    const o=AC.createOscillator(),g=AC.createGain();
-    o.type=wave; o.frequency.value=ns[ni++%ns.length];
-    g.gain.setValueAtTime(vol,AC.currentTime);
-    g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.28);
-    o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+.3);
+    try{
+      const o=AC.createOscillator(),g=AC.createGain();
+      o.type=wave; o.frequency.value=ns[ni++%ns.length];
+      g.gain.setValueAtTime(vol,AC.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+dur);
+      o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+dur+.02);
+    }catch(e){}
   },speed);
 }
-function stopMusic(){if(musIv){clearInterval(musIv);musIv=null;}}
-function toggleMusic(){musicOn=!musicOn;document.getElementById('mBtn').textContent=musicOn?'🎵':'🔇';if(musicOn)startMusic();else stopMusic();}
+
+function stopMusic(){
+  if(musIv){clearInterval(musIv);musIv=null;}
+  if(customAudioEl){customAudioEl.pause();customAudioEl=null;}
+}
+
+function toggleMusic(){
+  musicOn=!musicOn;
+  document.getElementById('mBtn').textContent=musicOn?'🎵':'🔇';
+  if(musicOn)startMusic();else stopMusic();
+}
 
 function setMusicContext(ctx){
-  if(currentMusicCtx===ctx) return;
+  if(currentMusicCtx===ctx&&(musIv||customAudioEl)) return;
   currentMusicCtx=ctx;
   if(musicOn){ stopMusic(); startMusic(); }
 }
+
+// Called when user uploads a custom MP3 for a context
+function loadCustomMusic(ctx, file){
+  if(!file) return;
+  const url=URL.createObjectURL(file);
+  customAudio[ctx]=url;
+  // Update button label
+  const btn=document.getElementById('customMusicBtn_'+ctx);
+  if(btn) btn.textContent='🎵 '+file.name.slice(0,22);
+  // If currently playing this context, restart with new track
+  if(currentMusicCtx===ctx&&musicOn){ stopMusic(); startMusic(); }
+}
+
+function clearCustomMusic(ctx){
+  if(customAudio[ctx]){ URL.revokeObjectURL(customAudio[ctx]); customAudio[ctx]=null; }
+  const btn=document.getElementById('customMusicBtn_'+ctx);
+  if(btn) btn.textContent=CTX_DEFAULT_LABEL[ctx];
+  if(currentMusicCtx===ctx&&musicOn){ stopMusic(); startMusic(); }
+}
+
+const CTX_DEFAULT_LABEL={
+  menu:'📂 Subir música para el menú',
+  settings:'📂 Subir música para ajustes',
+  game:'📂 Subir música para el partido'
+};
 
 // ═══════════════════════════════════════════
 //  CANVAS
