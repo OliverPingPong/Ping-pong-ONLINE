@@ -640,10 +640,10 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
     <div class="set-row" style="flex-direction:column;align-items:flex-start;gap:5px">
       <div class="set-label">🏠 Menú principal</div>
       <div style="display:flex;gap:8px;align-items:center;width:100%">
-        <label class="btn sm" style="cursor:pointer;flex:1;text-align:center;font-size:.58rem" id="customMusicBtn_menu">
-          📂 Subir música para el menú
+        <label class="btn sm" style="cursor:pointer;flex:1;text-align:center;font-size:.58rem">
+          <span id="customMusicLbl_menu">📂 Subir música para el menú</span>
           <input type="file" accept="audio/*" style="display:none"
-            onchange="loadCustomMusic('menu',this.files[0])">
+            onchange="loadCustomMusic('menu',this)">
         </label>
         <button class="btn sm" style="font-size:.55rem;padding:6px 10px" onclick="clearCustomMusic('menu')">✕</button>
       </div>
@@ -653,10 +653,10 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
     <div class="set-row" style="flex-direction:column;align-items:flex-start;gap:5px">
       <div class="set-label">⚙️ Ajustes</div>
       <div style="display:flex;gap:8px;align-items:center;width:100%">
-        <label class="btn sm" style="cursor:pointer;flex:1;text-align:center;font-size:.58rem" id="customMusicBtn_settings">
-          📂 Subir música para ajustes
+        <label class="btn sm" style="cursor:pointer;flex:1;text-align:center;font-size:.58rem">
+          <span id="customMusicLbl_settings">📂 Subir música para ajustes</span>
           <input type="file" accept="audio/*" style="display:none"
-            onchange="loadCustomMusic('settings',this.files[0])">
+            onchange="loadCustomMusic('settings',this)">
         </label>
         <button class="btn sm" style="font-size:.55rem;padding:6px 10px" onclick="clearCustomMusic('settings')">✕</button>
       </div>
@@ -666,10 +666,10 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
     <div class="set-row" style="flex-direction:column;align-items:flex-start;gap:5px">
       <div class="set-label">🏓 Partida</div>
       <div style="display:flex;gap:8px;align-items:center;width:100%">
-        <label class="btn sm" style="cursor:pointer;flex:1;text-align:center;font-size:.58rem" id="customMusicBtn_game">
-          📂 Subir música para el partido
+        <label class="btn sm" style="cursor:pointer;flex:1;text-align:center;font-size:.58rem">
+          <span id="customMusicLbl_game">📂 Subir música para el partido</span>
           <input type="file" accept="audio/*" style="display:none"
-            onchange="loadCustomMusic('game',this.files[0])">
+            onchange="loadCustomMusic('game',this)">
         </label>
         <button class="btn sm" style="font-size:.55rem;padding:6px 10px" onclick="clearCustomMusic('game')">✕</button>
       </div>
@@ -1050,11 +1050,24 @@ let musicOn=true, gameRunning=false, paused=false, animId=null;
 let netRole=null, peer=null, conn=null, myCode=null, pingTimer=null, mmActive=false;
 const MM='ppvp2025-mm-s';
 
+// Each skin: a=p1 color, b=p2 color, ga/gb=glow, shape=paddle shape, fx=special effect
 const SKINS=[
-  {l:'Default',a:'#ff2244',b:'#2266ff'},{l:'Fuego',  a:'#ff6600',b:'#ff0066'},
-  {l:'Neón',   a:'#00ffcc',b:'#ff00ff'},{l:'Oro',    a:'#ffd700',b:'#c0c0c0'},
-  {l:'Natura', a:'#44dd44',b:'#885522'},{l:'Hielo',  a:'#aaddff',b:'#ffffff'},
-  {l:'Dark',   a:'#9900cc',b:'#cc6600'},{l:'Pastel', a:'#ff99bb',b:'#99bbff'},
+  // 0 Default — clean rounded rect, soft glow
+  {l:'Default', a:'#ff2244',b:'#2266ff', ga:'#ff224488',gb:'#2266ff88', shape:'rect',   fx:'none'},
+  // 1 Fuego — flame gradient, orange fire glow, pointed top
+  {l:'Fuego',   a:'#ff6600',b:'#ff0022', ga:'#ff660099',gb:'#ff002299', shape:'flame',  fx:'fire'},
+  // 2 Neón — thin neon tube, bright outline, electric glow
+  {l:'Neón',    a:'#00ffcc',b:'#ff00ff', ga:'#00ffccaa',gb:'#ff00ffaa', shape:'thin',   fx:'neon'},
+  // 3 Oro — metallic gold/silver gradient, shiny reflection
+  {l:'Oro',     a:'#ffd700',b:'#c0c0c0', ga:'#ffd70066',gb:'#c0c0c066', shape:'rect',   fx:'metal'},
+  // 4 Natura — wood texture feel, earthy colors
+  {l:'Natura',  a:'#55cc44',b:'#995533', ga:'#55cc4466',gb:'#99553366', shape:'rect',   fx:'wood'},
+  // 5 Hielo — ice/crystal, semi-transparent blue
+  {l:'Hielo',   a:'#88ddff',b:'#ddeeff', ga:'#88ddff88',gb:'#ddeeff88', shape:'thin',   fx:'ice'},
+  // 6 Dark — purple energy, dark core, pulsing glow
+  {l:'Dark',    a:'#bb44ff',b:'#ff6600', ga:'#bb44ffaa',gb:'#ff6600aa', shape:'rect',   fx:'dark'},
+  // 7 Pastel — soft pill shape, gentle pastel glow
+  {l:'Pastel',  a:'#ff99bb',b:'#99bbff', ga:'#ff99bb66',gb:'#99bbff66', shape:'pill',   fx:'soft'},
 ];
 let skin=0;
 const AI_NAMES=['Kenji','Minho','Wei','Luca','Igor','Sven','Arjun','Omar','Thiago','Javier'];
@@ -1427,34 +1440,47 @@ function toggleMusic(){
 }
 
 function setMusicContext(ctx){
-  if(currentMusicCtx===ctx&&(musIv||customAudioEl)) return;
+  const changed = currentMusicCtx!==ctx;
   currentMusicCtx=ctx;
-  if(musicOn){ stopMusic(); startMusic(); }
+  // Resume AudioContext (browser may have suspended it)
+  if(AC.state==='suspended') AC.resume().then(()=>{ if(musicOn) startMusic(); });
+  if(changed && musicOn){ stopMusic(); startMusic(); }
+  else if(musicOn && !musIv && !customAudioEl){ startMusic(); }
 }
 
 // Called when user uploads a custom MP3 for a context
-function loadCustomMusic(ctx, file){
+function loadCustomMusic(ctx, inputEl){
+  const file = inputEl.files[0];
   if(!file) return;
+  // Revoke previous URL
+  if(customAudio[ctx]) URL.revokeObjectURL(customAudio[ctx]);
   const url=URL.createObjectURL(file);
   customAudio[ctx]=url;
-  // Update button label
-  const btn=document.getElementById('customMusicBtn_'+ctx);
-  if(btn) btn.textContent='🎵 '+file.name.slice(0,22);
-  // If currently playing this context, restart with new track
+  // Update the text span (not the label itself, to preserve the input inside)
+  const span=document.getElementById('customMusicLbl_'+ctx);
+  if(span) span.textContent='🎵 '+file.name.slice(0,24);
+  // Resume AudioContext if suspended
+  if(AC.state==='suspended') AC.resume();
+  // Restart music for this context
   if(currentMusicCtx===ctx&&musicOn){ stopMusic(); startMusic(); }
+  else if(musicOn&&currentMusicCtx!==ctx){
+    // preview: just update stored, will play when context switches
+  }
+  // Reset input so same file can be re-selected
+  inputEl.value='';
 }
 
 function clearCustomMusic(ctx){
   if(customAudio[ctx]){ URL.revokeObjectURL(customAudio[ctx]); customAudio[ctx]=null; }
-  const btn=document.getElementById('customMusicBtn_'+ctx);
-  if(btn) btn.textContent=CTX_DEFAULT_LABEL[ctx];
+  const span=document.getElementById('customMusicLbl_'+ctx);
+  if(span) span.textContent=CTX_DEFAULT_LABEL[ctx];
   if(currentMusicCtx===ctx&&musicOn){ stopMusic(); startMusic(); }
 }
 
 const CTX_DEFAULT_LABEL={
   menu:'📂 Subir música para el menú',
   settings:'📂 Subir música para ajustes',
-  game:'📂 Subir música para el partido'
+  game:'📂 Subir música para el partido',
 };
 
 // ═══════════════════════════════════════════
@@ -1471,11 +1497,107 @@ const PH=()=>Math.max(44,H*.092);          // shorter paddle
 const BR=()=>Math.max(4, W*.011);
 const FT=()=>H*.12;
 const FB=()=>H-H*.12;
-const GH=()=>(FB()-FT())*.55;             // clear goal area (55% of field)
+const GH=()=>(FB()-FT())*.35;             // goal area (35% of field)
 const GY1=()=>H/2-GH()/2;
 const GY2=()=>H/2+GH()/2;
 
 let ball={},pd1={},pd2={};
+
+// ── Paddle animation states ──────────────────────────────────────────────────
+// Each state: scale, glowExtra, shakeX, emote, emoteTimer, emoteAngle
+const pdAnim = {
+  1: {scale:1, glow:0, shakeX:0, emote:null, emoteTimer:0, emoteAngle:0, celebrating:0},
+  2: {scale:1, glow:0, shakeX:0, emote:null, emoteTimer:0, emoteAngle:0, celebrating:0},
+};
+
+// Trigger a hit pulse on a paddle (1 or 2)
+function animHit(player){
+  const a=pdAnim[player];
+  a.scale=1.22; a.glow=1;
+}
+// Trigger goal celebration
+function animGoal(player){
+  const a=pdAnim[player];
+  a.scale=1.35; a.glow=2; a.celebrating=40;
+}
+// Trigger goal received (shake)
+function animLose(player){
+  const a=pdAnim[player];
+  a.shakeX=8; a.glow=0.5;
+}
+// Update animation state each frame
+function tickPaddleAnims(){
+  [1,2].forEach(p=>{
+    const a=pdAnim[p];
+    // Scale spring back to 1
+    a.scale+=(1-a.scale)*.18;
+    if(Math.abs(a.scale-1)<.004) a.scale=1;
+    // Glow fade
+    a.glow=Math.max(0,a.glow-.06);
+    // Shake decay
+    a.shakeX*=-.55;
+    if(Math.abs(a.shakeX)<.3) a.shakeX=0;
+    // Celebrating bounce
+    if(a.celebrating>0){ a.celebrating--; }
+    // Emote timer
+    if(a.emoteTimer>0) a.emoteTimer--;
+    else a.emote=null;
+    // Emote spin
+    if(a.emote) a.emoteAngle+=0.06;
+  });
+}
+
+// ── Emote wheel ──────────────────────────────────────────────────────────────
+const EMOTES=['🎉','😤','💪','😎','🔥','❤️','👀','😂'];
+let emoteWheel={active:false, player:0, selected:0, angle:0, anim:0};
+
+function openEmoteWheel(player){
+  emoteWheel={active:true, player, selected:0, angle:0, anim:0};
+}
+function closeEmoteWheel(){
+  if(!emoteWheel.active) return;
+  const em=EMOTES[emoteWheel.selected];
+  const p=emoteWheel.player;
+  pdAnim[p].emote=em; pdAnim[p].emoteTimer=120; pdAnim[p].emoteAngle=0;
+  emoteWheel.active=false;
+  // Send emote in online mode
+  if(mode==='online') netSend({t:'emote', em, p});
+}
+function tickEmoteWheel(ts){
+  if(!emoteWheel.active) return;
+  emoteWheel.anim=Math.min(1, emoteWheel.anim+0.12);
+}
+function drawEmoteWheel(ts){
+  if(!emoteWheel.active) return;
+  const n=EMOTES.length;
+  const R=Math.min(W,H)*.14 * emoteWheel.anim;
+  const pd=emoteWheel.player===1?pd1:pd2;
+  const cx=pd.x, cy=pd.y;
+  // Dark backdrop
+  CX.save();
+  CX.globalAlpha=0.7*emoteWheel.anim;
+  CX.fillStyle='rgba(0,0,0,.6)';
+  CX.beginPath(); arc(cx,cy,R+28,0,Math.PI*2); CX.fill();
+  CX.globalAlpha=1;
+  // Draw each emote slot
+  for(let i=0;i<n;i++){
+    const ang=(i/n)*Math.PI*2 - Math.PI/2;
+    const ex=cx+Math.cos(ang)*R, ey=cy+Math.sin(ang)*R;
+    const sel=i===emoteWheel.selected;
+    CX.beginPath(); arc(ex,ey,sel?20:14,0,Math.PI*2);
+    CX.fillStyle=sel?'rgba(255,228,77,.9)':'rgba(255,255,255,.18)';
+    CX.fill();
+    CX.font=`${sel?18:13}px serif`;
+    CX.textAlign='center'; CX.textBaseline='middle';
+    CX.fillText(EMOTES[i],ex,ey);
+  }
+  // Hint
+  CX.font=`bold ${Math.round(W*.012)}px Orbitron,monospace`;
+  CX.fillStyle='rgba(255,255,255,.7)';
+  CX.textAlign='center'; CX.textBaseline='middle';
+  CX.fillText('← → seleccionar  ENTER confirmar  R cancelar',cx,cy);
+  CX.restore();
+}
 let sc1=0,sc2=0,goalCd=0,flashA=0,flashC='#fff';
 let goldenGoal=false;
 let matchTimerEnd=0; // timestamp when match ends (0 = no timer)
@@ -1516,6 +1638,8 @@ function initGame(){
   // Reset AI target cache for fresh start each match
   aiCache.L.lastVx=0; aiCache.L.target=H/2||0;
   aiCache.R.lastVx=0; aiCache.R.target=H/2||0;
+  [1,2].forEach(p=>{Object.assign(pdAnim[p],{scale:1,glow:0,shakeX:0,emote:null,emoteTimer:0,celebrating:0});});
+  emoteWheel.active=false;
   pd1={x:PW()*2.5,y:H/2,w:PW(),h:PH()};
   pd2={x:W-PW()*2.5-PW(),y:H/2,w:PW(),h:PH()};
   resetBall(1);
@@ -1605,19 +1729,223 @@ function drawCrowd(ts){
   });
 }
 function drawPaddle(pd,isP1){
-  const c=isP1?col().a:col().b;
-  const px=pd.x-pd.w/2,py=pd.y-pd.h/2,rv=pd.w*.45;
-  let g=CX.createRadialGradient(pd.x,pd.y,0,pd.x,pd.y,pd.h*.7);
-  g.addColorStop(0,c+'55');g.addColorStop(1,'transparent');
-  CX.fillStyle=g;CX.fillRect(px-pd.h*.5,py-pd.h*.5,pd.w+pd.h,pd.h*2);
-  CX.shadowColor=c;CX.shadowBlur=18;
-  CX.fillStyle=c;rr(px,py,pd.w,pd.h,rv);CX.fill();
+  const sk=SKINS[skin];
+  const c   = isP1 ? sk.a : sk.b;
+  const glow= isP1 ? sk.ga: sk.gb;
+  const fx  = sk.fx;
+  const sh  = sk.shape;
+  const player = isP1?1:2;
+  const anim = pdAnim[player];
+  const t = performance.now()*0.001; // time in seconds for animations
+
+  CX.save();
+  // ── Animation transform ──
+  const sc=anim.scale;
+  const sx=anim.shakeX + (anim.celebrating>0 ? Math.sin(anim.celebrating*.5)*3 : 0);
+  const celebBounce = anim.celebrating>0 ? Math.abs(Math.sin(anim.celebrating*.3))*4 : 0;
+  CX.translate(pd.x+sx, pd.y - celebBounce);
+  CX.scale(sc, sc);
+  CX.translate(-pd.x, -pd.y);
+
+  const px=pd.x-pd.w/2, py=pd.y-pd.h/2;
+  const pw=pd.w, ph=pd.h;
+  const extraBlur = anim.glow * 24;
+
+  // ── Per-skin background aura ──
+  const auraPulse = fx==='dark'  ? 0.6+Math.sin(t*3)*0.4
+                  : fx==='neon'  ? 0.5+Math.sin(t*5)*0.5
+                  : fx==='fire'  ? 0.7+Math.sin(t*8)*0.3
+                  : 1.0;
+  const ag=CX.createRadialGradient(pd.x,pd.y,0,pd.x,pd.y,ph*1.1);
+  ag.addColorStop(0,(glow||c+'55').slice(0,7)+(Math.round(auraPulse*80).toString(16).padStart(2,'0')));
+  ag.addColorStop(1,'transparent');
+  CX.fillStyle=ag;CX.fillRect(px-ph*.7,py-ph*.7,pw+ph*1.4,ph*2.4);
+
+  // ── Glow / shadow ──
+  const blurAmt = (fx==='neon'?30:fx==='dark'?26:18) + extraBlur;
+  CX.shadowColor = fx==='fire' ? `hsl(${30+Math.sin(t*10)*15},100%,60%)` : c;
+  CX.shadowBlur  = blurAmt * auraPulse;
+
+  // ── Body fill ──
+  CX.fillStyle = buildPaddleFill(px,py,pw,ph,c,fx,isP1,t);
+  if(sh==='pill'){
+    rr(px,py,pw,ph,pw*.5); CX.fill();
+  } else if(sh==='thin'){
+    rr(px,py,pw,ph,pw*.45); CX.fill();
+  } else if(sh==='flame'){
+    const flicker=Math.sin(t*12)*pw*.08;
+    CX.beginPath();
+    CX.moveTo(pd.x+flicker, py);
+    CX.quadraticCurveTo(px+pw*1.3+flicker,py+ph*.35, px+pw,py+ph*.65);
+    CX.quadraticCurveTo(px+pw*1.1,py+ph, px+pw*.5,py+ph);
+    CX.quadraticCurveTo(px-pw*.1,py+ph, px,py+ph*.65);
+    CX.quadraticCurveTo(px-pw*.3-flicker,py+ph*.35, pd.x+flicker,py);
+    CX.fill();
+  } else {
+    rr(px,py,pw,ph,pw*.4); CX.fill();
+  }
   CX.shadowBlur=0;
-  CX.fillStyle='rgba(255,255,255,.2)';rr(px+pd.w*.15,py+pd.h*.08,pd.w*.4,pd.h*.34,rv*.5);CX.fill();
+
+  // ── Per-skin overlay effects ──
+  if(fx==='metal'){
+    // Animated shimmer scan line
+    const shimX=(t*0.4%1)*pw;
+    const mg=CX.createLinearGradient(px,py,px+pw,py);
+    mg.addColorStop(0,'rgba(255,255,255,.4)');
+    mg.addColorStop(Math.max(0,(shimX/pw)-.1),'rgba(255,255,255,.05)');
+    mg.addColorStop(Math.min(1,shimX/pw),'rgba(255,255,255,.55)');
+    mg.addColorStop(Math.min(1,(shimX/pw)+.1),'rgba(255,255,255,.05)');
+    mg.addColorStop(1,'rgba(255,255,255,.3)');
+    CX.fillStyle=mg; rr(px,py,pw,ph,pw*.4); CX.fill();
+
+  } else if(fx==='ice'){
+    // Crystalline inner light with slow pulse
+    const icePulse=0.25+Math.sin(t*1.5)*.1;
+    CX.fillStyle=`rgba(220,245,255,${icePulse})`; rr(px+pw*.1,py+ph*.08,pw*.55,ph*.38,pw*.3); CX.fill();
+    // Sparkle dots
+    const spk=[[.2,.2],[.7,.5],[.4,.75],[.8,.25]];
+    spk.forEach(([sx2,sy2],i)=>{
+      const sp=Math.abs(Math.sin(t*3+i*1.5));
+      CX.beginPath();arc(px+pw*sx2,py+ph*sy2,pw*.08*sp,0,Math.PI*2);
+      CX.fillStyle=`rgba(255,255,255,${sp*.8})`;CX.fill();
+    });
+    CX.strokeStyle='rgba(255,255,255,.5)';CX.lineWidth=1.5;rr(px,py,pw,ph,pw*.45);CX.stroke();CX.lineWidth=1;
+
+  } else if(fx==='neon'){
+    // Neon flicker
+    const flk=0.8+Math.sin(t*13)*0.2+Math.sin(t*7)*0.1;
+    CX.fillStyle='rgba(0,0,0,.45)'; rr(px+pw*.15,py+ph*.12,pw*.7,ph*.76,pw*.35); CX.fill();
+    CX.strokeStyle=c;CX.lineWidth=2.5*flk;
+    CX.shadowColor=c;CX.shadowBlur=14*flk;
+    rr(px,py,pw,ph,pw*.45);CX.stroke();
+    CX.shadowBlur=0;CX.lineWidth=1;
+    // Inner tube highlight
+    CX.fillStyle=`rgba(255,255,255,${.15*flk})`;
+    rr(px+pw*.2,py+ph*.08,pw*.25,ph*.84,pw*.2);CX.fill();
+
+  } else if(fx==='wood'){
+    // Wood grain with subtle animation
+    CX.save();
+    CX.beginPath();rr(px,py,pw,ph,pw*.4);CX.clip();
+    CX.strokeStyle='rgba(0,0,0,.13)';CX.lineWidth=1.5;
+    for(let i=0;i<5;i++){
+      const yw=py+ph*.15+i*ph*.16;
+      CX.beginPath();CX.moveTo(px,yw);CX.lineTo(px+pw,yw);CX.stroke();
+    }
+    CX.restore();
+    CX.fillStyle='rgba(255,255,255,.18)';rr(px+pw*.12,py+ph*.08,pw*.42,ph*.32,pw*.3);CX.fill();
+
+  } else if(fx==='dark'){
+    // Pulsing energy rings
+    const dp=0.5+Math.sin(t*4)*0.5;
+    CX.fillStyle='rgba(0,0,0,.55)'; rr(px+pw*.2,py+ph*.15,pw*.6,ph*.7,pw*.3); CX.fill();
+    for(let r2=1;r2<=2;r2++){
+      CX.strokeStyle=c.slice(0,7)+(Math.round(dp*60/r2).toString(16).padStart(2,'0'));
+      CX.lineWidth=2/r2;
+      rr(px-r2*2,py-r2*2,pw+r2*4,ph+r2*4,pw*.4);CX.stroke();
+    }
+    CX.lineWidth=1;
+
+  } else if(fx==='fire'){
+    // Animated fire tongues at the edges
+    const fireT=t*8;
+    for(let i=0;i<3;i++){
+      const frac=(i/3+fireT*.1)%1;
+      const fy=py+ph*frac;
+      const fw=pw*.3+Math.sin(fireT+i)*pw*.2;
+      CX.fillStyle=`rgba(255,${Math.round(180+Math.sin(fireT+i)*50)},0,${.25-frac*.2})`;
+      CX.beginPath();arc(px-fw*.3,fy,fw*.4,0,Math.PI*2);CX.fill();
+      CX.beginPath();arc(px+pw+fw*.3,fy,fw*.4,0,Math.PI*2);CX.fill();
+    }
+    CX.fillStyle='rgba(255,240,80,.25)'; rr(px+pw*.1,py+ph*.25,pw*.8,ph*.5,pw*.3); CX.fill();
+
+  } else if(fx==='soft'){
+    // Soft pastel shimmer
+    const ss=0.18+Math.sin(t*2)*0.06;
+    CX.fillStyle=`rgba(255,255,255,${ss})`;rr(px+pw*.1,py+ph*.06,pw*.55,ph*.42,pw*.45);CX.fill();
+
+  } else {
+    // Default highlight
+    CX.fillStyle='rgba(255,255,255,.22)';rr(px+pw*.15,py+ph*.08,pw*.4,ph*.34,pw*.4);CX.fill();
+  }
+
+  // Online: outline own paddle
   if(mode==='online'){
     const mine=(netRole==='host'&&isP1)||(netRole==='guest'&&!isP1);
-    if(mine){CX.strokeStyle='rgba(255,255,255,.28)';CX.lineWidth=2;rr(px,py,pd.w,pd.h,rv);CX.stroke();CX.lineWidth=1;}
+    if(mine){CX.strokeStyle='rgba(255,255,255,.35)';CX.lineWidth=2;rr(px,py,pw,ph,pw*.4);CX.stroke();CX.lineWidth=1;}
   }
+  CX.restore();
+
+  // ── Emote float (outside transform) ──
+  if(anim.emote&&anim.emoteTimer>0){
+    const alpha=Math.min(1,anim.emoteTimer/20);
+    const floatY=py - ph*.15 - (120-anim.emoteTimer)*.45;
+    CX.save();
+    CX.globalAlpha=alpha;
+    CX.font=`${Math.round(pw*2.4)}px serif`;
+    CX.textAlign='center'; CX.textBaseline='bottom';
+    // Gentle spin
+    CX.translate(pd.x,floatY);
+    CX.rotate(Math.sin(anim.emoteAngle)*.15);
+    CX.fillText(anim.emote,0,0);
+    CX.restore();
+  }
+}
+
+function buildPaddleFill(px,py,pw,ph,c,fx,isP1,t=0){
+  if(fx==='metal'){
+    const g=CX.createLinearGradient(px,py,px,py+ph);
+    g.addColorStop(0,lighten(c,.4));g.addColorStop(.5,c);g.addColorStop(1,darken(c,.25));
+    return g;
+  }
+  if(fx==='fire'){
+    // Animated gradient shift
+    const shift=Math.sin(t*6)*.1;
+    const g=CX.createLinearGradient(px,py,px,py+ph);
+    g.addColorStop(0,'#ffee44');
+    g.addColorStop(.3+shift,c);
+    g.addColorStop(1,'#770000');
+    return g;
+  }
+  if(fx==='ice'){
+    const g=CX.createLinearGradient(px,py,px+pw,py+ph);
+    g.addColorStop(0,'#eef8ff');g.addColorStop(.5,c);g.addColorStop(1,'#6ab8e8');
+    return g;
+  }
+  if(fx==='wood'){
+    const g=CX.createLinearGradient(px,py,px+pw,py);
+    g.addColorStop(0,darken(c,.2));g.addColorStop(.5,lighten(c,.12));g.addColorStop(1,darken(c,.12));
+    return g;
+  }
+  if(fx==='dark'){
+    // Pulsing dark core
+    const dp=0.5+Math.sin(t*4)*.5;
+    const g=CX.createRadialGradient(px+pw*.5,py+ph*.5,0,px+pw*.5,py+ph*.5,ph*.6);
+    g.addColorStop(0,c.slice(0,7)+(Math.round(dp*255).toString(16).padStart(2,'0')));
+    g.addColorStop(1,'#050508');
+    return g;
+  }
+  if(fx==='neon'){
+    const g=CX.createLinearGradient(px,py,px,py+ph);
+    g.addColorStop(0,lighten(c,.15));g.addColorStop(.5,c);g.addColorStop(1,darken(c,.15));
+    return g;
+  }
+  if(fx==='soft'){
+    const g=CX.createLinearGradient(px,py,px,py+ph);
+    g.addColorStop(0,lighten(c,.3));g.addColorStop(1,c);
+    return g;
+  }
+  // Default
+  const g=CX.createLinearGradient(px,py,px,py+ph);
+  g.addColorStop(0,lighten(c,.22));g.addColorStop(1,darken(c,.15));
+  return g;
+}
+function lighten(hex,amt){ return adjustColor(hex,amt); }
+function darken(hex,amt){ return adjustColor(hex,-amt); }
+function adjustColor(hex,amt){
+  const r=parseInt(hex.slice(1,3),16),g2=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  const clamp=v=>Math.max(0,Math.min(255,Math.round(v+amt*255)));
+  return `rgb(${clamp(r)},${clamp(g2)},${clamp(b)})`;
 }
 function drawBall(){
   const br=Math.max(4,BR());
@@ -1687,6 +2015,17 @@ document.addEventListener('keydown',e=>{
   // Don't trigger pause if user is typing in the chat input
   const chatFocused = document.activeElement === document.getElementById('chatInput');
   if(!chatFocused && (e.key==='p'||e.key==='P'||e.key==='Escape')&&gameRunning) togglePause();
+  // R key: emote wheel for P1 (or guest in online)
+  if(!chatFocused && (e.key==='r'||e.key==='R') && gameRunning && !paused){
+    if(emoteWheel.active) closeEmoteWheel();
+    else openEmoteWheel(mode==='online'&&netRole==='guest'?2:1);
+  }
+  // Arrow keys navigate emote wheel
+  if(emoteWheel.active){
+    if(e.key==='ArrowRight') emoteWheel.selected=(emoteWheel.selected+1)%EMOTES.length;
+    if(e.key==='ArrowLeft')  emoteWheel.selected=(emoteWheel.selected+EMOTES.length-1)%EMOTES.length;
+    if(e.key==='Enter') closeEmoteWheel();
+  }
 });
 document.addEventListener('keyup',e=>{K[e.key]=false;});
 
@@ -1700,9 +2039,9 @@ function diffCfgFor(d){
   // cpu  = max px/frame the paddle moves
   // spd  = initial ball speed
   // max  = max ball speed
-  if(d==='easy')   return{cpu:4.5, spd:5.5, max:14};   // moves, but aims badly
-  if(d==='medium') return{cpu:6.5, spd:7.5, max:20};   // moves well, some aim error
-  return                 {cpu:9.2, spd:10,  max:28};   // near-perfect
+  if(d==='easy')   return{cpu:5.5, spd:5.5, max:14};   // moves but aims badly
+  if(d==='medium') return{cpu:8.5, spd:7.5, max:20};   // fast, occasional miss
+  return                 {cpu:12,  spd:10,  max:28};   // near-perfect
 }
 
 // d = difficulty string for THIS specific AI
@@ -1875,14 +2214,14 @@ function updateGame(){
     ball.x=pd1.x+pd1.w/2+br;
     const ry=(ball.y-pd1.y)/(pd1.h/2),ba=ry*60*Math.PI/180,sp=Math.min(Math.hypot(ball.vx,ball.vy)*1.04,cfg.max);
     ball.vx=sp*Math.cos(ba);ball.vy=sp*Math.sin(ba);
-    sndHit('ping');spawnParts(ball.x,ball.y,col().a);
+    sndHit('ping');spawnParts(ball.x,ball.y,col().a);animHit(1);
     if(mode==='online'&&netRole==='host')netSend({t:'ball',x:ball.x,y:ball.y,vx:ball.vx,vy:ball.vy});
   }
   if(ball.vx>0&&ball.x+br>=pd2.x-pd2.w/2&&ball.x-br<=pd2.x+pd2.w/2&&ball.y>=pd2.y-pd2.h/2&&ball.y<=pd2.y+pd2.h/2){
     ball.x=pd2.x-pd2.w/2-br;
     const ry=(ball.y-pd2.y)/(pd2.h/2),ba=ry*60*Math.PI/180,sp=Math.min(Math.hypot(ball.vx,ball.vy)*1.04,cfg.max);
     ball.vx=-sp*Math.cos(ba);ball.vy=sp*Math.sin(ba);
-    sndHit('pong');spawnParts(ball.x,ball.y,col().b);
+    sndHit('pong');spawnParts(ball.x,ball.y,col().b);animHit(2);
     if(mode==='online'&&netRole==='host')netSend({t:'ball',x:ball.x,y:ball.y,vx:ball.vx,vy:ball.vy});
   }
 
@@ -1919,6 +2258,7 @@ function goal(scorer){
   crowd.forEach(p=>p.cheer=true);
   setTimeout(()=>crowd.forEach(p=>p.cheer=false),3000);
   sndGoal();spawnConfs(W/2,H/2);
+  animGoal(scorer); animLose(scorer===1?2:1);
   // AI reacts to the goal
   if(mode==='single') aiCommentGoal(scorer===2); // scorer===2 means AI scored
   else if(mode==='tourn'){
@@ -2078,7 +2418,10 @@ function startGameLoop(){
     drawField();drawCrowd(ts);drawParticles();
     drawPaddle(pd1,true);drawPaddle(pd2,false);drawBall();
     if(gameRunning&&!paused)updateGame();
+    tickPaddleAnims();
+    tickEmoteWheel(ts);
     drawConfs();
+    drawEmoteWheel(ts);
     animId=requestAnimationFrame(loop);
   }
   animId=requestAnimationFrame(loop);
@@ -2433,8 +2776,19 @@ function buildSkins(){
   SKINS.forEach((s,i)=>{
     const d=document.createElement('div');
     d.className='sopt'+(i===skin?' on':'');
-    d.style.background=`linear-gradient(to right,${s.a} 50%,${s.b} 50%)`;
-    d.innerHTML=`<span style="text-shadow:0 1px 2px #000;padding:2px;background:rgba(0,0,0,.4);border-radius:3px">${s.l}</span>`;
+    // Richer preview: diagonal gradient + glow border on selection
+    let bg='';
+    if(s.fx==='fire')       bg=`linear-gradient(160deg,#ffee44 0%,${s.a} 45%,#880000 100%)`;
+    else if(s.fx==='metal') bg=`linear-gradient(160deg,#fff 0%,${s.a} 40%,${s.b} 100%)`;
+    else if(s.fx==='ice')   bg=`linear-gradient(160deg,#ddeeff 0%,${s.a} 50%,${s.b} 100%)`;
+    else if(s.fx==='neon')  bg=`linear-gradient(160deg,#000 0%,${s.a} 45%,${s.b} 100%)`;
+    else if(s.fx==='dark')  bg=`linear-gradient(160deg,#000 0%,${s.a} 50%,${s.b} 100%)`;
+    else                    bg=`linear-gradient(160deg,${s.a} 40%,${s.b} 100%)`;
+    d.style.background=bg;
+    if(s.ga) d.style.boxShadow=`inset 0 0 12px ${s.ga}`;
+    d.innerHTML=`<span style="font-family:'Orbitron',monospace;font-size:.42rem;letter-spacing:.06em;
+      text-shadow:0 1px 3px #000;padding:3px 4px;background:rgba(0,0,0,.5);border-radius:3px;
+      color:#fff;text-align:center">${s.l}</span>`;
     d.onclick=()=>{skin=i;document.querySelectorAll('.sopt').forEach(e=>e.classList.remove('on'));d.classList.add('on');};
     g.appendChild(d);
   });
@@ -2820,6 +3174,10 @@ function handleNet(d){
     case 'ping': wsSend({t:'pong',ts:d.ts}); break;
     case 'pong': break;
     case 'chat': receiveChatMsg(d.msg||''); break;
+    case 'emote':
+      // Show received emote on the sender's paddle
+      if(d.p&&d.em){ pdAnim[d.p].emote=d.em; pdAnim[d.p].emoteTimer=120; }
+      break;
   }
 }
 
@@ -2845,7 +3203,10 @@ function launchOnline(){
     drawField(); drawCrowd(ts); drawParticles();
     drawPaddle(pd1,true); drawPaddle(pd2,false); drawBall();
     if(gameRunning&&!paused) updateGame();
+    tickPaddleAnims();
+    tickEmoteWheel(ts);
     drawConfs();
+    drawEmoteWheel(ts);
     animId=requestAnimationFrame(loop);
   }
   animId=requestAnimationFrame(loop);
