@@ -1489,7 +1489,10 @@ const CTX_DEFAULT_LABEL={
 const CV=document.getElementById('gameCanvas'),CX=CV.getContext('2d');
 const CC=document.getElementById('confCanvas'),CCX=CC.getContext('2d');
 let W=0,H=0;
-function resize(){W=CV.width=CC.width=window.innerWidth;H=CV.height=CC.height=window.innerHeight;}
+function resize(){
+  W=CV.width=CC.width=window.innerWidth||document.documentElement.clientWidth;
+  H=CV.height=CC.height=window.innerHeight||document.documentElement.clientHeight;
+}
 window.addEventListener('resize',resize);resize();
 
 const PW=()=>Math.max(8, W*.012);          // narrower paddle
@@ -1548,54 +1551,174 @@ function tickPaddleAnims(){
 }
 
 // ── Emote wheel ──────────────────────────────────────────────────────────────
-const EMOTES=['🎉','😤','💪','😎','🔥','❤️','👀','😂'];
-let emoteWheel={active:false, player:0, selected:0, angle:0, anim:0};
+// ── Emote animations (Fortnite-style paddle moves) ──────────────────────────
+// Each emote: name + drawFn(CX, pd, t, progress) that draws ON the paddle
+const EMOTES = [
+  { name:'Victoria',  icon:'🏆' },
+  { name:'Burla',     icon:'😏' },
+  { name:'Baile',     icon:'💃' },
+  { name:'Saludo',    icon:'👋' },
+  { name:'Desafío',   icon:'💪' },
+];
+
+let emoteWheel={active:false, player:0, selected:0, anim:0};
+// Each player's active emote animation state
+// emoteAnim: {name, timer, maxTimer}
+const emoteAnim={1:null, 2:null};
 
 function openEmoteWheel(player){
-  emoteWheel={active:true, player, selected:0, angle:0, anim:0};
+  emoteWheel={active:true, player, selected:0, anim:0};
 }
 function closeEmoteWheel(){
   if(!emoteWheel.active) return;
-  const em=EMOTES[emoteWheel.selected];
+  const sel=EMOTES[emoteWheel.selected];
   const p=emoteWheel.player;
-  pdAnim[p].emote=em; pdAnim[p].emoteTimer=120; pdAnim[p].emoteAngle=0;
+  emoteAnim[p]={name:sel.name, timer:180, maxTimer:180};
   emoteWheel.active=false;
-  // Send emote in online mode
-  if(mode==='online') netSend({t:'emote', em, p});
+  if(mode==='online') netSend({t:'emote', name:sel.name, p});
 }
-function tickEmoteWheel(ts){
-  if(!emoteWheel.active) return;
-  emoteWheel.anim=Math.min(1, emoteWheel.anim+0.12);
+function tickEmoteWheel(){
+  if(emoteWheel.active) emoteWheel.anim=Math.min(1,emoteWheel.anim+0.14);
+  // Tick active emote animations
+  [1,2].forEach(p=>{
+    if(emoteAnim[p]) emoteAnim[p].timer--;
+    if(emoteAnim[p]&&emoteAnim[p].timer<=0) emoteAnim[p]=null;
+  });
 }
-function drawEmoteWheel(ts){
+function drawEmoteWheel(){
   if(!emoteWheel.active) return;
   const n=EMOTES.length;
-  const R=Math.min(W,H)*.14 * emoteWheel.anim;
+  const a=emoteWheel.anim;
   const pd=emoteWheel.player===1?pd1:pd2;
-  const cx=pd.x, cy=pd.y;
-  // Dark backdrop
+  const cx=pd.x, cy=H/2;
+  const R=Math.min(W,H)*.13*a;
+
   CX.save();
-  CX.globalAlpha=0.7*emoteWheel.anim;
-  CX.fillStyle='rgba(0,0,0,.6)';
-  CX.beginPath(); arc(cx,cy,R+28,0,Math.PI*2); CX.fill();
-  CX.globalAlpha=1;
-  // Draw each emote slot
+  // Semi-transparent backdrop circle
+  CX.globalAlpha=0.75*a;
+  CX.fillStyle='rgba(5,5,15,.85)';
+  CX.beginPath();arc(cx,cy,R+36,0,Math.PI*2);CX.fill();
+  // Border
+  CX.strokeStyle='rgba(255,228,77,.4)';CX.lineWidth=2;
+  CX.beginPath();arc(cx,cy,R+36,0,Math.PI*2);CX.stroke();
+  CX.globalAlpha=a;
+
+  // Draw 5 emote slots in a pentagon
   for(let i=0;i<n;i++){
     const ang=(i/n)*Math.PI*2 - Math.PI/2;
     const ex=cx+Math.cos(ang)*R, ey=cy+Math.sin(ang)*R;
     const sel=i===emoteWheel.selected;
-    CX.beginPath(); arc(ex,ey,sel?20:14,0,Math.PI*2);
-    CX.fillStyle=sel?'rgba(255,228,77,.9)':'rgba(255,255,255,.18)';
+    // Slot background
+    CX.beginPath();arc(ex,ey,sel?26:18,0,Math.PI*2);
+    CX.fillStyle=sel?'rgba(255,228,77,.95)':`rgba(255,255,255,${sel?.2:.1})`;
     CX.fill();
-    CX.font=`${sel?18:13}px serif`;
-    CX.textAlign='center'; CX.textBaseline='middle';
-    CX.fillText(EMOTES[i],ex,ey);
+    if(sel){CX.strokeStyle='#fff';CX.lineWidth=2;CX.beginPath();arc(ex,ey,26,0,Math.PI*2);CX.stroke();}
+    // Icon
+    CX.font=`${sel?20:14}px serif`;
+    CX.textAlign='center';CX.textBaseline='middle';
+    CX.fillStyle=sel?'#111':'#fff';
+    CX.fillText(EMOTES[i].icon,ex,ey);
+    // Label below selected
+    if(sel){
+      CX.font=`bold ${Math.round(W*.014)}px Orbitron,monospace`;
+      CX.fillStyle='#ffe44d';
+      CX.textAlign='center';CX.textBaseline='top';
+      CX.fillText(EMOTES[i].name,cx,cy+R+10);
+    }
   }
-  // Hint
-  CX.font=`bold ${Math.round(W*.012)}px Orbitron,monospace`;
-  CX.fillStyle='rgba(255,255,255,.7)';
-  CX.textAlign='center'; CX.textBaseline='middle';
-  CX.fillText('← → seleccionar  ENTER confirmar  R cancelar',cx,cy);
+  // Center hint
+  CX.font=`${Math.round(W*.011)}px Orbitron,monospace`;
+  CX.fillStyle='rgba(255,255,255,.55)';
+  CX.textAlign='center';CX.textBaseline='middle';
+  CX.fillText('◄ ► seleccionar   ENTER ok',cx,cy);
+  CX.restore();
+}
+
+// Draw paddle emote animation ON the paddle (called from drawPaddle)
+function drawPaddleEmote(pd, player, t){
+  const ea=emoteAnim[player];
+  if(!ea) return;
+  const prog=1-(ea.timer/ea.maxTimer); // 0→1 over animation
+  const c=player===1?SKINS[skin].a:SKINS[skin].b;
+  const px=pd.x-pd.w/2, py=pd.y-pd.h/2, pw=pd.w, ph=pd.h;
+  const alpha=ea.timer<30?ea.timer/30:1;
+
+  CX.save();CX.globalAlpha=alpha;
+
+  if(ea.name==='Victoria'){
+    // Paddle stretches tall and glows gold
+    CX.shadowColor='#ffd700';CX.shadowBlur=30+Math.sin(t*8)*10;
+    const stretch=1+0.5*Math.sin(prog*Math.PI);
+    CX.transform(1,0,0,stretch,0,pd.y*(1-stretch));
+    CX.fillStyle='rgba(255,215,0,.35)';
+    rr(px-4,py-4,pw+8,ph+8,pw*.5);CX.fill();
+    // Star burst
+    for(let i=0;i<6;i++){
+      const a=i/6*Math.PI*2+t*3;
+      const r=ph*.6+Math.sin(t*5+i)*ph*.2;
+      CX.fillStyle=`rgba(255,215,0,${.4*Math.sin(t*4+i)})`;
+      CX.beginPath();arc(pd.x+Math.cos(a)*r,pd.y+Math.sin(a)*r,4,0,Math.PI*2);CX.fill();
+    }
+
+  } else if(ea.name==='Burla'){
+    // Paddle wobbles side to side mockingly
+    const wobble=Math.sin(t*10)*pw*0.6;
+    CX.translate(wobble,0);
+    CX.fillStyle=`rgba(255,100,100,.25)`;
+    rr(px,py,pw,ph,pw*.4);CX.fill();
+    // Exclamation marks above
+    CX.font=`bold ${Math.round(pw*1.8)}px Orbitron,monospace`;
+    CX.fillStyle='#ff4444';CX.textAlign='center';CX.textBaseline='bottom';
+    CX.fillText('!',pd.x,py-4+Math.sin(t*8)*4);
+
+  } else if(ea.name==='Baile'){
+    // Paddle spins and bounces rhythmically
+    const beat=Math.floor(t*4)%2;
+    CX.translate(pd.x,pd.y);
+    CX.rotate(Math.sin(t*6)*0.3);
+    CX.translate(-pd.x,-pd.y);
+    const bounce=Math.abs(Math.sin(t*6))*8;
+    CX.translate(0,-bounce);
+    // Rainbow glow
+    const hue=(t*120)%360;
+    CX.shadowColor=`hsl(${hue},100%,60%)`;CX.shadowBlur=20;
+    CX.fillStyle=`hsla(${hue},100%,60%,.2)`;
+    rr(px-2,py-2,pw+4,ph+4,pw*.5);CX.fill();
+
+  } else if(ea.name==='Saludo'){
+    // Paddle bows (scales down then back up)
+    const bow=Math.sin(prog*Math.PI*2)*0.3;
+    CX.translate(pd.x,pd.y);
+    CX.rotate(bow*(player===1?1:-1));
+    CX.translate(-pd.x,-pd.y);
+    CX.fillStyle='rgba(100,200,255,.2)';
+    rr(px,py,pw,ph,pw*.4);CX.fill();
+    // Wave lines radiating out
+    for(let i=0;i<3;i++){
+      const r=ph*(0.5+i*0.4+prog*0.3);
+      CX.strokeStyle=`rgba(100,200,255,${.4-i*.1})`;
+      CX.lineWidth=2;
+      CX.beginPath();arc(pd.x,pd.y,r,0,Math.PI*2);CX.stroke();
+    }
+
+  } else if(ea.name==='Desafío'){
+    // Paddle pulsates aggressively and flashes
+    const pulse=1+0.25*Math.abs(Math.sin(t*8));
+    CX.translate(pd.x,pd.y);CX.scale(pulse,pulse);CX.translate(-pd.x,-pd.y);
+    CX.shadowColor=c;CX.shadowBlur=40;
+    CX.fillStyle=c.slice(0,7)+'44';
+    rr(px-3,py-3,pw+6,ph+6,pw*.5);CX.fill();
+    // Cracks / lightning bolts effect
+    CX.strokeStyle=c;CX.lineWidth=2;
+    for(let i=0;i<3;i++){
+      const a=i/3*Math.PI*2+t*5;
+      CX.beginPath();
+      CX.moveTo(pd.x,pd.y);
+      CX.lineTo(pd.x+Math.cos(a)*ph*.5, pd.y+Math.sin(a)*ph*.5);
+      CX.stroke();
+    }
+  }
+
   CX.restore();
 }
 let sc1=0,sc2=0,goalCd=0,flashA=0,flashC='#fff';
@@ -1876,20 +1999,8 @@ function drawPaddle(pd,isP1){
   }
   CX.restore();
 
-  // ── Emote float (outside transform) ──
-  if(anim.emote&&anim.emoteTimer>0){
-    const alpha=Math.min(1,anim.emoteTimer/20);
-    const floatY=py - ph*.15 - (120-anim.emoteTimer)*.45;
-    CX.save();
-    CX.globalAlpha=alpha;
-    CX.font=`${Math.round(pw*2.4)}px serif`;
-    CX.textAlign='center'; CX.textBaseline='bottom';
-    // Gentle spin
-    CX.translate(pd.x,floatY);
-    CX.rotate(Math.sin(anim.emoteAngle)*.15);
-    CX.fillText(anim.emote,0,0);
-    CX.restore();
-  }
+  // ── Paddle emote animation (Fortnite-style, drawn on/around the paddle) ──
+  drawPaddleEmote(pd, player, performance.now()*0.001);
 }
 
 function buildPaddleFill(px,py,pw,ph,c,fx,isP1,t=0){
@@ -2016,7 +2127,7 @@ document.addEventListener('keydown',e=>{
   const chatFocused = document.activeElement === document.getElementById('chatInput');
   if(!chatFocused && (e.key==='p'||e.key==='P'||e.key==='Escape')&&gameRunning) togglePause();
   // R key: emote wheel for P1 (or guest in online)
-  if(!chatFocused && (e.key==='r'||e.key==='R') && gameRunning && !paused){
+  if(!chatFocused && (e.key==='r'||e.key==='R') && gameRunning){
     if(emoteWheel.active) closeEmoteWheel();
     else openEmoteWheel(mode==='online'&&netRole==='guest'?2:1);
   }
@@ -2045,53 +2156,51 @@ function diffCfgFor(d){
 }
 
 // d = difficulty string for THIS specific AI
+// AI: recalculate target on EVERY frame ball is heading toward this paddle.
+// Only use cache when ball is going away (no need to track precisely).
 function aiTarget(paddleX, isLeft, d){
-  const cacheKey=isLeft?'L':'R';
-  const c=aiCache[cacheKey];
-  // Recalculate only when ball changes X-direction (new rally phase)
-  if(Math.sign(ball.vx)!==Math.sign(c.lastVx)){
-    c.lastVx=ball.vx;
-    let bx=ball.x, by=ball.y, bvx=ball.vx, bvy=ball.vy;
-    const ft=FT(), fb=FB();
-    let steps=0;
-    const heading = isLeft ? bvx<0 : bvx>0;
-    if(!heading){
-      // Ball moving away — AI tracks ball Y loosely (looks like it's trying)
-      // Easy drifts more, hard tracks precisely
-      const lag = d==='easy' ? 0.35 : d==='medium' ? 0.65 : 0.90;
-      c.target = c.target + (ball.y - c.target) * lag;
-      return c.target;
-    }
-    while(steps<800){
-      steps++;
-      bx+=bvx; by+=bvy;
-      if(by<ft){by=ft; bvy=Math.abs(bvy);}
-      if(by>fb){by=fb; bvy=-Math.abs(bvy);}
-      if(isLeft  && bx<=paddleX) break;
-      if(!isLeft && bx>=paddleX) break;
-    }
-    // Error applied to predicted landing Y:
-    // easy   — large random error, misses ~60% of shots
-    // medium — moderate error, misses ~30% of shots
-    // hard   — tiny error, almost never misses
-    const goalH = GH(); // use goal height as error reference
-    // easy: misses often but reaches ball area; medium: occasionally misses; hard: precise
-    const errScale = d==='easy' ? 0.85 : d==='medium' ? 0.38 : 0.06;
-    const err=(Math.random()-0.5)*goalH*errScale;
-    c.target=Math.max(ft+PH()/2, Math.min(fb-PH()/2, by+err));
+  const heading = isLeft ? ball.vx<0 : ball.vx>0;
+
+  if(!heading){
+    // Ball moving away — drift gently toward center
+    const cacheKey=isLeft?'L':'R';
+    const c=aiCache[cacheKey];
+    const driftSpeed = d==='easy' ? 0.04 : d==='medium' ? 0.07 : 0.12;
+    c.target = c.target + (H/2 - c.target) * driftSpeed;
+    return c.target;
   }
-  return c.target;
+
+  // Ball coming toward this paddle — simulate trajectory fresh each frame
+  let bx=ball.x, by=ball.y, bvx=ball.vx, bvy=ball.vy;
+  const ft=FT(), fb=FB();
+  let steps=0;
+  while(steps<1200){
+    steps++;
+    bx+=bvx; by+=bvy;
+    if(by<=ft){by=ft; bvy=Math.abs(bvy);}
+    if(by>=fb){by=fb; bvy=-Math.abs(bvy);}
+    if(isLeft  && bx<=paddleX) break;
+    if(!isLeft && bx>=paddleX) break;
+    if(steps===1200) break;
+  }
+  // Add intentional error based on difficulty
+  const goalH = GH();
+  const errScale = d==='easy' ? 0.7 : d==='medium' ? 0.28 : 0.04;
+  const err=(Math.random()-0.5)*goalH*errScale;
+  const target=Math.max(ft+PH()/2, Math.min(fb-PH()/2, by+err));
+  const cacheKey=isLeft?'L':'R';
+  aiCache[cacheKey].target=target;
+  return target;
 }
 
-// Move a CPU paddle toward its cached target
-// d = difficulty string for this specific AI
+// Move a CPU paddle toward computed target
 function moveCpu(pd, isLeft, d){
   const cfg=diffCfgFor(d);
   const target=aiTarget(pd.x, isLeft, d);
   const dv=target-pd.y;
-  pd.y=Math.max(FT()+pd.h/2, Math.min(FB()-pd.h/2,
-    pd.y + Math.min(Math.abs(dv), cfg.cpu) * Math.sign(dv)
-  ));
+  // Always move — even if it won't reach, it tries
+  const step=Math.min(Math.abs(dv), cfg.cpu);
+  if(step>0.5) pd.y=Math.max(FT()+pd.h/2, Math.min(FB()-pd.h/2, pd.y + step*Math.sign(dv)));
 }
 
 // ═══════════════════════════════════════════
@@ -2419,9 +2528,9 @@ function startGameLoop(){
     drawPaddle(pd1,true);drawPaddle(pd2,false);drawBall();
     if(gameRunning&&!paused)updateGame();
     tickPaddleAnims();
-    tickEmoteWheel(ts);
+    tickEmoteWheel();
     drawConfs();
-    drawEmoteWheel(ts);
+    drawEmoteWheel();
     animId=requestAnimationFrame(loop);
   }
   animId=requestAnimationFrame(loop);
@@ -2605,15 +2714,87 @@ function playNextMatch(){
   const fx=trnFixtures[trnMatchIdx];
   p1Name=trnPlayers[fx.i].name;
   p2Name=trnPlayers[fx.j].name;
+
+  // If both CPU — offer skip or watch
+  if(trnPlayers[fx.i].isCpu && trnPlayers[fx.j].isCpu){
+    showCpuSkipScreen(fx);
+    return;
+  }
   document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
   startGameLoop();
 }
 
-function confirmAbortTournament(){
-  if(confirm('¿Seguro que quieres abandonar el torneo? Se perderá el progreso.')){
-    trnActive=false;
-    backToMenu();
+function showCpuSkipScreen(fx){
+  const a=trnPlayers[fx.i].name, b=trnPlayers[fx.j].name;
+  const modal=document.createElement('div');
+  modal.id='cpuSkipModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  modal.innerHTML=`<div style="background:#111318;border:2px solid #aa44ff;border-radius:14px;padding:32px 36px;max-width:380px;text-align:center;font-family:Orbitron,monospace;">
+    <div style="font-size:.6rem;letter-spacing:.2em;color:#aa44ff;margin-bottom:8px">PARTIDO IA VS IA</div>
+    <div style="font-size:1.1rem;font-weight:900;color:#fff;margin-bottom:20px">${a} <span style="color:#ffe44d">VS</span> ${b}</div>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <button id="_skipAll" style="background:#aa44ff;border:none;color:#fff;font-family:Orbitron,monospace;font-size:.62rem;font-weight:700;padding:11px 20px;border-radius:8px;cursor:pointer">⏭ Saltar hasta mi turno</button>
+      <button id="_watchCpu" style="background:transparent;border:2px solid #ffe44d;color:#ffe44d;font-family:Orbitron,monospace;font-size:.62rem;font-weight:700;padding:11px 20px;border-radius:8px;cursor:pointer">▶ Ver partido</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+
+  document.getElementById('_skipAll').onclick=()=>{
+    modal.remove();
+    skipAllCpuMatches();
+  };
+  document.getElementById('_watchCpu').onclick=()=>{
+    modal.remove();
+    document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+    startGameLoop();
+  };
+}
+
+function skipAllCpuMatches(){
+  // Auto-simulate all consecutive CPU vs CPU fixtures
+  let idx=trnFixtures.findIndex(f=>!f.played);
+  while(idx!==-1){
+    const fx=trnFixtures[idx];
+    const pA=trnPlayers[fx.i], pB=trnPlayers[fx.j];
+    if(!pA.isCpu || !pB.isCpu) break; // stop when a human match is found
+    // Simulate result: random scores based on difficulty
+    const cfgA=diffCfgFor(pA.diff||'medium'), cfgB=diffCfgFor(pB.diff||'medium');
+    // Higher cpu speed = more likely to win
+    const strengthA=cfgA.cpu, strengthB=cfgB.cpu;
+    const total=winPts+Math.floor(Math.random()*3);
+    let s1,s2;
+    if(Math.random()<strengthA/(strengthA+strengthB)){
+      s1=winPts; s2=Math.floor(Math.random()*winPts);
+    } else {
+      s2=winPts; s1=Math.floor(Math.random()*winPts);
+    }
+    trnMatchIdx=idx;
+    trnRecordResult(idx,s1,s2);
+    trnMatchIdx++;
+    idx=trnFixtures.findIndex(f=>!f.played);
   }
+  // Now show standings and the next human match
+  trnUpdateProgress();
+  trnRenderStandings('trnTbody');
+  trnShowNextMatchInfo();
+  goTo('sTournStandings');
+}
+
+function confirmAbortTournament(){
+  // confirm() is blocked on some mobile browsers — use inline modal
+  const modal=document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  modal.innerHTML=`<div style="background:#111318;border:2px solid #ffe44d;border-radius:14px;padding:28px 32px;max-width:320px;text-align:center;font-family:Orbitron,monospace;">
+    <div style="font-size:1rem;font-weight:700;color:#ffe44d;margin-bottom:12px">¿Abandonar torneo?</div>
+    <div style="font-size:.75rem;color:#aaa;margin-bottom:20px">Se perderá todo el progreso.</div>
+    <div style="display:flex;gap:12px;justify-content:center">
+      <button id="_abortYes" style="background:#ff2244;border:none;color:#fff;font-family:Orbitron,monospace;font-size:.65rem;font-weight:700;padding:9px 18px;border-radius:6px;cursor:pointer">✖ Abandonar</button>
+      <button id="_abortNo"  style="background:transparent;border:2px solid #555;color:#aaa;font-family:Orbitron,monospace;font-size:.65rem;font-weight:700;padding:9px 18px;border-radius:6px;cursor:pointer">Cancelar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+  document.getElementById('_abortYes').onclick=()=>{ modal.remove(); trnActive=false; backToMenu(); };
+  document.getElementById('_abortNo').onclick=()=>{ modal.remove(); };
 }
 
 function newTournament(){
@@ -3204,9 +3385,9 @@ function launchOnline(){
     drawPaddle(pd1,true); drawPaddle(pd2,false); drawBall();
     if(gameRunning&&!paused) updateGame();
     tickPaddleAnims();
-    tickEmoteWheel(ts);
+    tickEmoteWheel();
     drawConfs();
-    drawEmoteWheel(ts);
+    drawEmoteWheel();
     animId=requestAnimationFrame(loop);
   }
   animId=requestAnimationFrame(loop);
