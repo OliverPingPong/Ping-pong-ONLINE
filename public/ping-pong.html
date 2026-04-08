@@ -8,14 +8,14 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Ping Pong: Game</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap');
 :root{
   --p1:#ff2244;--p2:#2266ff;--bg:#111318;--acc:#ffe44d;
   --txt:#f0f4ff;--grn:#00cc66;--err:#ff4455;--pur:#aa44ff;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{touch-action:none;overscroll-behavior:none;}
-body{background:var(--bg);color:var(--txt);font-family:'Rajdhani',sans-serif;
+body{background:var(--bg);color:var(--txt);font-family:'Rajdhani','Noto Sans JP','Noto Sans SC',sans-serif;
   overflow:hidden;height:100vh;width:100vw;display:flex;align-items:center;
   justify-content:center;user-select:none;-webkit-user-select:none;}
 
@@ -609,12 +609,22 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
     <!-- 🌐 Idioma -->
     <div class="set-group">
       <div class="set-group-title">🌐 <span data-i18n="language">Idioma / Language</span></div>
-      <div class="set-row">
-        <div class="set-label" data-i18n="lang_label">Idioma del juego</div>
-        <div style="display:flex;gap:6px">
-          <button id="langES" class="btn sm on" style="min-width:54px;font-size:.6rem;padding:6px 10px" onclick="setLang('es')">🇪🇸 ESP</button>
-          <button id="langEN" class="btn sm"    style="min-width:54px;font-size:.6rem;padding:6px 10px" onclick="setLang('en')">🇬🇧 EN</button>
-        </div>
+      <div id="langBtnGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:4px">
+        <button id="lang_es" class="btn sm lang-btn on" onclick="setLang('es')" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 6px;font-size:.6rem;line-height:1.2">
+          <span>🇪🇸 Español</span><span style="font-size:.48rem;opacity:.6;letter-spacing:.08em">ESP</span>
+        </button>
+        <button id="lang_en" class="btn sm lang-btn" onclick="setLang('en')" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 6px;font-size:.6rem;line-height:1.2">
+          <span>🇬🇧 English</span><span style="font-size:.48rem;opacity:.6;letter-spacing:.08em">EN</span>
+        </button>
+        <button id="lang_fr" class="btn sm lang-btn" onclick="setLang('fr')" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 6px;font-size:.6rem;line-height:1.2">
+          <span>🇫🇷 Français</span><span style="font-size:.48rem;opacity:.6;letter-spacing:.08em">FR</span>
+        </button>
+        <button id="lang_ja" class="btn sm lang-btn" onclick="setLang('ja')" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 6px;font-size:.6rem;line-height:1.2">
+          <span>🇯🇵 日本語</span><span style="font-size:.48rem;opacity:.6;letter-spacing:.08em">Nihongo</span>
+        </button>
+        <button id="lang_zh" class="btn sm lang-btn" onclick="setLang('zh')" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 6px;font-size:.6rem;line-height:1.2;grid-column:span 2">
+          <span>🇨🇳 中文</span><span style="font-size:.48rem;opacity:.6;letter-spacing:.08em">Zhōngwén (Mandarin)</span>
+        </button>
       </div>
     </div>
 
@@ -1245,7 +1255,7 @@ function initSettingsUI(){
   document.getElementById('slBright').value = CFG.brightness;
   document.getElementById('slTimer').value  = CFG.timerMins;
   document.getElementById('valTimer').textContent = CFG.timerMins+' min';
-  ['sndBall','sndGoal','sndFanfare','particles','aiChat','aiVsAiChat','timerOn'].forEach(key=>{
+  void ['sndBall','sndGoal','sndFanfare','particles','aiChat','aiVsAiChat','timerOn'].forEach(key=>{
     const capKey=key.charAt(0).toUpperCase()+key.slice(1);
     const tog=document.getElementById('tog'+capKey);
     const lbl=document.getElementById('lbl'+capKey);
@@ -2119,10 +2129,16 @@ document.addEventListener('keyup',e=>{K[e.key]=false;});
 // Cache: recalculate target only when ball changes X-direction
 const aiCache={L:{lastVx:0,target:0}, R:{lastVx:0,target:0}};
 
+// BALL_BASE_SPD: pixels/frame for ball to cross ~50% of field width in ~2s at 60fps
+// Formula: (W * 0.47) / (TARGET_SECONDS * 60) / cos(MAX_ANGLE)
+// W is read at runtime so speed is consistent across all devices
+function ballBaseSpd(){ return Math.max(6, W * 0.47 / (2 * 60 / 0.9)); }
+
 function diffCfgFor(d){
-  if(d==='easy')   return{cpu:5,   spd:5.5, max:14, lag:0.18, err:0.55};
-  if(d==='medium') return{cpu:8,   spd:7.5, max:20, lag:0.30, err:0.22};
-  return                 {cpu:11,  spd:10,  max:28, lag:0.55, err:0.04};
+  const base = ballBaseSpd();
+  if(d==='easy')   return{cpu:5,   spd:base*0.80, max:base*2.0, lag:0.18, err:0.55};
+  if(d==='medium') return{cpu:8,   spd:base*1.00, max:base*2.6, lag:0.30, err:0.22};
+  return                 {cpu:11,  spd:base*1.25, max:base*3.2, lag:0.55, err:0.04};
 }
 
 // Smooth tracking target per paddle (used for lag simulation)
@@ -4058,7 +4074,251 @@ const LANGS = {
     dot_opp_found:'Opponent found! Getting ready…',
     lbl_create_tap:'Tap to create room',
     th_player_tourn:'Player',
-  }
+  },
+  fr: {
+    subtitle:'Le duel ultime',
+    play:'▶ Jouer', skins:'🎨 Skins', settings:'⚙️ Réglages',
+    back:'← Retour', settings_title:'⚙️ RÉGLAGES',
+    language:'Langue / Language', lang_label:'Langue du jeu',
+    music_vol:'Volume musique', menu_main:'🏠 Menu principal',
+    upload_menu:'📂 Musique pour le menu',
+    upload_settings:'📂 Musique pour réglages',
+    upload_game:'📂 Musique pour le match',
+    mode_1p:'👤 1 Joueur', mode_local:'👥 Local',
+    mode_tourn:'🏆 Tournoi', mode_online:'🌐 En ligne',
+    easy:'Facile', medium:'Moyen', hard:'Difficile',
+    start_tourn:'🏆 Lancer le tournoi',
+    play_match:'▶ Jouer le match', abandon:'✖ Abandonner',
+    rematch:'↩ Revanche', menu_btn:'🏠 Menu',
+    next_match:'▶ Match suivant',
+    resume:'▶ Reprendre', save_back:'✔ Sauvegarder',
+    your_name:'Votre nom', player1:'Joueur 1', player2:'Joueur 2', player:'Joueur',
+    hint_tourn:'W/S ou ↑↓ pour bouger  •  P = Pause',
+    hint_1p:'J1: W/S ou ↑↓  •  P = Pause',
+    hint_multi:'J1: W/S  •  J2: ↑/↓  •  P = Pause',
+    hint_host:'Vous êtes PING — W/S ou ↑↓',
+    hint_guest:'Vous êtes PONG — W/S ou ↑↓',
+    pausa:'— PAUSE —',
+    snd_ball:'Sons de balle', snd_ball_sub:'Ping, Pong et rebonds',
+    snd_goal:'Célébration de but', snd_goal_sub:'Cris du public', snd_fanfare:'Fanfare tournoi',
+    particles:'Particules & effets', brightness:'Luminosité',
+    bright_sub:'Filtre sur le terrain',
+    ai_chat:'Chat IA', ai_chat_sub:"L'IA répond en match",
+    ai_vs_ai:'Les IA se parlent', ai_vs_ai_sub:"En tournoi, quand 2 IA s'affrontent",
+    timer_on:'Activer minuterie', timer_sub:'Compte à rebours par match',
+    timer_dur:'Durée', timer_none:'Sans limite',
+    code_lbl:'Votre code', join_lbl:'Code (6 lettres)',
+    searching:'Recherche...', create_room:'Créer une salle privée',
+    join_room:'Rejoindre une salle', matchmaking:'Partie aléatoire',
+    audio:'🔊 Audio', custom_music:'🎵 Musique personnalisée',
+    upload_desc:'Importez un MP3 pour chaque écran.',
+    upload_desc2:'Sans fichier, la musique intégrée joue.',
+    game_lbl:'Match',
+    visual:'🌟 Visuel', chat_ai:'💬 Chat & IA',
+    timer:'⏱️ Minuterie', lang_section:'🌐 Langue',
+    confirm_abandon:'Abandonner le tournoi ?', confirm_abandon_sub:'Toute progression sera perdue.',
+    confirm_yes:'✖ Abandonner', confirm_no:'Annuler',
+    skip_match:'⏭ Passer à mon tour', watch_match:'▶ Voir le match',
+    cpu_vs_cpu:'IA VS IA',
+    mode_lbl_1p:'1J', mode_lbl_local:'LOCAL', mode_lbl_tourn:'TOURNOI', mode_lbl_online:'EN LIGNE',
+    choose_mode:'Choisir le mode', your_name_lbl:'Votre nom', ai_diff:'Difficulté IA',
+    pts_to_win:'Points pour gagner', pts_per_match:'Points par match',
+    j1_hint:'J1 — Ping (W / S)', j2_hint:'J2 — Pong (↑ / ↓)',
+    tourn_title:'🏆 TOURNOI — LIGUE',
+    tourn_setup_hint:'Configurer 8 joueurs · Cliquer CPU/HUM pour changer',
+    diff_tip:'F=Facile · M=Moyen · D=Difficile — difficulté individuelle par CPU',
+    standings:'🏆 CLASSEMENT', next_match_lbl:'PROCHAIN MATCH',
+    th_player:'Joueur', th_pj:'MJ', th_w:'V', th_l:'D', th_pts:'Pts',
+    tourn_end:'🏆 TOURNOI TERMINÉ', final_standings:'Classement final',
+    new_tourn:'🔄 Nouveau tournoi', online_name:'Votre pseudo en ligne',
+    tab_create:'🔑 Créer', tab_join:'🚪 Rejoindre', tab_random:'🎲 Aléatoire',
+    tab_random_title:'Partie aléatoire',
+    share_code:'Partagez ce code. Cliquer pour copier.',
+    waiting_opp:"En attente d'un adversaire…", connect_btn:'Connecter →',
+    mm_tip:'Trouve automatiquement un autre joueur.',
+    mm_search:'🎲 Chercher', cancel:'✖ Annuler',
+    choose_skin:'Choisir le style', skin_tip:'Défaut: rouge vs bleu', confirm:'✔ Confirmer',
+    skin_tab_p1:'J1 — Ping',skin_tab_p2:'J2 — Pong',skin_tab_both:'Les deux',
+    skin_default:'Défaut',skin_fire:'Feu',skin_neon:'Néon',skin_gold:'Or',
+    skin_nature:'Nature',skin_ice:'Glace',skin_dark:'Sombre',skin_pastel:'Pastel',
+    ws_server:'WebSocket · Serveur sur Render',
+    requires_internet:'⚠️ Requiert internet · Mieux en HTTPS',
+    dot_no_server:'Impossible de connecter au serveur',
+    dot_no_srv:'Pas de serveur', dot_ready:'Prêt',
+    dot_connecting:'Connexion…', dot_enter_code:'Entrez le code',
+    dot_creating:'Création de la salle…', dot_code_short:'Code trop court',
+    dot_room_ready:'Salle prête — partagez le code',
+    dot_opp_connected:'Adversaire connecté !',
+    dot_joined:'Connecté ! Préparation du match…',
+    dot_searching:'Recherche…', dot_cancelled:'Annulé',
+    dot_waiting_opp:"En attente d'un adversaire…",
+    dot_opp_found:'Adversaire trouvé ! Préparation…',
+    lbl_create_tap:'Appuyer pour créer une salle',
+    th_player_tourn:'Joueur',
+    choose_mode_lbl:'Choisir le mode',
+  },
+  ja: {
+    subtitle:'究極の決闘',
+    play:'▶ プレイ', skins:'🎨 スキン', settings:'⚙️ 設定',
+    back:'← 戻る', settings_title:'⚙️ 設定',
+    language:'言語', lang_label:'ゲームの言語',
+    music_vol:'音楽音量', menu_main:'🏠 メインメニュー',
+    upload_menu:'📂 メニュー音楽をアップ',
+    upload_settings:'📂 設定音楽をアップ',
+    upload_game:'📂 ゲーム音楽をアップ',
+    mode_1p:'👤 1人プレイ', mode_local:'👥 ローカル',
+    mode_tourn:'🏆 トーナメント', mode_online:'🌐 オンライン',
+    easy:'かんたん', medium:'ふつう', hard:'むずかしい',
+    start_tourn:'🏆 トーナメント開始',
+    play_match:'▶ 試合開始', abandon:'✖ 中止',
+    rematch:'↩ リマッチ', menu_btn:'🏠 メニュー',
+    next_match:'▶ 次の試合',
+    resume:'▶ 再開', save_back:'✔ 保存して戻る',
+    your_name:'あなたの名前', player1:'プレイヤー1', player2:'プレイヤー2', player:'プレイヤー',
+    hint_tourn:'W/S か ↑↓ で移動  •  P = 一時停止',
+    hint_1p:'P1: W/S か ↑↓  •  P = 一時停止',
+    hint_multi:'P1: W/S  •  P2: ↑/↓  •  P = 一時停止',
+    hint_host:'あなたはPING — W/S か ↑↓',
+    hint_guest:'あなたはPONG — W/S か ↑↓',
+    pausa:'— 一時停止 —',
+    snd_ball:'ボール音', snd_ball_sub:'ピン・ポンと跳ね返り',
+    snd_goal:'ゴール', snd_goal_sub:'観客の声', snd_fanfare:'ファンファーレ',
+    particles:'エフェクト', brightness:'明るさ',
+    bright_sub:'フィールドのフィルター',
+    ai_chat:'AIチャット', ai_chat_sub:'AIが試合中に返答',
+    ai_vs_ai:'AI同士の会話', ai_vs_ai_sub:'トーナメントでAI対戦時',
+    timer_on:'タイマー有効', timer_sub:'試合のカウントダウン',
+    timer_dur:'時間', timer_none:'制限なし',
+    code_lbl:'コード', join_lbl:'コード（6文字）',
+    searching:'検索中...', create_room:'プライベートルーム作成',
+    join_room:'ルームに参加', matchmaking:'ランダム対戦',
+    audio:'🔊 オーディオ', custom_music:'🎵 カスタム音楽',
+    upload_desc:'各画面のMP3をアップロード。',
+    upload_desc2:'なければ内蔵音楽が再生。',
+    game_lbl:'試合',
+    visual:'🌟 ビジュアル', chat_ai:'💬 チャット & AI',
+    timer:'⏱️ タイマー', lang_section:'🌐 言語',
+    confirm_abandon:'トーナメントを中止？', confirm_abandon_sub:'進行状況がすべて失われます。',
+    confirm_yes:'✖ 中止', confirm_no:'キャンセル',
+    skip_match:'⏭ 自分の番までスキップ', watch_match:'▶ 試合を見る',
+    cpu_vs_cpu:'AI対AI',
+    mode_lbl_1p:'1P', mode_lbl_local:'LOCAL', mode_lbl_tourn:'TOURN.', mode_lbl_online:'ONLINE',
+    choose_mode:'モードを選択', your_name_lbl:'名前', ai_diff:'AI難易度',
+    pts_to_win:'勝利ポイント', pts_per_match:'1試合のポイント',
+    j1_hint:'P1 — Ping (W / S)', j2_hint:'P2 — Pong (↑ / ↓)',
+    tourn_title:'🏆 トーナメント — リーグ',
+    tourn_setup_hint:'8人を設定 · CPU/HUMをクリックで変更',
+    diff_tip:'E=かんたん · M=ふつう · H=むずかしい',
+    standings:'🏆 順位表', next_match_lbl:'次の試合',
+    th_player:'プレイヤー', th_pj:'試合', th_w:'勝', th_l:'敗', th_pts:'点',
+    tourn_end:'🏆 トーナメント終了', final_standings:'最終順位',
+    new_tourn:'🔄 新しいトーナメント', online_name:'オンラインネーム',
+    tab_create:'🔑 作成', tab_join:'🚪 参加', tab_random:'🎲 ランダム',
+    tab_random_title:'ランダム対戦',
+    share_code:'このコードを共有。クリックでコピー。',
+    waiting_opp:'対戦相手を待っています…', connect_btn:'接続 →',
+    mm_tip:'自動で相手を探します。',
+    mm_search:'🎲 検索', cancel:'✖ キャンセル',
+    choose_skin:'スタイル選択', skin_tip:'デフォルト: 赤 対 青', confirm:'✔ 確認',
+    skin_tab_p1:'P1 — Ping',skin_tab_p2:'P2 — Pong',skin_tab_both:'両方',
+    skin_default:'デフォルト',skin_fire:'炎',skin_neon:'ネオン',skin_gold:'ゴールド',
+    skin_nature:'自然',skin_ice:'氷',skin_dark:'ダーク',skin_pastel:'パステル',
+    ws_server:'WebSocket · Renderサーバー',
+    requires_internet:'⚠️ インターネット必要 · HTTPSを推奨',
+    dot_no_server:'サーバーに接続できません',
+    dot_no_srv:'サーバーなし', dot_ready:'準備完了',
+    dot_connecting:'接続中…', dot_enter_code:'コードを入力',
+    dot_creating:'ルーム作成中…', dot_code_short:'コードが短すぎ',
+    dot_room_ready:'ルーム準備完了 — コードを共有',
+    dot_opp_connected:'対戦相手が接続！',
+    dot_joined:'接続！試合準備中…',
+    dot_searching:'検索中…', dot_cancelled:'キャンセル',
+    dot_waiting_opp:'対戦相手を待っています…',
+    dot_opp_found:'対戦相手が見つかりました！準備中…',
+    lbl_create_tap:'タップしてルームを作成',
+    th_player_tourn:'プレイヤー',
+  },
+  zh: {
+    subtitle:'终极对决',
+    play:'▶ 开始', skins:'🎨 皮肤', settings:'⚙️ 设置',
+    back:'← 返回', settings_title:'⚙️ 设置',
+    language:'语言 Yǔyán', lang_label:'游戏语言',
+    music_vol:'音乐音量', menu_main:'🏠 主菜单',
+    upload_menu:'📂 上传菜单音乐',
+    upload_settings:'📂 上传设置音乐',
+    upload_game:'📂 上传游戏音乐',
+    mode_1p:'👤 单人', mode_local:'👥 本地',
+    mode_tourn:'🏆 锦标赛', mode_online:'🌐 在线',
+    easy:'简单', medium:'中等', hard:'困难',
+    start_tourn:'🏆 开始锦标赛',
+    play_match:'▶ 开始比赛', abandon:'✖ 放弃',
+    rematch:'↩ 再来一局', menu_btn:'🏠 菜单',
+    next_match:'▶ 下一场',
+    resume:'▶ 继续', save_back:'✔ 保存并返回',
+    your_name:'你的名字', player1:'玩家1', player2:'玩家2', player:'玩家',
+    hint_tourn:'W/S 或 ↑↓ 移动  •  P = 暂停',
+    hint_1p:'P1: W/S 或 ↑↓  •  P = 暂停',
+    hint_multi:'P1: W/S  •  P2: ↑/↓  •  P = 暂停',
+    hint_host:'你是 PING — W/S 或 ↑↓',
+    hint_guest:'你是 PONG — W/S 或 ↑↓',
+    pausa:'— 暂停 —',
+    snd_ball:'球音效', snd_ball_sub:'乒乒乓乓声',
+    snd_goal:'进球庆祝', snd_goal_sub:'观众欢呼', snd_fanfare:'锦标赛号角',
+    particles:'粒子特效', brightness:'亮度',
+    bright_sub:'场地滤镜',
+    ai_chat:'AI聊天', ai_chat_sub:'AI在比赛中回复',
+    ai_vs_ai:'AI互相交流', ai_vs_ai_sub:'锦标赛中AI对战时',
+    timer_on:'启用计时器', timer_sub:'每场比赛倒计时',
+    timer_dur:'时长', timer_none:'无限制',
+    code_lbl:'你的代码', join_lbl:'代码（6个字母）',
+    searching:'搜索中...', create_room:'创建私人房间',
+    join_room:'加入房间', matchmaking:'随机匹配',
+    audio:'🔊 音效', custom_music:'🎵 自定义音乐',
+    upload_desc:'为每个页面上传MP3。',
+    upload_desc2:'不上传则使用内置音乐。',
+    game_lbl:'比赛',
+    visual:'🌟 视觉', chat_ai:'💬 聊天 & AI',
+    timer:'⏱️ 计时器', lang_section:'🌐 语言',
+    confirm_abandon:'放弃锦标赛？', confirm_abandon_sub:'所有进度将丢失。',
+    confirm_yes:'✖ 放弃', confirm_no:'取消',
+    skip_match:'⏭ 跳到我的对局', watch_match:'▶ 观看比赛',
+    cpu_vs_cpu:'AI 对 AI',
+    mode_lbl_1p:'1P', mode_lbl_local:'本地', mode_lbl_tourn:'锦标赛', mode_lbl_online:'在线',
+    choose_mode:'选择模式', your_name_lbl:'名字', ai_diff:'AI难度',
+    pts_to_win:'胜利积分', pts_per_match:'每场积分',
+    j1_hint:'P1 — Ping (W / S)', j2_hint:'P2 — Pong (↑ / ↓)',
+    tourn_title:'🏆 锦标赛 — 联赛',
+    tourn_setup_hint:'设置8位玩家 · 点击CPU/HUM切换',
+    diff_tip:'简=简单 · 中=中等 · 难=困难',
+    standings:'🏆 排行榜', next_match_lbl:'下一场比赛',
+    th_player:'玩家', th_pj:'场次', th_w:'胜', th_l:'负', th_pts:'积分',
+    tourn_end:'🏆 锦标赛结束', final_standings:'最终排名',
+    new_tourn:'🔄 新锦标赛', online_name:'在线昵称',
+    tab_create:'🔑 创建', tab_join:'🚪 加入', tab_random:'🎲 随机',
+    tab_random_title:'随机对战',
+    share_code:'分享此代码。点击复制。',
+    waiting_opp:'等待对手…', connect_btn:'连接 →',
+    mm_tip:'自动寻找另一位玩家。',
+    mm_search:'🎲 搜索', cancel:'✖ 取消',
+    choose_skin:'选择风格', skin_tip:'默认: 红色对蓝色', confirm:'✔ 确认',
+    skin_tab_p1:'P1 — Ping',skin_tab_p2:'P2 — Pong',skin_tab_both:'两者',
+    skin_default:'默认',skin_fire:'火焰',skin_neon:'霓虹',skin_gold:'黄金',
+    skin_nature:'自然',skin_ice:'冰',skin_dark:'暗黑',skin_pastel:'粉彩',
+    ws_server:'WebSocket · Render服务器',
+    requires_internet:'⚠️ 需要网络 · 推荐使用HTTPS',
+    dot_no_server:'无法连接到服务器',
+    dot_no_srv:'无服务器', dot_ready:'准备就绪',
+    dot_connecting:'连接中…', dot_enter_code:'输入代码',
+    dot_creating:'创建房间中…', dot_code_short:'代码太短',
+    dot_room_ready:'房间准备好了 — 分享代码',
+    dot_opp_connected:'对手已连接！',
+    dot_joined:'已连接！准备比赛…',
+    dot_searching:'搜索中…', dot_cancelled:'已取消',
+    dot_waiting_opp:'等待对手…',
+    dot_opp_found:'找到对手！准备中…',
+    lbl_create_tap:'点击创建房间',
+    th_player_tourn:'玩家',
+  },
 };
 
 // Shorthand translation lookup
@@ -4066,9 +4326,13 @@ function t(key){ return (LANGS[currentLang]&&LANGS[currentLang][key])||LANGS['es
 
 let currentLang = (()=>{
   const saved = localStorage.getItem('ppLang');
-  if(saved) return saved;
+  if(saved && LANGS[saved]) return saved;
   const nav = (navigator.language||navigator.userLanguage||'en').toLowerCase();
-  return nav.startsWith('es') ? 'es' : 'en';
+  if(nav.startsWith('es')) return 'es';
+  if(nav.startsWith('fr')) return 'fr';
+  if(nav.startsWith('ja')) return 'ja';
+  if(nav.startsWith('zh')) return 'zh';
+  return 'en';
 })();
 
 function applyLang(){
@@ -4095,10 +4359,10 @@ function applyLang(){
   });
   if(typeof buildSkins==='function') buildSkins();
   // Update lang buttons
-  const es = document.getElementById('langES');
-  const en = document.getElementById('langEN');
-  if(es) es.classList.toggle('on', currentLang==='es');
-  if(en) en.classList.toggle('on', currentLang==='en');
+  ['es','en','fr','ja','zh'].forEach(l=>{
+    const btn=document.getElementById('lang_'+l);
+    if(btn) btn.classList.toggle('on', l===currentLang);
+  });
   // Update html lang attribute
   document.documentElement.lang = currentLang;
 }
