@@ -611,6 +611,18 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
 </head>
 <body>
 
+<div id="loginBox">
+  <h2>Mi Cuenta</h2>
+
+  <input type="email" id="email" placeholder="Correo">
+  <input type="password" id="password" placeholder="Contraseña">
+
+  <button onclick="register()">Crear cuenta</button>
+  <button onclick="login()">Iniciar sesión</button>
+
+  <p id="status"></p>
+</div>
+
 <!-- ── MENU ── -->
 <div id="sMenu" class="screen">
   <div class="logo"><span class="p1">PING</span><span class="vs">VS</span><span class="p2">PONG</span></div>
