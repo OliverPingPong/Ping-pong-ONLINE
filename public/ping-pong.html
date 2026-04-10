@@ -611,11 +611,11 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
 </head>
 <body>
 
-<div id="loginBox">
+<div id="loginBox" style="position:absolute; top:20px; left:20px; z-index:9999; background:black; padding:10px;">
   <h2>Mi Cuenta</h2>
 
-  <input type="email" id="email" placeholder="Correo">
-  <input type="password" id="password" placeholder="Contraseña">
+  <input type="email" id="email" placeholder="Correo"><br>
+  <input type="password" id="password" placeholder="Contraseña"><br>
 
   <button onclick="register()">Crear cuenta</button>
   <button onclick="login()">Iniciar sesión</button>
