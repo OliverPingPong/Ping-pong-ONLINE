@@ -4590,5 +4590,35 @@ document.addEventListener('click', ()=>{ if(musicOn&&!musIv) startMusic(); }, {o
 document.addEventListener('keydown', ()=>{ if(musicOn&&!musIv) startMusic(); }, {once:true});
 document.addEventListener('touchstart', ()=>{ if(musicOn&&!musIv) startMusic(); }, {once:true});
 </script>
+
+  <script>
+window.register = function () {
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+  const fakeEmail = username + "@game.com";
+
+  window.auth.createUserWithEmailAndPassword(fakeEmail, password)
+    .then(() => {
+      document.getElementById("status").innerText = "Cuenta creada ✅";
+    })
+    .catch((error) => {
+      document.getElementById("status").innerText = error.message;
+    });
+};
+
+window.login = function () {
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+  const fakeEmail = username + "@game.com";
+
+  window.auth.signInWithEmailAndPassword(fakeEmail, password)
+    .then(() => {
+      document.getElementById("status").innerText = "Sesión iniciada ✅";
+    })
+    .catch((error) => {
+      document.getElementById("status").innerText = error.message;
+    });
+};
+</script>
 </body>
 </html>
