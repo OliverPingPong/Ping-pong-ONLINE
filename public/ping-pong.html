@@ -7,21 +7,35 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCHzOM6QG-VY9pBgJk_cMZ4RtCx4X5WcYY",
-    authDomain: "ping-pong-game-4af41.firebaseapp.com",
-    projectId: "ping-pong-game-4af41",
-    storageBucket: "ping-pong-game-4af41.firebasestorage.app",
-    messagingSenderId: "481345118022",
-    appId: "1:481345118022:web:45cf6f90e1de66679fcf47"
-  };
+function register() {
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
 
-  firebase.initializeApp(firebaseConfig);
+  const fakeEmail = username + "@game.com";
 
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+  auth.createUserWithEmailAndPassword(fakeEmail, password)
+    .then(() => {
+      document.getElementById("status").innerText = "Cuenta creada ✅";
+    })
+    .catch((error) => {
+      document.getElementById("status").innerText = error.message;
+    });
+}
 
-  console.log("Firebase conectado correctamente");
+function login() {
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  const fakeEmail = username + "@game.com";
+
+  auth.signInWithEmailAndPassword(fakeEmail, password)
+    .then(() => {
+      document.getElementById("status").innerText = "Sesión iniciada ✅";
+    })
+    .catch((error) => {
+      document.getElementById("status").innerText = error.message;
+    });
+}
 </script>
 
 </head>
@@ -614,7 +628,7 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
 <div id="loginBox" style="position:absolute; top:23px; right:20px; z-index:9999; background:black; padding:10px;">
   <h2>Mi Cuenta</h2>
 
-  <input type="email" id="email" placeholder="Correo"><br>
+  <input type="text" id="username" placeholder="Nombre de usuario"><br>
   <input type="password" id="password" placeholder="Contraseña"><br>
 
   <button onclick="register()">Crear cuenta</button>
