@@ -13,7 +13,7 @@ window.register = function() {
 
   const fakeEmail = username + "@game.com";
 
-  auth.createUserWithEmailAndPassword(fakeEmail, password)
+  window.auth.createUserWithEmailAndPassword(fakeEmail, password)
     .then(() => {
       document.getElementById("status").innerText = "Cuenta creada ✅";
     })
@@ -28,7 +28,7 @@ window.login = function() {
 
   const fakeEmail = username + "@game.com";
 
-  auth.signInWithEmailAndPassword(fakeEmail, password)
+  window.auth.signInWithEmailAndPassword(fakeEmail, password)
     .then(() => {
       document.getElementById("status").innerText = "Sesión iniciada ✅";
     })
