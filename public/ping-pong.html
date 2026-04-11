@@ -7,35 +7,22 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
-window.register = function() {
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
-
-  const fakeEmail = username + "@game.com";
-
-  window.auth.createUserWithEmailAndPassword(fakeEmail, password)
-    .then(() => {
-      document.getElementById("status").innerText = "Cuenta creada ✅";
-    })
-    .catch((error) => {
-      document.getElementById("status").innerText = error.message;
-    });
+const firebaseConfig = {
+  apiKey: "AIzaSyCHzOM6QG-VY9pBgJk_cMZ4RtCx4X5WcYY",
+  authDomain: "ping-pong-game-4af41.firebaseapp.com",
+  projectId: "ping-pong-game-4af41",
+  storageBucket: "ping-pong-game-4af41.firebasestorage.app",
+  messagingSenderId: "481345118022",
+  appId: "1:481345118022:web:45cf6f90e1de66679fcf47"
 };
 
-window.login = function() {
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
+firebase.initializeApp(firebaseConfig);
 
-  const fakeEmail = username + "@game.com";
+// IMPORTANTE:
+window.auth = firebase.auth();
+window.db = firebase.firestore();
 
-  window.auth.signInWithEmailAndPassword(fakeEmail, password)
-    .then(() => {
-      document.getElementById("status").innerText = "Sesión iniciada ✅";
-    })
-    .catch((error) => {
-      document.getElementById("status").innerText = error.message;
-    });
-};
+console.log(window.auth);
 </script>
 
 </head>
