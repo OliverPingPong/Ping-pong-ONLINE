@@ -7,35 +7,21 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
-function register() {
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
+  const firebaseConfig = {
+    apiKey: "TU_API_KEY",
+    authDomain: "TU_AUTH_DOMAIN",
+    projectId: "TU_PROJECT_ID",
+    storageBucket: "TU_STORAGE_BUCKET",
+    messagingSenderId: "TU_MESSAGING_ID",
+    appId: "TU_APP_ID"
+  };
 
-  const fakeEmail = username + "@game.com";
+  firebase.initializeApp(firebaseConfig);
 
-  auth.createUserWithEmailAndPassword(fakeEmail, password)
-    .then(() => {
-      document.getElementById("status").innerText = "Cuenta creada ✅";
-    })
-    .catch((error) => {
-      document.getElementById("status").innerText = error.message;
-    });
-}
+  window.auth = firebase.auth();
+  window.db = firebase.firestore();
 
-function login() {
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
-
-  const fakeEmail = username + "@game.com";
-
-  auth.signInWithEmailAndPassword(fakeEmail, password)
-    .then(() => {
-      document.getElementById("status").innerText = "Sesión iniciada ✅";
-    })
-    .catch((error) => {
-      document.getElementById("status").innerText = error.message;
-    });
-}
+  console.log("Firebase conectado correctamente");
 </script>
 
 </head>
