@@ -4633,29 +4633,5 @@ window.login = function () {
     });
 };
 </script>
-
-  <script>
-  const firebaseConfig = {
-    ...
-  };
-
-  firebase.initializeApp(firebaseConfig);
-
-  window.auth = firebase.auth();
-  window.db = firebase.firestore();
-
-  firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-
-  firebase.auth().onAuthStateChanged((user) => {
-    if (user) {
-      console.log("Usuario activo:", user.email);
-      window.currentUser = user;
-    } else {
-      window.currentUser = null;
-    }
-  });
-
-  console.log("Firebase conectado correctamente");
-</script>
 </body>
 </html>
