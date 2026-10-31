@@ -1,50 +1,40 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
-<script>
-const firebaseConfig = { ... };
-
-firebase.initializeApp(firebaseConfig);
-firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-
-window.auth = firebase.auth();
-window.db = firebase.firestore();
-
-firebase.auth().onAuthStateChanged((user) => {
-  if (user) {
-    window.currentUser = user;
-
-    const username = user.email.replace("@game.com", "");
-
-    const ids = ["n1P", "n2P1", "nOnline"];
-
-    ids.forEach(id => {
-      const input = document.getElementById(id);
-      if (input) input.value = username;
-    });
-
-    console.log("Usuario activo:", username);
-
-  } else {
-    window.currentUser = null;
-  }
-});
-
-console.log(window.auth);
-</script>
-
-</head>
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Ping Pong: Game</title>
+<!-- ═══ CUENTAS (Firebase) ═══
+     Interruptor: déjalo en false hasta tener Firebase listo (Authentication con email/contraseña + reglas de Firestore).
+     Con true se cargan los scripts de Firebase y se activan "Mi Cuenta" y el guardado en la nube. -->
+<script>
+window.ACCOUNTS_ENABLED = false;
+if(window.ACCOUNTS_ENABLED){
+  ['app','auth','firestore'].forEach(function(m){
+    document.write('<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-'+m+'.js"><\/script>');
+  });
+}
+</script>
+<script>
+const firebaseConfig={
+  apiKey:"AIzaSyCHzOM6QG-VY9pBgJk_cMZ4RtCx4X5WcYY",
+  authDomain:"ping-pong-game-4af41.firebaseapp.com",
+  projectId:"ping-pong-game-4af41",
+  storageBucket:"ping-pong-game-4af41.firebasestorage.app",
+  messagingSenderId:"481345118022",
+  appId:"1:481345118022:web:45cf6f90e1de66679fcf47"
+};
+try{
+  if(window.ACCOUNTS_ENABLED && window.firebase){
+    firebase.initializeApp(firebaseConfig);
+    window.auth=firebase.auth();
+    window.db=firebase.firestore();
+  }
+}catch(e){ console.warn('Firebase no disponible:',e); }
+</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap');
 :root{
@@ -328,6 +318,96 @@ input[type=text]:focus{border-color:var(--acc);}
 .joy-wrap.right .joy-zone{border-color:rgba(34,102,255,.35);}
 .joy-wrap.left .joy-knob{background:radial-gradient(circle at 35% 35%,#ff6688,#ff2244aa);}
 .joy-wrap.right .joy-knob{background:radial-gradient(circle at 35% 35%,#6699ff,#2266ffaa);}
+
+/* ══ ACCOUNT & SHOP ══ */
+#currencyBar{
+  position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  z-index:201;display:none;align-items:center;gap:10px;
+  background:rgba(0,0,0,.55);border:1px solid #333;border-radius:20px;
+  padding:5px 14px;pointer-events:none;
+}
+#currencyBar.show{display:flex;}
+.cur-item{display:flex;align-items:center;gap:4px;font-family:'Orbitron',monospace;font-size:.6rem;font-weight:700;}
+.cur-coin{color:#ffe44d;} .cur-gem{color:#aa44ff;}
+.accountBtn{
+  position:absolute;top:10px;right:14px;z-index:5;
+  background:rgba(0,0,0,.5);border:1px solid #444;color:#aaa;
+  font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:.08em;
+  padding:6px 12px;border-radius:16px;cursor:pointer;
+  transition:border-color .2s,color .2s;
+}
+.accountBtn:hover{border-color:var(--acc);color:var(--acc);}
+.accountBtn.logged{border-color:#00cc66;color:#00cc66;}
+
+/* Account screen */
+.acc-form{display:flex;flex-direction:column;gap:10px;width:min(320px,90vw);}
+.acc-form input{
+  background:#1a1d26;border:1.5px solid #333;border-radius:8px;
+  color:#fff;font-family:'Rajdhani',sans-serif;font-size:.95rem;
+  padding:10px 14px;outline:none;transition:border-color .2s;
+}
+.acc-form input:focus{border-color:var(--acc);}
+.acc-tabs{display:flex;gap:6px;margin-bottom:4px;}
+.acc-tab{flex:1;padding:8px;font-family:'Orbitron',monospace;font-size:.55rem;
+  letter-spacing:.1em;cursor:pointer;border-radius:8px;
+  background:rgba(255,255,255,.05);border:1.5px solid #333;color:#777;transition:.2s;}
+.acc-tab.on{background:var(--acc);border-color:var(--acc);color:#111;}
+.acc-info{text-align:center;font-family:'Rajdhani',sans-serif;font-size:.85rem;color:#aaa;line-height:1.5;}
+.acc-info strong{color:#fff;display:block;font-size:1.1rem;margin-bottom:4px;}
+.acc-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.6rem;
+  font-family:'Orbitron',monospace;background:#aa44ff22;border:1px solid #aa44ff;color:#aa44ff;}
+.acc-badge.premium{background:#ffe44d22;border-color:#ffe44d;color:#ffe44d;}
+.acc-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:6px;}
+.acc-stat{background:rgba(255,255,255,.04);border:1px solid #2a2a3a;border-radius:8px;
+  padding:10px;text-align:center;}
+.acc-stat-val{font-family:'Orbitron',monospace;font-size:1.2rem;font-weight:900;}
+.acc-stat-lbl{font-size:.65rem;color:#666;font-family:'Rajdhani',sans-serif;margin-top:2px;}
+
+/* Shop */
+#sShop .shop-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
+  gap:10px;width:min(600px,96vw);max-height:60vh;overflow-y:auto;padding:4px;
+}
+.shop-card{
+  background:linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+  border:1.5px solid #2a2d38;border-radius:12px;padding:10px 8px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;
+  transition:border-color .2s,transform .15s;position:relative;
+}
+.shop-card:hover:not(.locked-owned):not(.selected-card){transform:translateY(-2px);border-color:#555;}
+.shop-card.unlocked{border-color:#00cc6655;}
+.shop-card.selected-card{border-color:var(--acc);box-shadow:0 0 12px #ffe44d44;}
+.shop-card.locked-owned{opacity:.55;cursor:not-allowed;}
+.shop-preview{width:36px;height:80px;border-radius:8px;flex-shrink:0;}
+.shop-name{font-family:'Orbitron',monospace;font-size:.42rem;letter-spacing:.06em;
+  color:#ccd;text-align:center;line-height:1.3;}
+.shop-price{font-family:'Orbitron',monospace;font-size:.5rem;font-weight:700;}
+.shop-price.coin{color:#ffe44d;} .shop-price.gem{color:#aa44ff;} .shop-price.free{color:#00cc66;}
+.shop-lock{position:absolute;top:5px;right:5px;font-size:.65rem;opacity:.6;}
+.shop-check{position:absolute;top:5px;right:5px;font-size:.65rem;color:#00cc66;}
+.shop-tabs{display:flex;gap:6px;margin-bottom:8px;}
+.shop-tab{padding:7px 14px;font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:.1em;
+  cursor:pointer;border-radius:8px;background:rgba(255,255,255,.05);
+  border:1.5px solid #333;color:#777;transition:.2s;}
+.shop-tab.on{background:var(--acc);border-color:var(--acc);color:#111;font-weight:700;}
+.reward-pop{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:rgba(5,5,15,.92);border:2px solid var(--acc);border-radius:16px;
+  padding:28px 36px;text-align:center;z-index:9999;font-family:'Orbitron',monospace;
+  animation:popIn .35s cubic-bezier(.18,.89,.32,1.28);
+}
+@keyframes popIn{from{transform:translate(-50%,-50%) scale(.7);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.reward-title{font-size:1rem;font-weight:900;color:var(--acc);margin-bottom:8px;}
+.reward-amt{font-size:1.6rem;font-weight:900;margin:6px 0;}
+
+.shop-card.locked{opacity:.88;}
+.shop-card.locked .shop-preview{filter:grayscale(.55) brightness(.8);}
+/* Demo badge */
+.demo-badge{
+  background:#ff224422;border:1.5px solid #ff2244;color:#ff2244;
+  font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:.12em;
+  padding:3px 8px;border-radius:8px;display:inline-block;
+}
 
 /* ══ RESPONSIVE ══ */
 /* Screens: bigger tap targets on small devices */
@@ -625,20 +705,15 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
 </head>
 <body>
 
-<div id="loginBox" style="position:absolute; top:23px; right:20px; z-index:9999; background:black; padding:10px;">
-  <h2>Mi Cuenta</h2>
-
-  <input type="text" id="username" placeholder="Nombre de usuario"><br>
-  <input type="password" id="password" placeholder="Contraseña"><br>
-
-  <button onclick="register()"> Crear cuenta</button>
-  <button onclick="login()"> Iniciar sesión</button>
-
-  <p id="status"></p>
-</div>
-
 <!-- ── MENU ── -->
 <div id="sMenu" class="screen">
+  <!-- Barra de monedas y botón de cuenta: solo existen dentro del menú (y de ajustes) -->
+  <div id="currencyBar">
+    <div class="cur-item cur-coin">🪙 <span id="curCoins">0</span></div>
+    <div style="width:1px;height:14px;background:#333"></div>
+    <div class="cur-item cur-gem">💎 <span id="curGems">0</span></div>
+  </div>
+  <button class="accountBtn" onclick="goTo('sAccount')">👤 Mi Cuenta</button>
   <div class="logo"><span class="p1">PING</span><span class="vs">VS</span><span class="p2">PONG</span></div>
   <div class="subtitle"><span data-i18n="subtitle">El duelo definitivo</span></div>
   <div style="height:6px"></div>
@@ -647,10 +722,12 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
     <button class="btn sm" onclick="goTo('sSkins')" data-i18n="skins">🎨 Skins</button>
     <button class="btn sm" onclick="goTo('sSettings')" data-i18n="settings">⚙️ Ajustes</button>
   </div>
+  <button class="btn sm" onclick="goTo('sShop')" style="border-color:#ffe44d;color:#ffe44d" data-i18n="shop_btn">🛒 Tienda</button>
 </div>
 
 <!-- ── SETTINGS ── -->
 <div id="sSettings" class="screen hidden">
+  <button class="accountBtn" onclick="goTo('sAccount')">👤 Mi Cuenta</button>
   <button class="back" onclick="goTo('sMenu')" data-i18n="back">← Volver</button>
   <div class="trn-header" style="color:var(--acc);font-size:.78rem;letter-spacing:.22em;flex-shrink:0;margin-bottom:4px" data-i18n="settings_title">⚙️ AJUSTES</div>
 
@@ -798,6 +875,9 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
   </div>
   <div class="row" style="margin-top:4px">
     <button class="btn grn"  onclick="setMode('online')" data-i18n="mode_online">🌐 Online</button>
+  </div>
+  <div class="row" style="margin-top:4px">
+    <button class="btn sm" onclick="startDemo()" style="border-color:#ff2244;color:#ff2244"><span data-i18n="demo_btn">🎮 Demo</span> <span class="demo-badge" data-i18n="demo_badge">3 partidas</span></button>
   </div>
 </div>
 
@@ -958,6 +1038,61 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
   <button class="btn sm" onclick="goTo('sMenu')" data-i18n="confirm">✔ Confirmar</button>
 </div>
 
+<!-- ── ACCOUNT ── -->
+<div id="sAccount" class="screen hidden">
+  <button class="back" onclick="goTo('sMenu')" data-i18n="back">← Volver</button>
+  <div class="trn-header" style="color:var(--acc);font-size:.8rem;letter-spacing:.2em" data-i18n="acc_title">👤 MI CUENTA</div>
+
+  <div id="accUnavailable" style="display:none;max-width:300px;text-align:center;font-family:Rajdhani,sans-serif;font-size:.95rem;color:#ffb347;line-height:1.5;padding:12px;border:1px solid #ffb34755;border-radius:10px"></div>
+
+  <!-- Not logged in -->
+  <div id="accGuest">
+    <div class="acc-tabs">
+      <button class="acc-tab on" id="tabLogin" onclick="switchAccTab('login')" data-i18n="acc_login">Iniciar sesión</button>
+      <button class="acc-tab" id="tabReg" onclick="switchAccTab('register')" data-i18n="acc_register">Registrarse</button>
+    </div>
+    <div class="acc-form">
+      <input id="accEmail" type="email" placeholder="Email" data-i18n-ph="acc_email_ph" autocomplete="email">
+      <input id="accPass" type="password" placeholder="Contraseña" data-i18n-ph="acc_pass_ph" autocomplete="current-password">
+      <input id="accUser" type="text" placeholder="Nombre de usuario" data-i18n-ph="acc_user_ph" maxlength="16" style="display:none">
+      <button class="btn" id="accSubmit" onclick="accSubmit()">Iniciar sesión</button>
+      <div id="accErr" style="font-size:.7rem;color:var(--err);text-align:center;min-height:1em"></div>
+    </div>
+  </div>
+
+  <!-- Logged in -->
+  <div id="accLogged" style="display:none;flex-direction:column;align-items:center;gap:12px;width:min(320px,90vw)">
+    <div class="acc-info">
+      <strong id="accUsername">—</strong>
+      <span id="accPremiumBadge" class="acc-badge premium" style="display:none" data-i18n="acc_premium">⭐ PREMIUM</span>
+      <span id="accNormalBadge" class="acc-badge" data-i18n="acc_free">FREE</span>
+    </div>
+    <div class="acc-stats">
+      <div class="acc-stat"><div class="acc-stat-val cur-coin" id="accCoins">0</div><div class="acc-stat-lbl">🪙 CoinClothes</div></div>
+      <div class="acc-stat"><div class="acc-stat-val cur-gem" id="accGems">0</div><div class="acc-stat-lbl">💎 Exclusives</div></div>
+    </div>
+    <button class="btn sm" onclick="goTo('sShop')" style="border-color:#ffe44d;color:#ffe44d;width:100%" data-i18n="acc_go_shop">🛒 Ir a la Tienda</button>
+    <button class="btn sm" onclick="accLogout()" style="border-color:var(--err);color:var(--err);width:100%" data-i18n="acc_logout">Cerrar sesión</button>
+  </div>
+</div>
+
+<!-- ── SHOP ── -->
+<div id="sShop" class="screen hidden">
+  <button class="back" onclick="goTo('sMenu')" data-i18n="back">← Volver</button>
+  <div class="trn-header" style="color:#ffe44d;font-size:.8rem;letter-spacing:.2em" data-i18n="shop_title">🛒 TIENDA DE SKINS</div>
+  <div style="font-family:'Orbitron',monospace;font-size:.58rem;display:flex;gap:12px;margin-bottom:4px">
+    <span class="cur-coin">🪙 <span id="shopCoins">0</span></span>
+    <span class="cur-gem">💎 <span id="shopGems">0</span></span>
+  </div>
+  <div class="shop-tabs">
+    <button class="shop-tab on" onclick="switchShopTab('all')" data-i18n="shop_all">Todas</button>
+    <button class="shop-tab" onclick="switchShopTab('free')" data-i18n="shop_free">Gratis</button>
+    <button class="shop-tab" onclick="switchShopTab('coin')" data-i18n="shop_coins">🪙 Monedas</button>
+    <button class="shop-tab" onclick="switchShopTab('gem')" data-i18n="shop_gems">💎 Gemas</button>
+  </div>
+  <div class="shop-grid" id="shopGrid"></div>
+</div>
+
 <!-- CANVAS -->
 <canvas id="gameCanvas"></canvas>
 <canvas id="confCanvas"></canvas>
@@ -1006,6 +1141,7 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
 <div id="wins">
   <div class="wt" id="wTitle">¡VICTORIA!</div>
   <div class="ws" id="wSub"></div>
+  <div id="wReward" style="display:none;font-family:'Orbitron',monospace;font-size:.7rem;margin:6px 0;color:#ffe44d;text-align:center"></div>
   <div class="row" id="wBtns">
     <button class="btn"    id="rBtn"  onclick="restartGame()" data-i18n="rematch">↩ Revancha</button>
     <button class="btn sm" id="nxBtn" onclick="nextMatchOrMenu()" style="display:none" data-i18n="next_match">▶ Siguiente partido</button>
@@ -1076,6 +1212,37 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
 // ═══════════════════════════════════════════
 //  GLOBALS
 // ═══════════════════════════════════════════
+// ── Account & currency globals (must be before Firebase callbacks) ─────────
+var currentUser = null;
+var playerData = { coins:0, gems:0, unlockedSkins:['skin_default'], selectedSkin1:'skin_default', selectedSkin2:'skin_default', isPremium:false };
+var demoActive = false, demoMatchesLeft = 0;
+var accTabMode = 'login';
+var shopTabCurrent = 'all';
+
+// ── 21 Skins (declared here so Firebase callbacks can access them) ──────────
+var ALL_SKINS=[
+  {k:'skin_default', l:'Base',      price:0,  currency:'free', a:'#ff2244',b:'#2266ff', ga:'#ff224488',gb:'#2266ff88', shape:'rect',  fx:'none'},
+  {k:'skin_fire',    l:'Fuego',     price:0,  currency:'free', a:'#ff6600',b:'#ff0022', ga:'#ff660099',gb:'#ff002299', shape:'flame', fx:'fire'},
+  {k:'skin_neon',    l:'Neón',      price:0,  currency:'free', a:'#00ffcc',b:'#ff00ff', ga:'#00ffccaa',gb:'#ff00ffaa', shape:'thin',  fx:'neon'},
+  {k:'skin_gold',    l:'Oro',       price:0,  currency:'free', a:'#ffd700',b:'#c0c0c0', ga:'#ffd70066',gb:'#c0c0c066', shape:'rect',  fx:'metal'},
+  {k:'skin_nature',  l:'Natural',   price:0,  currency:'free', a:'#55cc44',b:'#995533', ga:'#55cc4466',gb:'#99553366', shape:'rect',  fx:'wood'},
+  {k:'skin_ice',     l:'Hielo',     price:0,  currency:'free', a:'#88ddff',b:'#ddeeff', ga:'#88ddff88',gb:'#ddeeff88', shape:'thin',  fx:'ice'},
+  {k:'skin_dark',    l:'Oscura',    price:0,  currency:'free', a:'#bb44ff',b:'#ff6600', ga:'#bb44ffaa',gb:'#ff6600aa', shape:'rect',  fx:'dark'},
+  {k:'skin_pastel',  l:'Pastel',    price:0,  currency:'free', a:'#ff99bb',b:'#99bbff', ga:'#ff99bb66',gb:'#99bbff66', shape:'pill',  fx:'soft'},
+  {k:'skin_sport',   l:'Deportivo', price:80,  currency:'coin', a:'#ff4400',b:'#0044ff', ga:'#ff440088',gb:'#0044ff88', shape:'rect',  fx:'sport'},
+  {k:'skin_ninja',   l:'Ninja',     price:110, currency:'coin', a:'#111111',b:'#cc0000', ga:'#11111199',gb:'#cc000099', shape:'thin',  fx:'ninja'},
+  {k:'skin_soccer',  l:'Futbolista',price:130, currency:'coin', a:'#22cc22',b:'#ffffff', ga:'#22cc2299',gb:'#ffffff99', shape:'rect',  fx:'soccer'},
+  {k:'skin_robot',   l:'Robot',     price:120, currency:'coin', a:'#aaccff',b:'#ffcc00', ga:'#aaccff88',gb:'#ffcc0088', shape:'rect',  fx:'robot'},
+  {k:'skin_retro',   l:'Retro',     price:90,  currency:'coin', a:'#00ff44',b:'#ff6600', ga:'#00ff4488',gb:'#ff660088', shape:'rect',  fx:'retro'},
+  {k:'skin_ocean',   l:'Océano',    price:100, currency:'coin', a:'#0066ff',b:'#00ccff', ga:'#0066ff88',gb:'#00ccff88', shape:'pill',  fx:'ocean'},
+  {k:'skin_lava',    l:'Lava',      price:115, currency:'coin', a:'#ff2200',b:'#ff8800', ga:'#ff220099',gb:'#ff880099', shape:'flame', fx:'lava'},
+  {k:'skin_electric',l:'Eléctrica', price:95,  currency:'coin', a:'#ffff00',b:'#00ffff', ga:'#ffff0099',gb:'#00ffff99', shape:'thin',  fx:'electric'},
+  {k:'skin_ghost',   l:'Fantasma',  price:3,   currency:'gem',  a:'#eeeeff',b:'#aaaacc', ga:'#eeeeff55',gb:'#aaaacc55', shape:'pill',  fx:'ghost'},
+  {k:'skin_dragon',  l:'Dragón',    price:5,   currency:'gem',  a:'#ff4400',b:'#ffd700', ga:'#ff440099',gb:'#ffd70099', shape:'flame', fx:'dragon'},
+  {k:'skin_cosmic',  l:'Cósmico',   price:4,   currency:'gem',  a:'#8800ff',b:'#ff0088', ga:'#8800ffaa',gb:'#ff0088aa', shape:'rect',  fx:'cosmic'},
+  {k:'skin_aurora',  l:'Aurora',    price:6,   currency:'gem',  a:'#00ff88',b:'#ff00cc', ga:'#00ff88aa',gb:'#ff00ccaa', shape:'thin',  fx:'aurora'},
+  {k:'skin_legendary',l:'Leyenda',  price:8,   currency:'gem',  a:'#ffd700',b:'#ff4400', ga:'#ffd700cc',gb:'#ff4400cc', shape:'rect',  fx:'legendary'},
+];
 let mode='single', diff='easy', winPts=7;
 let p1Name='PING', p2Name='PONG';
 let musicOn=true, gameRunning=false, paused=false, animId=null;
@@ -1084,17 +1251,7 @@ let musicOn=true, gameRunning=false, paused=false, animId=null;
 let netRole=null, peer=null, conn=null, myCode=null, pingTimer=null, mmActive=false;
 const MM='ppvp2025-mm-s';
 
-// Each skin: a=p1 color, b=p2 color, ga/gb=glow, shape=paddle shape, fx=special effect
-const SKINS=[
-  {k:'skin_default',l:'Default', a:'#ff2244',b:'#2266ff', ga:'#ff224488',gb:'#2266ff88', shape:'rect',  fx:'none'},
-  {k:'skin_fire',   l:'Fuego',   a:'#ff6600',b:'#ff0022', ga:'#ff660099',gb:'#ff002299', shape:'flame', fx:'fire'},
-  {k:'skin_neon',   l:'Neón',    a:'#00ffcc',b:'#ff00ff', ga:'#00ffccaa',gb:'#ff00ffaa', shape:'thin',  fx:'neon'},
-  {k:'skin_gold',   l:'Oro',     a:'#ffd700',b:'#c0c0c0', ga:'#ffd70066',gb:'#c0c0c066', shape:'rect',  fx:'metal'},
-  {k:'skin_nature', l:'Natura',  a:'#55cc44',b:'#995533', ga:'#55cc4466',gb:'#99553366', shape:'rect',  fx:'wood'},
-  {k:'skin_ice',    l:'Hielo',   a:'#88ddff',b:'#ddeeff', ga:'#88ddff88',gb:'#ddeeff88', shape:'thin',  fx:'ice'},
-  {k:'skin_dark',   l:'Dark',    a:'#bb44ff',b:'#ff6600', ga:'#bb44ffaa',gb:'#ff6600aa', shape:'rect',  fx:'dark'},
-  {k:'skin_pastel', l:'Pastel',  a:'#ff99bb',b:'#99bbff', ga:'#ff99bb66',gb:'#99bbff66', shape:'pill',  fx:'soft'},
-];
+const SKINS = ALL_SKINS; // alias: única fuente de verdad (21 skins)
 let skin=0; // legacy (used for ball color)
 let skin1=0, skin2=0; // per-player skins
 const AI_NAMES=['Kenji','Minho','Wei','Luca','Igor','Sven','Arjun','Omar','Thiago','Javier'];
@@ -1114,7 +1271,7 @@ function trnInit(){
   trnPlayers=[];
   for(let i=0;i<8;i++){
     trnPlayers.push({
-      name: i===0 ? '' : AI_NAMES[i-1],
+      name: i===0 ? (playerData.displayName||'') : AI_NAMES[i-1],
       isCpu: i!==0,
       diff: 'medium',   // per-player AI difficulty
       pts:0,wins:0,losses:0,gf:0,gc:0
@@ -2022,9 +2179,121 @@ function drawPaddle(pd,isP1){
     CX.fillStyle='rgba(255,240,80,.25)'; rr(px+pw*.1,py+ph*.25,pw*.8,ph*.5,pw*.3); CX.fill();
 
   } else if(fx==='soft'){
-    // Soft pastel shimmer
     const ss=0.18+Math.sin(t*2)*0.06;
     CX.fillStyle=`rgba(255,255,255,${ss})`;rr(px+pw*.1,py+ph*.06,pw*.55,ph*.42,pw*.45);CX.fill();
+
+  } else if(fx==='sport'){
+    CX.save();CX.beginPath();rr(px,py,pw,ph,pw*.4);CX.clip();
+    CX.fillStyle='rgba(255,255,255,.22)';CX.fillRect(px,py+ph*.32,pw,ph*.07);CX.fillRect(px,py+ph*.54,pw,ph*.07);
+    CX.restore();
+    CX.fillStyle='rgba(255,255,255,.18)';rr(px+pw*.1,py+ph*.06,pw*.45,ph*.28,pw*.3);CX.fill();
+
+  } else if(fx==='ninja'){
+    CX.fillStyle='rgba(0,0,0,.55)';rr(px+pw*.1,py+ph*.1,pw*.8,ph*.8,pw*.3);CX.fill();
+    CX.shadowColor='#cc0000';CX.shadowBlur=8;CX.strokeStyle='#cc0000';CX.lineWidth=2;
+    CX.beginPath();CX.moveTo(px+pw*.15,py+ph*.22);CX.lineTo(px+pw*.85,py+ph*.78);CX.stroke();
+    CX.shadowBlur=0;CX.lineWidth=1;
+
+  } else if(fx==='soccer'){
+    CX.save();CX.beginPath();rr(px,py,pw,ph,pw*.4);CX.clip();
+    CX.strokeStyle='rgba(0,0,0,.25)';CX.lineWidth=1.5;
+    for(let hy=py+4;hy<py+ph;hy+=10){
+      const off=(Math.floor((hy-py)/10)%2)*4;
+      for(let hx=px+off;hx<px+pw;hx+=8){CX.beginPath();CX.arc(hx,hy,3.2,0,Math.PI*2);CX.stroke();}
+    }
+    CX.restore();
+    CX.fillStyle='rgba(255,255,255,.15)';rr(px+pw*.12,py+ph*.06,pw*.42,ph*.28,pw*.3);CX.fill();
+
+  } else if(fx==='robot'){
+    CX.fillStyle='rgba(255,255,255,.18)';rr(px+pw*.05,py+ph*.05,pw*.9,ph*.4,pw*.2);CX.fill();
+    CX.fillStyle='rgba(0,0,0,.2)';rr(px+pw*.05,py+ph*.5,pw*.9,ph*.44,pw*.2);CX.fill();
+    CX.strokeStyle='rgba(255,200,0,.45)';CX.lineWidth=1;
+    CX.beginPath();CX.moveTo(px+pw*.05,py+ph*.5);CX.lineTo(px+pw*.95,py+ph*.5);CX.stroke();CX.lineWidth=1;
+    // Eye dot
+    CX.beginPath();arc(px+pw*.5,py+ph*.28,pw*.14,0,Math.PI*2);
+    CX.fillStyle=`rgba(255,200,0,${0.5+Math.sin(t*4)*.3})`;CX.fill();
+
+  } else if(fx==='retro'){
+    CX.save();CX.beginPath();rr(px,py,pw,ph,pw*.2);CX.clip();
+    const bsz=pw/3;
+    CX.fillStyle='rgba(255,255,255,.15)';CX.fillRect(px,py,bsz,ph);
+    CX.fillStyle='rgba(0,0,0,.1)';CX.fillRect(px+bsz,py,bsz,ph);
+    CX.fillStyle='rgba(255,255,255,.08)';CX.fillRect(px+bsz*2,py,bsz,ph);
+    CX.restore();
+
+  } else if(fx==='ocean'){
+    CX.save();CX.globalAlpha=0.35;CX.strokeStyle='#00ffff';CX.lineWidth=1.5;
+    for(let wi=0;wi<3;wi++){
+      const wy=py+ph*(0.2+wi*0.25)+Math.sin(t*2+wi)*4;
+      CX.beginPath();CX.moveTo(px,wy);
+      for(let wx2=0;wx2<=pw;wx2+=4){CX.lineTo(px+wx2,wy+Math.sin((wx2/pw)*Math.PI*2+t*3)*3);}
+      CX.stroke();
+    }
+    CX.restore();
+
+  } else if(fx==='lava'){
+    for(let i=0;i<3;i++){
+      const bx=px+pw*(0.2+i*0.3);const by=py+ph*(0.3+Math.sin(t*2+i)*0.18);
+      CX.beginPath();arc(bx,by,pw*0.18,0,Math.PI*2);
+      CX.fillStyle=`rgba(255,${70+i*40},0,0.32)`;CX.fill();
+    }
+
+  } else if(fx==='electric'){
+    const ep=0.5+Math.sin(t*15)*0.5;
+    CX.strokeStyle=`rgba(255,255,0,${ep*0.65})`;CX.lineWidth=1.5;
+    CX.shadowColor='#ffff00';CX.shadowBlur=8*ep;
+    CX.beginPath();CX.moveTo(pd.x,py);
+    for(let ey=8;ey<ph;ey+=8){CX.lineTo(px+pw*(0.25+Math.sin(ey+t*5)*0.5),py+ey);}
+    CX.stroke();CX.shadowBlur=0;CX.lineWidth=1;
+
+  } else if(fx==='ghost'){
+    CX.save();CX.globalAlpha=0.55+Math.sin(t*2)*0.12;
+    CX.fillStyle='rgba(180,180,255,.18)';rr(px,py,pw,ph,pw*.5);CX.fill();
+    CX.globalAlpha=1;
+    CX.strokeStyle=`rgba(200,200,255,${0.35+Math.sin(t*3)*0.15})`;CX.lineWidth=1.5;
+    rr(px,py,pw,ph,pw*.5);CX.stroke();CX.lineWidth=1;
+    CX.restore();
+
+  } else if(fx==='dragon'){
+    CX.save();CX.beginPath();rr(px,py,pw,ph,pw*.4);CX.clip();
+    CX.fillStyle='rgba(255,140,0,.2)';
+    for(let dy=py;dy<py+ph;dy+=7){
+      const off=(Math.floor((dy-py)/7)%2)*3.5;
+      for(let dx=px+off;dx<px+pw;dx+=7){
+        CX.beginPath();CX.ellipse(dx,dy,3,3.2,0,0,Math.PI*2);CX.fill();
+      }
+    }
+    CX.restore();
+    CX.shadowColor='#ffd700';CX.shadowBlur=18+Math.sin(t*3)*8;
+    CX.strokeStyle='#ffd700';CX.lineWidth=1.5;rr(px,py,pw,ph,pw*.4);CX.stroke();
+    CX.shadowBlur=0;CX.lineWidth=1;
+
+  } else if(fx==='cosmic'){
+    for(let i=0;i<6;i++){
+      const sx=px+pw*(0.1+((i*137+Math.floor(t*20)%100)%90)/90*0.8);
+      const sy=py+ph*(0.1+((i*97+Math.floor(t*15)%100)%90)/90*0.8);
+      CX.beginPath();arc(sx,sy,1.2+Math.sin(t*3+i)*0.6,0,Math.PI*2);
+      CX.fillStyle=`rgba(${i%2?255:180},${i%3?100:200},255,${0.55+Math.sin(t+i)*0.3})`;CX.fill();
+    }
+
+  } else if(fx==='aurora'){
+    const ag=CX.createLinearGradient(px,py+ph*(0.2+Math.sin(t)*0.08),px,py+ph*.85);
+    ag.addColorStop(0,`rgba(0,255,136,${0.22+Math.sin(t*2)*0.1})`);
+    ag.addColorStop(0.5,`rgba(255,0,204,${0.16+Math.sin(t*1.5)*0.1})`);
+    ag.addColorStop(1,'transparent');
+    CX.fillStyle=ag;rr(px,py,pw,ph,pw*.45);CX.fill();
+    CX.strokeStyle=`rgba(0,255,136,${0.38+Math.sin(t*3)*0.18})`;CX.lineWidth=1.5;
+    rr(px,py,pw,ph,pw*.45);CX.stroke();CX.lineWidth=1;
+
+  } else if(fx==='legendary'){
+    CX.shadowColor='#ffd700';CX.shadowBlur=22+Math.sin(t*2)*10;
+    for(let i=0;i<4;i++){
+      const ang=t*2+i*Math.PI/2;
+      CX.beginPath();arc(pd.x+Math.cos(ang)*ph*.38,pd.y+Math.sin(ang)*ph*.38,3,0,Math.PI*2);
+      CX.fillStyle='rgba(255,215,0,.85)';CX.fill();
+    }
+    CX.strokeStyle='#ffd700';CX.lineWidth=2;rr(px,py,pw,ph,pw*.4);CX.stroke();
+    CX.shadowBlur=0;CX.lineWidth=1;
 
   } else {
     // Default highlight
@@ -2099,22 +2368,23 @@ function adjustColor(hex,amt){
 }
 function drawBall(){
   const br=Math.max(4,BR());
+  const pal=ballPalette();
   if(ball.tr&&ball.tr.length>1){
     ball.tr.forEach((t,i)=>{
       if(!i)return;
       const fr=i/ball.tr.length,tr=br*fr*.8;
       if(tr<=0)return;
       CX.beginPath();arc(t.x,t.y,tr,0,Math.PI*2);
-      CX.fillStyle=`rgba(255,255,200,${fr*.32})`;CX.fill();
+      CX.fillStyle=`rgba(${pal[2]},${fr*.32})`;CX.fill();
     });
   }
   const gr=Math.max(1,br*2.5);
   let g=CX.createRadialGradient(ball.x,ball.y,0,ball.x,ball.y,gr);
-  g.addColorStop(0,'rgba(255,255,200,.38)');g.addColorStop(1,'transparent');
+  g.addColorStop(0,`rgba(${pal[2]},.38)`);g.addColorStop(1,'transparent');
   CX.fillStyle=g;CX.beginPath();arc(ball.x,ball.y,gr,0,Math.PI*2);CX.fill();
-  CX.shadowColor='#ffe44d';CX.shadowBlur=18;
+  CX.shadowColor=pal[3];CX.shadowBlur=18;
   g=CX.createRadialGradient(ball.x-br*.3,ball.y-br*.3,0,ball.x,ball.y,br);
-  g.addColorStop(0,'#fff');g.addColorStop(.4,'#ffe88a');g.addColorStop(1,'#ffaa00');
+  g.addColorStop(0,'#fff');g.addColorStop(.4,pal[0]);g.addColorStop(1,pal[1]);
   CX.fillStyle=g;CX.beginPath();arc(ball.x,ball.y,br,0,Math.PI*2);CX.fill();
   CX.shadowBlur=0;
 }
@@ -2137,11 +2407,11 @@ function spawnParts(x,y,c){
     parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,r:3+Math.random()*4,life:60+Math.random()*40,rgb});
   }
 }
-function spawnConfs(x,y){
+function spawnConfs(x,y,cols){
   if(!CFG.particles) return;
   for(let i=0;i<55;i++) confs.push({
     x,y:y-20,vx:(Math.random()-.5)*12,vy:-8-Math.random()*8,
-    r:3+Math.random()*5,c:`hsl(${Math.random()*360},100%,60%)`,
+    r:3+Math.random()*5,c:(cols&&cols.length)?cols[Math.floor(Math.random()*cols.length)]:`hsl(${Math.random()*360},100%,60%)`,
     life:1,dec:.012+Math.random()*.008,sp:Math.random()*Math.PI*2,ss:(Math.random()-.5)*.3
   });
 }
@@ -2390,7 +2660,7 @@ function goal(scorer){
   updateHUD();
   crowd.forEach(p=>p.cheer=true);
   setTimeout(()=>crowd.forEach(p=>p.cheer=false),3000);
-  sndGoal();spawnConfs(W/2,H/2);
+  sndGoal();spawnConfs(W/2,H/2,goalColors(scorer));
   animGoal(scorer); animLose(scorer===1?2:1);
   // AI instant auto-chat (local, no API)
   if(mode==='single'){
@@ -2487,6 +2757,14 @@ function endMatch(winner){
     const aiIsLeft=trnPlayers[fx.i].isCpu;
     aiCommentMatchEnd(aiIsLeft ? winner===2 : winner===1);
   }
+  // Award coins/gems (async, doesn't block UI)
+  const humanWon = humanWonThisMatch(winner);
+  if(typeof awardMatchReward==='function') awardMatchReward(humanWon, mode==='tourn');
+  // Demo: count match
+  if(typeof demoMatchPlayed==='function' && demoActive) demoMatchPlayed();
+  // Clear reward label initially
+  const rw=document.getElementById('wReward');
+  if(rw) rw.style.display='none';
 }
 
 function nextMatchOrMenu(){
@@ -2507,6 +2785,7 @@ function restartGame(){document.getElementById('wins').classList.remove('show');
 
 function backToMenu(){
   gameRunning=false;stopMusic();cancelAnimationFrame(animId);
+  applyPlayerSkins();   // tras una partida online, vuelve a mis skins
   destroyPeer();
   trnActive=false;
   showChatBtn(false);
@@ -2610,6 +2889,9 @@ function updateHUD(){
 function goTo(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
   const el=document.getElementById(id);if(el)el.classList.remove('hidden');
+  if(id==='sAccount'&&typeof renderAccountScreen==='function') setTimeout(renderAccountScreen,50);
+  if(id==='sShop'&&typeof buildShopGrid==='function') setTimeout(()=>{ updateCurrencyDisplay(); buildShopGrid(); },50);
+  if(id==='sSkins'&&typeof buildSkins==='function') buildSkins();   // refleja skins recién compradas
   // Switch music context based on destination screen
   if(id==='sMenu'||id==='sMode'||id==='s1P'||id==='s2P'||id==='sSkins'||
      id==='sTournSetup'||id==='sTournStandings'||id==='sTournFinal'||id==='sOnline'){
@@ -2640,7 +2922,8 @@ function setPts(n){
   [`p${n}`,`p${n}b`,`tp${n}`].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('on');});
 }
 function go1P(){
-  p1Name=(document.getElementById('n1P').value.trim()||'PING').toUpperCase();
+  const defaultName = (currentUser&&playerData.displayName) ? playerData.displayName.toUpperCase() : 'PING';
+  p1Name=(document.getElementById('n1P').value.trim()||defaultName).toUpperCase();
   p2Name=AI_NAMES[Math.floor(Math.random()*AI_NAMES.length)].toUpperCase();
   document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
   startGameLoop();
@@ -3001,14 +3284,12 @@ let skinTab='p1';
 
 function buildSkins(){
   const wrap=document.getElementById('skinGrid');
+  if(!wrap) return;
   wrap.innerHTML='';
 
-  // ── Tab bar ──
   const tabs=document.createElement('div');
   tabs.style.cssText='display:flex;gap:6px;margin-bottom:10px;width:100%';
-  [['p1', t('skin_tab_p1')||'J1 — Ping'],
-   ['p2', t('skin_tab_p2')||'J2 — Pong'],
-   ['both',t('skin_tab_both')||'Ambos']].forEach(([key,lbl])=>{
+  [['p1',t('skin_tab_p1')],['p2',t('skin_tab_p2')],['both',t('skin_tab_both')]].forEach(([key,lbl])=>{
     const btn=document.createElement('button');
     btn.className='btn sm'+(skinTab===key?' on':'');
     btn.style.cssText='flex:1;font-size:.58rem;padding:7px 4px';
@@ -3018,41 +3299,36 @@ function buildSkins(){
   });
   wrap.appendChild(tabs);
 
-  // ── Grid ──
   const grid=document.createElement('div');
-  grid.className='sgrid-inner';
   grid.style.cssText='display:grid;grid-template-columns:repeat(4,1fr);gap:7px;width:100%';
-
-  SKINS.forEach((s,i)=>{
-    const active = skinTab==='both' ? (i===skin1&&i===skin2)
-                 : skinTab==='p1'   ? i===skin1
-                 :                    i===skin2;
+  ALL_SKINS.forEach((s,i)=>{
+    if(!isSkinOwned(s)) return;      // las bloqueadas se compran en la Tienda
+    const active = skinTab==='both' ? (i===skin1&&i===skin2) : skinTab==='p1' ? i===skin1 : i===skin2;
     const d=document.createElement('div');
     d.className='sopt'+(active?' on':'');
-
-    let bg='';
-    if(s.fx==='fire')       bg=`linear-gradient(160deg,#ffee44 0%,${s.a} 45%,#880000 100%)`;
-    else if(s.fx==='metal') bg=`linear-gradient(160deg,#fff 0%,${s.a} 40%,${s.b} 100%)`;
-    else if(s.fx==='ice')   bg=`linear-gradient(160deg,#ddeeff 0%,${s.a} 50%,${s.b} 100%)`;
-    else if(s.fx==='neon')  bg=`linear-gradient(160deg,#000 0%,${s.a} 45%,${s.b} 100%)`;
-    else if(s.fx==='dark')  bg=`linear-gradient(160deg,#000 0%,${s.a} 50%,${s.b} 100%)`;
-    else                    bg=`linear-gradient(160deg,${s.a} 40%,${s.b} 100%)`;
+    let bg;
+    if(s.fx==='fire')       bg='linear-gradient(160deg,#ffee44 0%,'+s.a+' 45%,#880000 100%)';
+    else if(s.fx==='metal') bg='linear-gradient(160deg,#fff 0%,'+s.a+' 40%,'+s.b+' 100%)';
+    else if(s.fx==='ice')   bg='linear-gradient(160deg,#ddeeff 0%,'+s.a+' 50%,'+s.b+' 100%)';
+    else if(s.fx==='neon' || s.fx==='dark') bg='linear-gradient(160deg,#000 0%,'+s.a+' 45%,'+s.b+' 100%)';
+    else                    bg='linear-gradient(160deg,'+s.a+' 40%,'+s.b+' 100%)';
     d.style.background=bg;
-    if(s.ga) d.style.boxShadow=`inset 0 0 10px ${s.ga}`;
+    if(s.ga) d.style.boxShadow='inset 0 0 10px '+s.ga;
     const skinName=(LANGS[currentLang]&&LANGS[currentLang][s.k])||s.l;
-    d.innerHTML=`<span style="font-family:'Orbitron',monospace;font-size:.38rem;letter-spacing:.04em;
-      text-shadow:0 1px 3px #000;padding:2px 3px;background:rgba(0,0,0,.5);border-radius:3px;
-      color:#fff;text-align:center;display:block">${skinName}</span>`;
-    d.onclick=()=>{
-      if(skinTab==='p1')   skin1=i;
-      else if(skinTab==='p2') skin2=i;
-      else { skin1=i; skin2=i; }
-      skin=skin1; // keep legacy var in sync
-      buildSkins();
-    };
+    const sp=document.createElement('span');
+    sp.style.cssText="font-family:'Orbitron',monospace;font-size:.38rem;letter-spacing:.04em;text-shadow:0 1px 3px #000;padding:2px 3px;background:rgba(0,0,0,.5);border-radius:3px;color:#fff;text-align:center;display:block";
+    sp.textContent=skinName;
+    d.appendChild(sp);
+    d.onclick=()=>{ equipSkin(s.k, skinTab==='p1'?1:skinTab==='p2'?2:undefined); buildSkins(); };
     grid.appendChild(d);
   });
   wrap.appendChild(grid);
+
+  const hint=document.createElement('div');
+  hint.style.cssText='margin-top:10px;font-family:Orbitron,monospace;font-size:.55rem;letter-spacing:.08em;color:#ffe44d;text-align:center;cursor:pointer;opacity:.85';
+  hint.textContent='🛒 Más skins en la Tienda';
+  hint.onclick=()=>goTo('sShop');
+  wrap.appendChild(hint);
 }
 
 // ═══════════════════════════════════════════
@@ -3069,7 +3345,7 @@ function wsUrl(){
 let ws = null;           // WebSocket connection to our server
 let wsReady = false;
 
-function getMyName(){ return (document.getElementById('nOnline').value.trim()||'JUGADOR').toUpperCase().slice(0,14); }
+function getMyName(){ return (document.getElementById('nOnline').value.trim()||playerData.displayName||'JUGADOR').toUpperCase().slice(0,14); }
 function genCode(){
   const ch='ABCDEFGHJKLMNPQRSTUVWXYZ';
   return Array.from({length:6},()=>ch[Math.floor(Math.random()*ch.length)]).join('');
@@ -3430,6 +3706,7 @@ function handleNet(d){
       }
       break;
     case 'goal': if(netRole==='guest')goal(d.s); break;
+    case 'skin': receiveOpponentSkin(d.k); break;
     case 'reset':if(netRole==='guest')resetBall(d.s===1?2:1); break;
     case 'end':  if(netRole==='guest')endMatch(d.w); break;
     case 'ping': wsSend({t:'pong',ts:d.ts}); break;
@@ -3453,6 +3730,7 @@ function launchOnline(){
   document.getElementById('hud').classList.remove('hidden');
   updateHUD();
   showChatBtn(true);
+  sendMySkin();   // el rival ve mi skin y yo la suya
   // Show touch UI using the same visibility logic as all other modes
   const tp=document.getElementById('touchPause');
   if(tp) tp.style.display='block';
@@ -4585,6 +4863,7 @@ function applyLang(){
   });
   // Update html lang attribute
   document.documentElement.lang = currentLang;
+  if(typeof refreshDynamicI18n==='function') refreshDynamicI18n();
 }
 
 function setLang(lang){
@@ -4592,6 +4871,631 @@ function setLang(lang){
   localStorage.setItem('ppLang', lang);
   applyLang();
 }
+
+// ═══════════════════════════════════════════════════════════════
+//  PROGRESO DEL JUGADOR + CUENTAS (opcionales)
+//  · Sin cuenta: monedas, gemas y skins se guardan en este dispositivo.
+//  · Con cuenta (ACCOUNTS_ENABLED=true y Firebase listo): se guardan en la nube.
+// ═══════════════════════════════════════════════════════════════
+var pendingDisplayName = '';
+var cloudOk = false;
+const PROFILE_KEY = 'ppProfile_v1';
+const FB_OK = !!(window.ACCOUNTS_ENABLED && window.firebase && window.auth && window.db);
+
+// ── Textos de todo lo nuevo, en los 7 idiomas ────────────────────────────────
+const LANGS_EXTRA = {
+es:{
+  shop_btn:"🛒 Tienda", demo_btn:"🎮 Demo", demo_badge:"3 partidas", acc_btn:"👤 Mi Cuenta",
+  acc_title:"👤 MI CUENTA", acc_login:"Iniciar sesión", acc_register:"Registrarse",
+  acc_email_ph:"Email", acc_pass_ph:"Contraseña", acc_user_ph:"Nombre de usuario",
+  acc_go_shop:"🛒 Ir a la Tienda", acc_logout:"Cerrar sesión", acc_free:"FREE", acc_premium:"⭐ PREMIUM",
+  acc_soon:"🚧 Las cuentas llegarán pronto. Mientras tanto, tu progreso (CoinClothes, Exclusives y skins) se guarda en este dispositivo.",
+  acc_unavailable:"⚠️ No se pudo conectar con el servicio de cuentas. Puedes seguir jugando: tu progreso se guarda en este dispositivo.",
+  acc_err_fill:"Rellena todos los campos", acc_err_name:"Elige un nombre de usuario",
+  acc_e_inuse:"Ese email ya está registrado", acc_e_email:"Email no válido",
+  acc_e_weak:"Contraseña demasiado corta (mínimo 6)", acc_e_cred:"Email o contraseña incorrectos",
+  acc_e_many:"Demasiados intentos, espera un momento", acc_e_net:"Sin conexión con el servidor",
+  acc_e_notallowed:"El acceso por email no está activado", acc_e_generic:"Error",
+  shop_title:"🛒 TIENDA DE SKINS", shop_all:"Todas", shop_free:"Gratis", shop_coins:"🪙 Monedas", shop_gems:"💎 Gemas",
+  shop_price_free:"✅ Gratis", shop_owned:"✅ Tuya", shop_more:"🛒 Más skins en la Tienda",
+  shop_lack_title:"Saldo insuficiente", shop_lack_need:"Necesitas: {a}", shop_lack_have:"Tienes: {a}",
+  shop_buy_q:"¿Comprar {n}?", shop_buy:"Comprar", shop_cancel:"Cancelar", ok:"OK",
+  rw_win:"🎉 ¡Victoria!", rw_tourn:"🏆 Victoria en Torneo",
+  demo_left_one:"DEMO — {n} partida restante", demo_left_many:"DEMO — {n} partidas restantes",
+  demo_exit:"✖ Salir de la Demo", demo_done_t:"¡Demo completada!",
+  demo_done_d:"Has jugado las 3 partidas de prueba. ¡Sigue jugando para conseguir CoinClothes y Exclusives!",
+  demo_keep:"Seguir jugando", demo_menu:"Ir al menú", demo_create:"Crear cuenta",
+  skin_sport:"Deportivo", skin_ninja:"Ninja", skin_soccer:"Futbolista", skin_robot:"Robot", skin_retro:"Retro",
+  skin_ocean:"Océano", skin_lava:"Lava", skin_electric:"Eléctrica", skin_ghost:"Fantasma", skin_dragon:"Dragón",
+  skin_cosmic:"Cósmico", skin_aurora:"Aurora", skin_legendary:"Leyenda"
+},
+en:{
+  shop_btn:"🛒 Shop", demo_btn:"🎮 Demo", demo_badge:"3 matches", acc_btn:"👤 My Account",
+  acc_title:"👤 MY ACCOUNT", acc_login:"Log in", acc_register:"Sign up",
+  acc_email_ph:"Email", acc_pass_ph:"Password", acc_user_ph:"Username",
+  acc_go_shop:"🛒 Go to the Shop", acc_logout:"Log out", acc_free:"FREE", acc_premium:"⭐ PREMIUM",
+  acc_soon:"🚧 Accounts are coming soon. Until then, your progress (CoinClothes, Exclusives and skins) is saved on this device.",
+  acc_unavailable:"⚠️ Could not reach the accounts service. You can keep playing: your progress is saved on this device.",
+  acc_err_fill:"Fill in all the fields", acc_err_name:"Choose a username",
+  acc_e_inuse:"That email is already registered", acc_e_email:"Invalid email",
+  acc_e_weak:"Password too short (minimum 6)", acc_e_cred:"Wrong email or password",
+  acc_e_many:"Too many attempts, please wait a moment", acc_e_net:"Cannot reach the server",
+  acc_e_notallowed:"Email sign-in is not enabled", acc_e_generic:"Error",
+  shop_title:"🛒 SKIN SHOP", shop_all:"All", shop_free:"Free", shop_coins:"🪙 Coins", shop_gems:"💎 Gems",
+  shop_price_free:"✅ Free", shop_owned:"✅ Owned", shop_more:"🛒 More skins in the Shop",
+  shop_lack_title:"Not enough balance", shop_lack_need:"You need: {a}", shop_lack_have:"You have: {a}",
+  shop_buy_q:"Buy {n}?", shop_buy:"Buy", shop_cancel:"Cancel", ok:"OK",
+  rw_win:"🎉 Victory!", rw_tourn:"🏆 Tournament victory",
+  demo_left_one:"DEMO — {n} match left", demo_left_many:"DEMO — {n} matches left",
+  demo_exit:"✖ Exit Demo", demo_done_t:"Demo complete!",
+  demo_done_d:"You have played the 3 trial matches. Keep playing to earn CoinClothes and Exclusives!",
+  demo_keep:"Keep playing", demo_menu:"Go to menu", demo_create:"Create account",
+  skin_sport:"Sporty", skin_ninja:"Ninja", skin_soccer:"Footballer", skin_robot:"Robot", skin_retro:"Retro",
+  skin_ocean:"Ocean", skin_lava:"Lava", skin_electric:"Electric", skin_ghost:"Ghost", skin_dragon:"Dragon",
+  skin_cosmic:"Cosmic", skin_aurora:"Aurora", skin_legendary:"Legend"
+},
+pt:{
+  shop_btn:"🛒 Loja", demo_btn:"🎮 Demo", demo_badge:"3 partidas", acc_btn:"👤 Minha Conta",
+  acc_title:"👤 MINHA CONTA", acc_login:"Entrar", acc_register:"Cadastrar-se",
+  acc_email_ph:"E-mail", acc_pass_ph:"Senha", acc_user_ph:"Nome de usuário",
+  acc_go_shop:"🛒 Ir para a Loja", acc_logout:"Sair", acc_free:"FREE", acc_premium:"⭐ PREMIUM",
+  acc_soon:"🚧 As contas chegarão em breve. Enquanto isso, seu progresso (CoinClothes, Exclusives e skins) fica salvo neste dispositivo.",
+  acc_unavailable:"⚠️ Não foi possível conectar ao serviço de contas. Você pode continuar jogando: seu progresso fica salvo neste dispositivo.",
+  acc_err_fill:"Preencha todos os campos", acc_err_name:"Escolha um nome de usuário",
+  acc_e_inuse:"Este e-mail já está cadastrado", acc_e_email:"E-mail inválido",
+  acc_e_weak:"Senha muito curta (mínimo 6)", acc_e_cred:"E-mail ou senha incorretos",
+  acc_e_many:"Muitas tentativas, aguarde um momento", acc_e_net:"Sem conexão com o servidor",
+  acc_e_notallowed:"O acesso por e-mail não está ativado", acc_e_generic:"Erro",
+  shop_title:"🛒 LOJA DE SKINS", shop_all:"Todas", shop_free:"Grátis", shop_coins:"🪙 Moedas", shop_gems:"💎 Gemas",
+  shop_price_free:"✅ Grátis", shop_owned:"✅ Sua", shop_more:"🛒 Mais skins na Loja",
+  shop_lack_title:"Saldo insuficiente", shop_lack_need:"Você precisa: {a}", shop_lack_have:"Você tem: {a}",
+  shop_buy_q:"Comprar {n}?", shop_buy:"Comprar", shop_cancel:"Cancelar", ok:"OK",
+  rw_win:"🎉 Vitória!", rw_tourn:"🏆 Vitória no Torneio",
+  demo_left_one:"DEMO — {n} partida restante", demo_left_many:"DEMO — {n} partidas restantes",
+  demo_exit:"✖ Sair da Demo", demo_done_t:"Demo concluída!",
+  demo_done_d:"Você jogou as 3 partidas de teste. Continue jogando para ganhar CoinClothes e Exclusives!",
+  demo_keep:"Continuar jogando", demo_menu:"Ir ao menu", demo_create:"Criar conta",
+  skin_sport:"Esportiva", skin_ninja:"Ninja", skin_soccer:"Futebolista", skin_robot:"Robô", skin_retro:"Retrô",
+  skin_ocean:"Oceano", skin_lava:"Lava", skin_electric:"Elétrica", skin_ghost:"Fantasma", skin_dragon:"Dragão",
+  skin_cosmic:"Cósmica", skin_aurora:"Aurora", skin_legendary:"Lenda"
+},
+de:{
+  shop_btn:"🛒 Shop", demo_btn:"🎮 Demo", demo_badge:"3 Spiele", acc_btn:"👤 Mein Konto",
+  acc_title:"👤 MEIN KONTO", acc_login:"Anmelden", acc_register:"Registrieren",
+  acc_email_ph:"E-Mail", acc_pass_ph:"Passwort", acc_user_ph:"Benutzername",
+  acc_go_shop:"🛒 Zum Shop", acc_logout:"Abmelden", acc_free:"FREE", acc_premium:"⭐ PREMIUM",
+  acc_soon:"🚧 Konten kommen bald. Bis dahin wird dein Fortschritt (CoinClothes, Exclusives und Skins) auf diesem Gerät gespeichert.",
+  acc_unavailable:"⚠️ Der Konto-Dienst ist nicht erreichbar. Du kannst weiterspielen: Dein Fortschritt wird auf diesem Gerät gespeichert.",
+  acc_err_fill:"Bitte alle Felder ausfüllen", acc_err_name:"Wähle einen Benutzernamen",
+  acc_e_inuse:"Diese E-Mail ist bereits registriert", acc_e_email:"Ungültige E-Mail",
+  acc_e_weak:"Passwort zu kurz (mindestens 6)", acc_e_cred:"E-Mail oder Passwort falsch",
+  acc_e_many:"Zu viele Versuche, bitte kurz warten", acc_e_net:"Keine Verbindung zum Server",
+  acc_e_notallowed:"Anmeldung per E-Mail ist nicht aktiviert", acc_e_generic:"Fehler",
+  shop_title:"🛒 SKIN-SHOP", shop_all:"Alle", shop_free:"Gratis", shop_coins:"🪙 Münzen", shop_gems:"💎 Edelsteine",
+  shop_price_free:"✅ Gratis", shop_owned:"✅ Im Besitz", shop_more:"🛒 Mehr Skins im Shop",
+  shop_lack_title:"Nicht genug Guthaben", shop_lack_need:"Du brauchst: {a}", shop_lack_have:"Du hast: {a}",
+  shop_buy_q:"{n} kaufen?", shop_buy:"Kaufen", shop_cancel:"Abbrechen", ok:"OK",
+  rw_win:"🎉 Sieg!", rw_tourn:"🏆 Turniersieg",
+  demo_left_one:"DEMO — noch {n} Spiel", demo_left_many:"DEMO — noch {n} Spiele",
+  demo_exit:"✖ Demo beenden", demo_done_t:"Demo abgeschlossen!",
+  demo_done_d:"Du hast die 3 Testspiele gespielt. Spiele weiter, um CoinClothes und Exclusives zu sammeln!",
+  demo_keep:"Weiterspielen", demo_menu:"Zum Menü", demo_create:"Konto erstellen",
+  skin_sport:"Sportlich", skin_ninja:"Ninja", skin_soccer:"Fußballer", skin_robot:"Roboter", skin_retro:"Retro",
+  skin_ocean:"Ozean", skin_lava:"Lava", skin_electric:"Elektrisch", skin_ghost:"Geist", skin_dragon:"Drache",
+  skin_cosmic:"Kosmisch", skin_aurora:"Aurora", skin_legendary:"Legende"
+},
+fr:{
+  shop_btn:"🛒 Boutique", demo_btn:"🎮 Démo", demo_badge:"3 matchs", acc_btn:"👤 Mon Compte",
+  acc_title:"👤 MON COMPTE", acc_login:"Se connecter", acc_register:"S'inscrire",
+  acc_email_ph:"E-mail", acc_pass_ph:"Mot de passe", acc_user_ph:"Nom d'utilisateur",
+  acc_go_shop:"🛒 Aller à la Boutique", acc_logout:"Se déconnecter", acc_free:"FREE", acc_premium:"⭐ PREMIUM",
+  acc_soon:"🚧 Les comptes arrivent bientôt. En attendant, votre progression (CoinClothes, Exclusives et skins) est enregistrée sur cet appareil.",
+  acc_unavailable:"⚠️ Impossible de joindre le service de comptes. Vous pouvez continuer à jouer : votre progression est enregistrée sur cet appareil.",
+  acc_err_fill:"Remplissez tous les champs", acc_err_name:"Choisissez un nom d'utilisateur",
+  acc_e_inuse:"Cet e-mail est déjà enregistré", acc_e_email:"E-mail invalide",
+  acc_e_weak:"Mot de passe trop court (6 minimum)", acc_e_cred:"E-mail ou mot de passe incorrect",
+  acc_e_many:"Trop de tentatives, patientez un instant", acc_e_net:"Pas de connexion au serveur",
+  acc_e_notallowed:"La connexion par e-mail n'est pas activée", acc_e_generic:"Erreur",
+  shop_title:"🛒 BOUTIQUE DE SKINS", shop_all:"Toutes", shop_free:"Gratuites", shop_coins:"🪙 Pièces", shop_gems:"💎 Gemmes",
+  shop_price_free:"✅ Gratuit", shop_owned:"✅ Possédé", shop_more:"🛒 Plus de skins dans la Boutique",
+  shop_lack_title:"Solde insuffisant", shop_lack_need:"Il vous faut : {a}", shop_lack_have:"Vous avez : {a}",
+  shop_buy_q:"Acheter {n} ?", shop_buy:"Acheter", shop_cancel:"Annuler", ok:"OK",
+  rw_win:"🎉 Victoire !", rw_tourn:"🏆 Victoire en Tournoi",
+  demo_left_one:"DÉMO — {n} match restant", demo_left_many:"DÉMO — {n} matchs restants",
+  demo_exit:"✖ Quitter la Démo", demo_done_t:"Démo terminée !",
+  demo_done_d:"Vous avez joué les 3 matchs d'essai. Continuez à jouer pour gagner des CoinClothes et des Exclusives !",
+  demo_keep:"Continuer à jouer", demo_menu:"Aller au menu", demo_create:"Créer un compte",
+  skin_sport:"Sportif", skin_ninja:"Ninja", skin_soccer:"Footballeur", skin_robot:"Robot", skin_retro:"Rétro",
+  skin_ocean:"Océan", skin_lava:"Lave", skin_electric:"Électrique", skin_ghost:"Fantôme", skin_dragon:"Dragon",
+  skin_cosmic:"Cosmique", skin_aurora:"Aurore", skin_legendary:"Légende"
+},
+ja:{
+  shop_btn:"🛒 ショップ", demo_btn:"🎮 デモ", demo_badge:"3試合", acc_btn:"👤 マイアカウント",
+  acc_title:"👤 マイアカウント", acc_login:"ログイン", acc_register:"新規登録",
+  acc_email_ph:"メールアドレス", acc_pass_ph:"パスワード", acc_user_ph:"ユーザー名",
+  acc_go_shop:"🛒 ショップへ", acc_logout:"ログアウト", acc_free:"FREE", acc_premium:"⭐ PREMIUM",
+  acc_soon:"🚧 アカウント機能は近日公開予定です。それまでの進行状況（CoinClothes、Exclusives、スキン）はこのデバイスに保存されます。",
+  acc_unavailable:"⚠️ アカウントサービスに接続できませんでした。そのままプレイできます。進行状況はこのデバイスに保存されます。",
+  acc_err_fill:"すべての項目を入力してください", acc_err_name:"ユーザー名を入力してください",
+  acc_e_inuse:"このメールアドレスは既に登録されています", acc_e_email:"メールアドレスが正しくありません",
+  acc_e_weak:"パスワードが短すぎます（6文字以上）", acc_e_cred:"メールアドレスまたはパスワードが違います",
+  acc_e_many:"試行回数が多すぎます。しばらくお待ちください", acc_e_net:"サーバーに接続できません",
+  acc_e_notallowed:"メールでのログインが有効になっていません", acc_e_generic:"エラー",
+  shop_title:"🛒 スキンショップ", shop_all:"すべて", shop_free:"無料", shop_coins:"🪙 コイン", shop_gems:"💎 ジェム",
+  shop_price_free:"✅ 無料", shop_owned:"✅ 所持済み", shop_more:"🛒 ショップでスキンをもっと見る",
+  shop_lack_title:"残高が足りません", shop_lack_need:"必要: {a}", shop_lack_have:"所持: {a}",
+  shop_buy_q:"{n}を購入しますか？", shop_buy:"購入", shop_cancel:"キャンセル", ok:"OK",
+  rw_win:"🎉 勝利！", rw_tourn:"🏆 トーナメント勝利",
+  demo_left_one:"デモ — 残り{n}試合", demo_left_many:"デモ — 残り{n}試合",
+  demo_exit:"✖ デモを終了", demo_done_t:"デモ完了！",
+  demo_done_d:"3試合のお試しプレイが終わりました。遊び続けて CoinClothes と Exclusives を集めよう！",
+  demo_keep:"プレイを続ける", demo_menu:"メニューへ", demo_create:"アカウント作成",
+  skin_sport:"スポーツ", skin_ninja:"忍者", skin_soccer:"サッカー選手", skin_robot:"ロボット", skin_retro:"レトロ",
+  skin_ocean:"海", skin_lava:"溶岩", skin_electric:"電撃", skin_ghost:"ゴースト", skin_dragon:"ドラゴン",
+  skin_cosmic:"コズミック", skin_aurora:"オーロラ", skin_legendary:"伝説"
+},
+zh:{
+  shop_btn:"🛒 商店", demo_btn:"🎮 试玩", demo_badge:"3场比赛", acc_btn:"👤 我的账号",
+  acc_title:"👤 我的账号", acc_login:"登录", acc_register:"注册",
+  acc_email_ph:"邮箱", acc_pass_ph:"密码", acc_user_ph:"用户名",
+  acc_go_shop:"🛒 前往商店", acc_logout:"退出登录", acc_free:"FREE", acc_premium:"⭐ PREMIUM",
+  acc_soon:"🚧 账号功能即将上线。在此之前，你的进度（CoinClothes、Exclusives 和皮肤）会保存在本设备上。",
+  acc_unavailable:"⚠️ 无法连接账号服务。你仍可继续游戏：进度会保存在本设备上。",
+  acc_err_fill:"请填写所有字段", acc_err_name:"请选择一个用户名",
+  acc_e_inuse:"该邮箱已被注册", acc_e_email:"邮箱无效",
+  acc_e_weak:"密码太短（至少6位）", acc_e_cred:"邮箱或密码错误",
+  acc_e_many:"尝试次数过多，请稍候", acc_e_net:"无法连接服务器",
+  acc_e_notallowed:"未启用邮箱登录", acc_e_generic:"错误",
+  shop_title:"🛒 皮肤商店", shop_all:"全部", shop_free:"免费", shop_coins:"🪙 金币", shop_gems:"💎 宝石",
+  shop_price_free:"✅ 免费", shop_owned:"✅ 已拥有", shop_more:"🛒 商店里有更多皮肤",
+  shop_lack_title:"余额不足", shop_lack_need:"需要：{a}", shop_lack_have:"拥有：{a}",
+  shop_buy_q:"购买 {n}？", shop_buy:"购买", shop_cancel:"取消", ok:"确定",
+  rw_win:"🎉 胜利！", rw_tourn:"🏆 锦标赛胜利",
+  demo_left_one:"试玩 — 还剩 {n} 场", demo_left_many:"试玩 — 还剩 {n} 场",
+  demo_exit:"✖ 退出试玩", demo_done_t:"试玩结束！",
+  demo_done_d:"你已完成3场试玩比赛。继续游戏来赚取 CoinClothes 和 Exclusives 吧！",
+  demo_keep:"继续游戏", demo_menu:"返回菜单", demo_create:"创建账号",
+  skin_sport:"运动", skin_ninja:"忍者", skin_soccer:"足球运动员", skin_robot:"机器人", skin_retro:"复古",
+  skin_ocean:"海洋", skin_lava:"熔岩", skin_electric:"闪电", skin_ghost:"幽灵", skin_dragon:"巨龙",
+  skin_cosmic:"宇宙", skin_aurora:"极光", skin_legendary:"传奇"
+}
+};
+Object.keys(LANGS_EXTRA).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA[l]); });
+
+function tf(key, vars){
+  let s=t(key);
+  Object.keys(vars||{}).forEach(k=>{ s=s.split('{'+k+'}').join(vars[k]); });
+  return s;
+}
+function skinLabel(s){ return (LANGS[currentLang]&&LANGS[currentLang][s.k])||s.l; }
+
+// ── Color de pelota y confeti por skin ───────────────────────────────────────
+// [centro, borde, brillo (RGB), sombra]
+const SKIN_BALL = {
+  skin_default:['#ffe88a','#ffaa00','255,255,200','#ffe44d'],
+  skin_fire:['#ffd060','#ff4400','255,140,40','#ff6600'],
+  skin_neon:['#aaffee','#00ffcc','0,255,204','#00ffcc'],
+  skin_gold:['#fff2a0','#e0a800','255,215,0','#ffd700'],
+  skin_nature:['#b8f090','#3fae2a','120,220,90','#55cc44'],
+  skin_ice:['#d8f4ff','#5ec8ff','150,220,255','#88ddff'],
+  skin_dark:['#d9a8ff','#8a22e0','187,68,255','#bb44ff'],
+  skin_pastel:['#ffd0e0','#ff7fa8','255,153,187','#ff99bb'],
+  skin_sport:['#ffd0a0','#ff5a00','255,120,40','#ff4400'],
+  skin_ninja:['#ff9a9a','#b30000','204,0,0','#cc0000'],
+  skin_soccer:['#ffffff','#bdbdbd','235,235,235','#ffffff'],
+  skin_robot:['#fff0a0','#e0b000','255,204,0','#ffcc00'],
+  skin_retro:['#a0ffb0','#00c83c','0,255,68','#00ff44'],
+  skin_ocean:['#a0e8ff','#0aa0e0','0,204,255','#00ccff'],
+  skin_lava:['#ffc070','#ff3300','255,90,20','#ff2200'],
+  skin_electric:['#ffff90','#e6e600','255,255,0','#ffff00'],
+  skin_ghost:['#f4f4ff','#b8b8e8','220,220,255','#eeeeff'],
+  skin_dragon:['#ffd878','#e03c00','255,120,0','#ff4400'],
+  skin_cosmic:['#d8a0ff','#9000ff','180,60,255','#8800ff'],
+  skin_aurora:['#90ffd0','#e000b0','0,255,160','#00ff88'],
+  skin_legendary:['#fff0a0','#ffb400','255,215,0','#ffd700']
+};
+// La pelota lleva los colores de quien la golpeó por última vez (vx>0 viene de la izquierda = J1)
+function ballPalette(){
+  const sk=ALL_SKINS[(ball && ball.vx<0) ? skin2 : skin1];
+  return SKIN_BALL[sk && sk.k] || SKIN_BALL.skin_default;
+}
+function goalColors(scorer){
+  const sk=ALL_SKINS[scorer===1?skin1:skin2];
+  if(!sk || sk.k==='skin_default') return null;         // la skin base mantiene el confeti arcoíris
+  const pal=SKIN_BALL[sk.k]||SKIN_BALL.skin_default;
+  const side=scorer===1?sk.a:sk.b;
+  return [side, pal[0], pal[1], '#ffffff', side];
+}
+
+// ── Perfil del jugador (local o nube) ────────────────────────────────────────
+function defaultProfile(){
+  return { coins:0, gems:0, unlockedSkins:['skin_default'], selectedSkin1:'skin_default', selectedSkin2:'skin_default', isPremium:false };
+}
+function sanitizeProfile(p){
+  const known=new Set(ALL_SKINS.map(s=>s.k));
+  p.coins=Math.max(0,Math.floor(Number(p.coins)||0));
+  p.gems=Math.max(0,Math.floor(Number(p.gems)||0));
+  p.unlockedSkins=Array.from(new Set(['skin_default'].concat(Array.isArray(p.unlockedSkins)?p.unlockedSkins.filter(k=>known.has(k)):[])));
+  ['selectedSkin1','selectedSkin2'].forEach(f=>{
+    const s=ALL_SKINS.find(x=>x.k===p[f]);
+    if(!s || !(s.currency==='free' || p.unlockedSkins.includes(s.k))) p[f]='skin_default';
+  });
+  p.isPremium=!!p.isPremium;
+  return p;
+}
+function loadLocalProfile(){
+  let raw=null;
+  try{ raw=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null'); }catch(e){ raw=null; }
+  const p=Object.assign(defaultProfile(), (raw && typeof raw==='object') ? raw : {});
+  sanitizeProfile(p);
+  p.isPremium=false;           // Premium solo puede venir de una cuenta
+  delete p.displayName;
+  playerData=p;
+}
+function saveLocalProfile(){
+  try{
+    localStorage.setItem(PROFILE_KEY, JSON.stringify({
+      coins:playerData.coins||0, gems:playerData.gems||0,
+      unlockedSkins:playerData.unlockedSkins||['skin_default'],
+      selectedSkin1:playerData.selectedSkin1, selectedSkin2:playerData.selectedSkin2
+    }));
+  }catch(e){}
+}
+async function loadPlayerData(){
+  if(!currentUser||!FB_OK) return;
+  cloudOk=false;
+  const guest=Object.assign({}, playerData);               // progreso de este dispositivo
+  try{
+    const snap=await db.collection('players').doc(currentUser.uid).get();
+    if(snap.exists){
+      playerData=sanitizeProfile(Object.assign(defaultProfile(), snap.data()));
+    } else {                                               // cuenta nueva: se lleva el progreso local
+      playerData=sanitizeProfile(Object.assign(defaultProfile(), guest));
+      playerData.displayName=pendingDisplayName || String(currentUser.email||'').split('@')[0];
+      playerData.isPremium=false;
+      pendingDisplayName='';
+      await db.collection('players').doc(currentUser.uid).set(playerData,{merge:true});
+    }
+    cloudOk=true;
+  }catch(e){ console.error('loadPlayerData:',e); }
+}
+async function savePlayerData(){
+  if(FB_OK && currentUser && cloudOk){
+    try{ await db.collection('players').doc(currentUser.uid).set(playerData,{merge:true}); }
+    catch(e){ console.error('savePlayerData:',e); }
+  } else {
+    saveLocalProfile();
+  }
+}
+function isSkinOwned(s){
+  return !!s && (s.currency==='free' || (playerData.unlockedSkins||[]).includes(s.k));
+}
+function applyPlayerSkins(){
+  const s1=ALL_SKINS.findIndex(s=>s.k===playerData.selectedSkin1);
+  const s2=ALL_SKINS.findIndex(s=>s.k===playerData.selectedSkin2);
+  skin1=(s1>=0 && isSkinOwned(ALL_SKINS[s1])) ? s1 : 0;
+  skin2=(s2>=0 && isSkinOwned(ALL_SKINS[s2])) ? s2 : 0;
+  skin=skin1;
+}
+// which: 1 = solo J1, 2 = solo J2, undefined = ambos
+function equipSkin(k, which){
+  const idx=ALL_SKINS.findIndex(x=>x.k===k);
+  if(idx<0 || !isSkinOwned(ALL_SKINS[idx])) return;
+  if(which!==2){ skin1=idx; playerData.selectedSkin1=k; }
+  if(which!==1){ skin2=idx; playerData.selectedSkin2=k; }
+  skin=skin1;
+  savePlayerData();
+}
+
+// ── Cuentas (solo si ACCOUNTS_ENABLED y Firebase cargó) ──────────────────────
+function setAccountBtn(text, logged){
+  document.querySelectorAll('.accountBtn').forEach(b=>{
+    b.textContent=text;
+    b.classList.toggle('logged', !!logged);
+  });
+}
+function refreshAccountBtn(){
+  if(currentUser) setAccountBtn('👤 '+(playerData.displayName||String(currentUser.email||'').split('@')[0]), true);
+  else setAccountBtn(t('acc_btn'), false);
+}
+function updateCurrencyDisplay(){
+  ['curCoins','accCoins','shopCoins'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=playerData.coins||0; });
+  ['curGems','accGems','shopGems'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=playerData.gems||0; });
+}
+if(FB_OK){
+  auth.onAuthStateChanged(async user=>{
+    currentUser=user;
+    try{
+      if(user){ await loadPlayerData(); }
+      else { cloudOk=false; loadLocalProfile(); }      // al cerrar sesión se vuelve al progreso del dispositivo
+      applyPlayerSkins();
+      refreshAccountBtn();
+      updateCurrencyDisplay();
+      buildSkins();
+      renderAccountScreen();
+    }catch(e){ console.error('auth state:',e); }
+  });
+}
+
+// ── Ventana propia (alert/confirm fallan en móvil y en vistas previas) ───────
+function uiModal(html, buttons){
+  const m=document.createElement('div');
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  const box=document.createElement('div');
+  box.style.cssText='background:#111318;border:2px solid #ffe44d;border-radius:14px;padding:24px 26px;width:min(320px,86vw);text-align:center;font-family:Orbitron,monospace;';
+  box.innerHTML=html;
+  const row=document.createElement('div');
+  row.style.cssText='display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap;';
+  (buttons||[{label:t('ok')}]).forEach((b,i)=>{
+    const btn=document.createElement('button');
+    btn.textContent=b.label;
+    btn.style.cssText='font-family:Orbitron,monospace;font-size:.62rem;font-weight:700;padding:9px 16px;border-radius:8px;cursor:pointer;'+
+      (i===0 ? 'background:#ffe44d;border:none;color:#111;' : 'background:transparent;border:2px solid #555;color:#aaa;');
+    btn.onclick=()=>{ m.remove(); if(b.onClick) b.onClick(); };
+    row.appendChild(btn);
+  });
+  box.appendChild(row); m.appendChild(box); document.body.appendChild(m);
+}
+
+// ── Recompensas (para todos: con o sin cuenta) ───────────────────────────────
+function humanWonThisMatch(winner){
+  if(mode==='online') return (netRole==='host'&&winner===1)||(netRole==='guest'&&winner===2);
+  if(mode==='tourn'){
+    // endMatch ya avanzó trnMatchIdx: el partido jugado es el anterior
+    const fx=trnFixtures[trnMatchIdx>0?trnMatchIdx-1:0];
+    if(!fx) return false;
+    const pl=trnPlayers[winner===1?fx.i:fx.j];
+    return !!pl && !pl.isCpu;
+  }
+  return winner===1; // 1 jugador y local: J1 es el jugador principal
+}
+function awardMatchReward(isWinner, isTournament){
+  if(!isWinner||demoActive) return;                       // en la Demo no se gana nada
+  const coins = isTournament ? 0 : Math.floor(Math.random()*15)+10;
+  const gems  = isTournament ? Math.floor(Math.random()*3)+2 : 0;
+  playerData.coins=(playerData.coins||0)+coins;
+  playerData.gems=(playerData.gems||0)+gems;
+  updateCurrencyDisplay();
+  savePlayerData();                 // sin await: no bloquea la pantalla aunque no haya red
+  setTimeout(()=>{                  // cuando endMatch ya terminó de pintar su pantalla
+    const el=document.getElementById('wReward');
+    if(el){ el.style.display='block'; el.textContent = isTournament ? '+'+gems+' 💎 Exclusives' : '+'+coins+' 🪙 CoinClothes'; }
+    const pop=document.createElement('div');
+    pop.className='reward-pop';
+    pop.innerHTML='<div class="reward-title">'+(isTournament?t('rw_tourn'):t('rw_win'))+'</div>'+
+      '<div class="reward-amt" style="color:'+(isTournament?'#aa44ff':'#ffe44d')+'">'+(isTournament?'+'+gems+' 💎':'+'+coins+' 🪙')+'</div>';
+    document.body.appendChild(pop);
+    setTimeout(()=>pop.remove(),2800);
+  },0);
+}
+
+// ── Pantalla Mi Cuenta ───────────────────────────────────────────────────────
+function switchAccTab(tab){
+  accTabMode=tab;
+  document.getElementById('tabLogin').classList.toggle('on',tab==='login');
+  document.getElementById('tabReg').classList.toggle('on',tab==='register');
+  document.getElementById('accSubmit').textContent=t(tab==='login'?'acc_login':'acc_register');
+  document.getElementById('accUser').style.display=tab==='register'?'':'none';
+  document.getElementById('accErr').textContent='';
+}
+function renderAccountScreen(){
+  const un=document.getElementById('accUnavailable');
+  const guest=document.getElementById('accGuest'), logged=document.getElementById('accLogged');
+  if(!guest||!logged) return;
+  if(!FB_OK){
+    guest.style.display='none'; logged.style.display='none';
+    if(un){ un.style.display='block'; un.textContent=t(window.ACCOUNTS_ENABLED?'acc_unavailable':'acc_soon'); }
+    return;
+  }
+  if(un) un.style.display='none';
+  if(currentUser){
+    guest.style.display='none'; logged.style.display='flex';
+    document.getElementById('accUsername').textContent=playerData.displayName||String(currentUser.email||'').split('@')[0];
+    document.getElementById('accPremiumBadge').style.display=playerData.isPremium?'':'none';
+    document.getElementById('accNormalBadge').style.display=playerData.isPremium?'none':'';
+    updateCurrencyDisplay();
+  } else {
+    guest.style.display=''; logged.style.display='none';
+  }
+}
+async function accSubmit(){
+  const errEl=document.getElementById('accErr');
+  errEl.textContent='';
+  if(!FB_OK){ errEl.textContent=t('acc_unavailable'); return; }
+  const email=document.getElementById('accEmail').value.trim();
+  const pass=document.getElementById('accPass').value;
+  const uname=document.getElementById('accUser').value.trim();
+  if(!email||!pass){ errEl.textContent=t('acc_err_fill'); return; }
+  if(accTabMode==='register' && !uname){ errEl.textContent=t('acc_err_name'); return; }
+  const btn=document.getElementById('accSubmit');
+  btn.textContent='…'; btn.disabled=true;
+  try{
+    if(accTabMode==='register'){
+      pendingDisplayName=uname.slice(0,16);
+      await auth.createUserWithEmailAndPassword(email,pass);
+    } else {
+      await auth.signInWithEmailAndPassword(email,pass);
+    }
+    document.getElementById('accPass').value='';
+  }catch(e){
+    const map={
+      'auth/email-already-in-use':'acc_e_inuse','auth/invalid-email':'acc_e_email','auth/weak-password':'acc_e_weak',
+      'auth/user-not-found':'acc_e_cred','auth/wrong-password':'acc_e_cred','auth/invalid-credential':'acc_e_cred',
+      'auth/too-many-requests':'acc_e_many','auth/network-request-failed':'acc_e_net','auth/operation-not-allowed':'acc_e_notallowed'
+    };
+    errEl.textContent = map[e.code] ? t(map[e.code]) : (t('acc_e_generic')+': '+(e.code||e.message));
+  }finally{
+    btn.textContent=t(accTabMode==='login'?'acc_login':'acc_register'); btn.disabled=false;
+  }
+}
+async function accLogout(){
+  if(FB_OK){ try{ await auth.signOut(); }catch(e){ console.error(e); } }
+  renderAccountScreen();
+}
+
+// ── Tienda ───────────────────────────────────────────────────────────────────
+function switchShopTab(tab){
+  shopTabCurrent=tab;
+  document.querySelectorAll('.shop-tab').forEach((b,i)=>b.classList.toggle('on',['all','free','coin','gem'][i]===tab));
+  buildShopGrid();
+}
+function previewRR(c,x,y,w,h,r){
+  c.beginPath();
+  c.moveTo(x+r,y); c.lineTo(x+w-r,y); c.quadraticCurveTo(x+w,y,x+w,y+r);
+  c.lineTo(x+w,y+h-r); c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  c.lineTo(x+r,y+h); c.quadraticCurveTo(x,y+h,x,y+h-r);
+  c.lineTo(x,y+r); c.quadraticCurveTo(x,y,x+r,y); c.closePath();
+}
+function buildShopGrid(){
+  const grid=document.getElementById('shopGrid');
+  if(!grid) return;
+  grid.innerHTML='';
+  const selK=(ALL_SKINS[skin1]||ALL_SKINS[0]).k;
+  ALL_SKINS.filter(s=>shopTabCurrent==='all' || s.currency===shopTabCurrent).forEach(s=>{
+    const owned=isSkinOwned(s);
+    const card=document.createElement('div');
+    card.className='shop-card'+(selK===s.k?' selected-card':'')+(owned?' unlocked':' locked');
+
+    const cv=document.createElement('canvas');
+    cv.width=36; cv.height=80; cv.className='shop-preview';
+    const c2=cv.getContext('2d');
+    if(c2){
+      const g=c2.createLinearGradient(0,0,0,80);
+      g.addColorStop(0,s.a); g.addColorStop(1,s.b);
+      c2.fillStyle=g;
+      if(s.shape==='flame'){
+        c2.beginPath(); c2.moveTo(18,2); c2.bezierCurveTo(36,20,36,40,34,60); c2.bezierCurveTo(28,76,8,76,2,60); c2.bezierCurveTo(0,40,0,20,18,2); c2.fill();
+      } else {
+        previewRR(c2,2,2,32,76,(s.shape==='pill'||s.shape==='thin')?14:8); c2.fill();
+      }
+      const gl=c2.createRadialGradient(18,40,0,18,40,20);
+      gl.addColorStop(0,'rgba(255,255,255,.25)'); gl.addColorStop(1,'rgba(255,255,255,0)');
+      c2.fillStyle=gl; c2.fillRect(0,0,36,80);
+    }
+
+    const icon=s.currency==='coin'?'🪙':'💎';
+    const nm=document.createElement('div'); nm.className='shop-name'; nm.textContent=skinLabel(s);
+    const pr=document.createElement('div');
+    pr.className='shop-price '+((s.currency==='free'||owned)?'free':s.currency);
+    pr.textContent = s.currency==='free' ? t('shop_price_free') : owned ? t('shop_owned') : icon+' '+s.price;
+    card.appendChild(cv); card.appendChild(nm); card.appendChild(pr);
+    if(selK===s.k){ const ck=document.createElement('div'); ck.className='shop-check'; ck.textContent='✓'; card.appendChild(ck); }
+    else if(!owned){ const lk=document.createElement('div'); lk.className='shop-lock'; lk.textContent='🔒'; card.appendChild(lk); }
+
+    card.onclick=()=>{
+      if(owned){ equipSkin(s.k); buildShopGrid(); return; }
+      shopConfirmBuy(s);
+    };
+    grid.appendChild(card);
+  });
+}
+function shopConfirmBuy(s){
+  const isCoin = s.currency==='coin';
+  const have = isCoin ? (playerData.coins||0) : (playerData.gems||0);
+  const icon = isCoin ? '🪙' : '💎';
+  const name = isCoin ? 'CoinClothes' : 'Exclusives';
+  if(have < s.price){
+    uiModal('<div style="color:#ff4455;font-weight:700;font-size:.8rem">'+t('shop_lack_title')+'</div>'+
+            '<div style="color:#aaa;font-size:.68rem;margin-top:10px;line-height:1.7">'+skinLabel(s)+'<br>'+
+            tf('shop_lack_need',{a:icon+' '+s.price+' '+name})+'<br>'+tf('shop_lack_have',{a:icon+' '+have+' '+name})+'</div>',
+            [{label:t('ok')}]);
+    return;
+  }
+  uiModal('<div style="color:#ffe44d;font-weight:700;font-size:.85rem">'+tf('shop_buy_q',{n:skinLabel(s)})+'</div>'+
+          '<div style="color:#ccc;font-size:.72rem;margin-top:10px">'+icon+' '+s.price+' '+name+'</div>',
+    [{label:t('shop_buy'), onClick:()=>{
+        if(isCoin) playerData.coins-=s.price; else playerData.gems-=s.price;
+        if(!Array.isArray(playerData.unlockedSkins)) playerData.unlockedSkins=['skin_default'];
+        if(!playerData.unlockedSkins.includes(s.k)) playerData.unlockedSkins.push(s.k);
+        updateCurrencyDisplay();
+        equipSkin(s.k);              // la equipa y guarda todo (dispositivo o cuenta)
+        buildShopGrid();
+      }},
+     {label:t('shop_cancel')}]);
+}
+
+// ── Demo ─────────────────────────────────────────────────────────────────────
+function demoLeftText(){ return tf(demoMatchesLeft===1?'demo_left_one':'demo_left_many',{n:demoMatchesLeft}); }
+function startDemo(){
+  demoActive=true; demoMatchesLeft=3;
+  showDemoBanner();
+  goTo('sMode');
+}
+function showDemoBanner(){
+  let el=document.getElementById('demoBanner');
+  if(!el){
+    el=document.createElement('div');
+    el.id='demoBanner';
+    el.style.cssText='position:fixed;bottom:56px;left:50%;transform:translateX(-50%);z-index:500;display:flex;align-items:center;gap:10px;font-family:Orbitron,monospace;font-size:.55rem;letter-spacing:.1em;background:rgba(20,0,5,.88);border:1px solid #ff2244;color:#ff2244;padding:5px 6px 5px 14px;border-radius:14px;';
+    const span=document.createElement('span'); span.id='demoBannerTxt';
+    const btn=document.createElement('button');
+    btn.id='demoExitBtn';
+    btn.style.cssText='background:#ff2244;border:none;color:#fff;font-family:inherit;font-size:.5rem;letter-spacing:.08em;padding:6px 10px;border-radius:9px;cursor:pointer;';
+    btn.onclick=exitDemo;
+    el.appendChild(span); el.appendChild(btn);
+    document.body.appendChild(el);
+  }
+  document.getElementById('demoBannerTxt').textContent=demoLeftText();
+  document.getElementById('demoExitBtn').textContent=t('demo_exit');
+  el.style.display='flex';
+}
+function hideDemoBanner(){
+  const el=document.getElementById('demoBanner');
+  if(el) el.style.display='none';
+}
+function exitDemo(){
+  demoActive=false; demoMatchesLeft=0;
+  hideDemoBanner();
+  if(gameRunning) backToMenu(); else goTo('sMenu');
+}
+function demoMatchPlayed(){
+  if(!demoActive) return;
+  demoMatchesLeft--;
+  if(demoMatchesLeft<=0){
+    demoActive=false;
+    hideDemoBanner();
+    setTimeout(()=>{
+      const btns=[{label:t('demo_keep')},{label:t('demo_menu'), onClick:()=>{ if(gameRunning) backToMenu(); else goTo('sMenu'); }}];
+      if(window.ACCOUNTS_ENABLED) btns.push({label:t('demo_create'), onClick:()=>{ if(gameRunning) backToMenu(); goTo('sAccount'); }});
+      uiModal('<div style="color:#ffe44d;font-weight:700;font-size:.85rem">'+t('demo_done_t')+'</div>'+
+              '<div style="color:#aaa;font-size:.68rem;margin-top:10px;line-height:1.6">'+t('demo_done_d')+'</div>', btns);
+    },1200);
+  } else { showDemoBanner(); }
+}
+
+// ── Online: cada jugador ve la skin del otro (solo viaja el nombre de la skin) ─
+function sendMySkin(){
+  if(typeof netRole==='undefined' || !netRole) return;
+  const k=playerData.selectedSkin1||'skin_default';
+  const idx=ALL_SKINS.findIndex(s=>s.k===k);
+  if(idx<0) return;
+  if(netRole==='host') skin1=idx; else skin2=idx;
+  skin=skin1;
+  try{ netSend({t:'skin', k:k}); }catch(e){}
+}
+function receiveOpponentSkin(k){
+  const idx=ALL_SKINS.findIndex(s=>s.k===k);
+  if(idx<0) return;
+  if(netRole==='host') skin2=idx; else skin1=idx;
+  skin=skin1;
+}
+
+// ── Refresco de textos dinámicos al cambiar de idioma ────────────────────────
+function refreshDynamicI18n(){
+  refreshAccountBtn();
+  buildShopGrid();
+  renderAccountScreen();
+  const sub=document.getElementById('accSubmit');
+  if(sub) sub.textContent=t(accTabMode==='login'?'acc_login':'acc_register');
+  if(demoActive) showDemoBanner();
+}
+
+// ── Arranque del progreso ────────────────────────────────────────────────────
+loadLocalProfile();
+applyPlayerSkins();
+updateCurrencyDisplay();
+refreshAccountBtn();
+(function(){ const cb=document.getElementById('currencyBar'); if(cb) cb.classList.add('show'); })();
 
 buildSkins();
 initTouchControls();
@@ -4602,36 +5506,6 @@ applyLang();
 document.addEventListener('click', ()=>{ if(musicOn&&!musIv) startMusic(); }, {once:true});
 document.addEventListener('keydown', ()=>{ if(musicOn&&!musIv) startMusic(); }, {once:true});
 document.addEventListener('touchstart', ()=>{ if(musicOn&&!musIv) startMusic(); }, {once:true});
-</script>
-
-  <script>
-window.register = function () {
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
-  const fakeEmail = username + "@game.com";
-
-  window.auth.createUserWithEmailAndPassword(fakeEmail, password)
-    .then(() => {
-      document.getElementById("status").innerText = "Cuenta creada ✅";
-    })
-    .catch((error) => {
-      document.getElementById("status").innerText = error.message;
-    });
-};
-
-window.login = function () {
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
-  const fakeEmail = username + "@game.com";
-
-  window.auth.signInWithEmailAndPassword(fakeEmail, password)
-    .then(() => {
-      document.getElementById("status").innerText = "Sesión iniciada ✅";
-    })
-    .catch((error) => {
-      document.getElementById("status").innerText = error.message;
-    });
-};
 </script>
 </body>
 </html>
