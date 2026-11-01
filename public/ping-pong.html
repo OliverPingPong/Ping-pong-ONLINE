@@ -333,8 +333,23 @@ input[type=text]:focus{border-color:var(--acc);}
   padding:5px 14px;pointer-events:none;
 }
 #currencyBar.show{display:flex;}
-.cur-item{display:flex;align-items:center;gap:4px;font-family:'Orbitron',monospace;font-size:.6rem;font-weight:700;}
-.cur-coin{color:#ffe44d;} .cur-gem{color:#aa44ff;}
+.cur-item{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-family:'Orbitron',monospace;
+  font-size:.8rem;
+  font-weight:900;
+  text-shadow:0 0 8px currentColor;
+}
+.cur-coin{
+  color:#ffe44d;
+  text-shadow:0 0 8px #ffe44d, 0 0 14px #ffb700;
+}
+.cur-gem{
+  color:#d69aff;
+  text-shadow:0 0 8px #aa44ff, 0 0 14px #aa44ff;
+}
 .accountBtn{
   position:absolute;top:10px;right:14px;z-index:5;
   background:rgba(0,0,0,.5);border:1px solid #444;color:#aaa;
