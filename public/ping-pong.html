@@ -11,7 +11,7 @@
      Interruptor: déjalo en false hasta tener Firebase listo (Authentication con email/contraseña + reglas de Firestore).
      Con true se cargan los scripts de Firebase y se activan "Mi Cuenta" y el guardado en la nube. -->
 <script>
-window.ACCOUNTS_ENABLED = true;
+window.ACCOUNTS_ENABLED = false;
 if(window.ACCOUNTS_ENABLED){
   ['app','auth','firestore'].forEach(function(m){
     document.write('<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-'+m+'.js"><\/script>');
