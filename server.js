@@ -272,4 +272,4 @@ setInterval(() => {
 }, 120000);
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => log(`PING vs PONG server on port ${PORT}`));
+server.listen(PORT, '0.0.0.0', () => log(`PING vs PONG server on port ${PORT}`));
