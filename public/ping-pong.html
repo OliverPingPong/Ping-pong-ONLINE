@@ -47,7 +47,13 @@ body{background:var(--bg);color:var(--txt);font-family:'Rajdhani','Noto Sans JP'
   overflow:hidden;height:100vh;width:100vw;display:flex;align-items:center;
   justify-content:center;user-select:none;-webkit-user-select:none;}
 
-.screen{position:absolute;inset:0;display:flex;align-items:center;
+#sMenu {
+  background-image: url("menu-ping-pongol.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+     .screen{position:absolute;inset:0;display:flex;align-items:center;
   justify-content:center;flex-direction:column;gap:13px;z-index:100;
   background:radial-gradient(ellipse at 50% 30%,#1a2040 0%,#0a0c14 70%);
   touch-action:pan-y;-webkit-overflow-scrolling:touch;}
