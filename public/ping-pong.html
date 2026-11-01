@@ -6,7 +6,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>PING-PONGOL: The Ultimate Duel</title>
+<title>Ping Pong: Game</title>
 <!-- ═══ CUENTAS (Firebase) ═══
      Interruptor: déjalo en false hasta tener Firebase listo (Authentication con email/contraseña + reglas de Firestore).
      Con true se cargan los scripts de Firebase y se activan "Mi Cuenta" y el guardado en la nube. -->
@@ -47,13 +47,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Rajdhani','Noto Sans JP'
   overflow:hidden;height:100vh;width:100vw;display:flex;align-items:center;
   justify-content:center;user-select:none;-webkit-user-select:none;}
 
-#sMenu {
-  background-image: url("menu-ping-pongol.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-     .screen{position:absolute;inset:0;display:flex;align-items:center;
+.screen{position:absolute;inset:0;display:flex;align-items:center;
   justify-content:center;flex-direction:column;gap:13px;z-index:100;
   background:radial-gradient(ellipse at 50% 30%,#1a2040 0%,#0a0c14 70%);
   touch-action:pan-y;-webkit-overflow-scrolling:touch;}
@@ -326,12 +320,6 @@ input[type=text]:focus{border-color:var(--acc);}
 .joy-wrap.right .joy-knob{background:radial-gradient(circle at 35% 35%,#6699ff,#2266ffaa);}
 
 /* ══ ACCOUNT & SHOP ══ */
-#currencyBar{
-  position:absolute;top:10px;left:50%;transform:translateX(-50%);
-  z-index:201;display:none;align-items:center;gap:10px;
-  background:rgba(0,0,0,.55);border:1px solid #333;border-radius:20px;
-  padding:5px 14px;pointer-events:none;
-}
 
 #currencyBar{
   position:absolute;
@@ -446,6 +434,9 @@ input[type=text]:focus{border-color:var(--acc);}
 
 .shop-card.locked{opacity:.88;}
 .shop-card.locked .shop-preview{filter:grayscale(.55) brightness(.8);}
+#watchExitBtn{display:none;position:fixed;top:10px;left:10px;z-index:600;background:rgba(20,10,35,.88);border:1.5px solid #aa44ff;color:#fff;
+  font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:.08em;padding:8px 13px;border-radius:14px;cursor:pointer;}
+#watchExitBtn:hover{background:#aa44ff;}
 /* Demo badge */
 .demo-badge{
   background:#ff224422;border:1.5px solid #ff2244;color:#ff2244;
@@ -907,6 +898,7 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
 <div id="sMode" class="screen hidden">
   <button class="back" onclick="goTo('sMenu')" data-i18n="back">← Volver</button>
   <div class="logo" style="font-size:clamp(1.4rem,3.8vw,2.4rem)">
+    <span class="p1">PING</span><span class="vs">VS</span><span class="p2">PONG</span>
   </div>
   <div class="sec" data-i18n="choose_mode">Elige modo</div>
   <div class="row">
@@ -1231,6 +1223,7 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
 
 <!-- Touch pause button (mobile only) -->
 <button id="touchPause" onclick="togglePause()">⏸ PAUSA</button>
+<button id="watchExitBtn" onclick="exitWatchedMatch()" data-i18n="watch_exit">⏭ Volver al torneo</button>
 
 <!-- Left joystick (J1 / host) -->
 <div class="joy-wrap left" id="joyLeft">
@@ -2760,6 +2753,7 @@ function goal(scorer){
 
 function endMatch(winner){
   gameRunning=false;stopMusic();cancelAnimationFrame(animId);
+  updateWatchBtn();
   if(mode==='online'&&netRole==='host')netSend({t:'end',w:winner});
 
   const c=winner===1?col().a:col().b;
@@ -2826,6 +2820,7 @@ function restartGame(){document.getElementById('wins').classList.remove('show');
 
 function backToMenu(){
   gameRunning=false;stopMusic();cancelAnimationFrame(animId);
+  updateWatchBtn();
   applyPlayerSkins();   // tras una partida online, vuelve a mis skins
   destroyPeer();
   trnActive=false;
@@ -2866,14 +2861,12 @@ function startGameLoop(){
   clearChat();
   document.getElementById('hud').classList.remove('hidden');
   showChatBtn(true);
+  updateWatchBtn();
   setMusicContext('game');
   if(musicOn)startMusic();
   // If CPU vs CPU with chat on, start with a greeting exchange
   if(mode==='tourn' && CFG.aiVsAiChat && isCpuVsCpu()){
-    setTimeout(()=>cpuVsCpuExchange(
-      '¡La partida acaba de empezar! Saluda a tu rival brevemente (1 frase).',
-      'Tu rival te ha saludado al empezar la partida. Respóndele (1 frase).'
-    ), 1500);
+    setTimeout(()=>cpuBanter('start'), 1500);
   }
   function loop(ts){
     CX.clearRect(0,0,W,H);
@@ -3106,6 +3099,7 @@ function showCpuSkipScreen(fx){
     </div>
   </div>`;
   document.body.appendChild(modal);
+  { const hint=document.createElement('div'); hint.style.cssText='font-size:.62rem;color:#888;margin-top:16px;font-family:Rajdhani,sans-serif;line-height:1.4'; hint.textContent=t('watch_hint'); modal.firstElementChild.appendChild(hint); }
 
   document.getElementById('_skipAll').onclick=()=>{
     modal.remove();
@@ -3141,6 +3135,7 @@ function skipAllCpuMatches(){
     trnMatchIdx++;
     idx=trnFixtures.findIndex(f=>!f.played);
   }
+  if(trnFixtures.every(f=>f.played)){ trnFinish(); return; }   // ya no queda ningún partido
   // Now show standings and the next human match
   trnUpdateProgress();
   trnRenderStandings('trnTbody');
@@ -3825,165 +3820,469 @@ function onDisconn(){
 
 // Conversation history per match (keeps context for the AI)
 let aiChatHistory = [];
+let aiHistories = {A:[], B:[]};
+let _lastAutoChat = 0;     // para no saturar el chat con frases automáticas
+let _rallyHits = 0;        // golpes seguidos del peloteo actual
+let _aiRecent = [];        // últimas frases dichas (para no repetirlas)
+let _aiLastIntent = '';    // último tema (para entender un "bien"/"mal" suelto tras "¿qué tal?")
 
-// ── Local phrase pools (instant, no API) ─────────────────────────────────────
-// ── Bilingual phrase pools ────────────────────────────────────────────────────
-function P(es, en){ return currentLang==='en' ? en : es; }
-
-const AI_PHRASES = {
-  goal_scored(){   // AI scored
-    return [
-      P('¡Golazo! 🎯','Goal! 🎯'), P('Así se juega 😎',"That's how it's done 😎"),
-      P('¿Eso es todo? 😏','Is that all? 😏'), P('¡Punto para mí! 🔥','Point for me! 🔥'),
-      P('Voy calentando 💪','Just warming up 💪'), P('¡Toma! 😤','Take that! 😤'),
-    ];
-  },
-  goal_received(){ // human scored
-    return [
-      P('Suerte de novato 😅','Lucky shot 😅'), P('La próxima la paro',"I'll stop the next one"),
-      P('Buen gol 👏','Nice goal 👏'), P('No me la esperaba 😬',"Didn't see that coming 😬"),
-      P('Eso no se repite',"That won't happen again"), P('Voy a remontar 💪',"I'll come back 💪"),
-    ];
-  },
-  nice_rally(){    // after 5+ hits
-    return [
-      P('Buena racha 🔥','Good rally 🔥'), P('Menudo peloteo','What a rally'),
-      P('Esto se pone interesante 😏','Getting interesting 😏'),
-      P('¡Buen intercambio!','Great exchange!'), P('No te rindas 😄','Keep it up 😄'),
-    ];
-  },
+// ══════════════════════════════════════════════════════════════════════════
+//  CHAT DE LA IA — motor local: sin internet, sin claves, respuestas con sentido
+//  {n}=nombre de la IA  {p}=nombre del rival  {a}=puntos de la IA  {b}=puntos del rival
+// ══════════════════════════════════════════════════════════════════════════
+const AI_TXT = {
+es:{
+ greet:["¡Hola, {p}! 😄","¡Buenas! Vamos a jugar 🏓","¡Hey! Prepárate 😎"],
+ bye:["¡Hasta pronto! 👋","¡Buena partida! Vuelve cuando quieras","¡Nos vemos! 😄"],
+ thanks:["¡De nada! 😄","Para eso estamos 🙌","¡A ti por jugar!"],
+ how:["Bien, concentrado en la pelota. ¿Y tú?","¡Genial! Con ganas de ganar 😏 ¿Y tú qué tal?","Muy bien, ¿y tú?"],
+ feel_good:["¡Me alegro! 😄","¡Eso es! Pues a disfrutar el partido","Perfecto, entonces a jugar 🏓"],
+ feel_bad:["Ánimo, un buen partido te levantará 💪","Vaya... ¡pero juega tranquilo, sin presión!","Tranquilo, juguemos sin prisa 🙂"],
+ name:["Me llamo {n}. ¿Y tú, {p}?","Soy {n}, tu rival 🏓","{n}, encantado. ¿Tú eres {p}?"],
+ isai:["Sí, soy la IA del juego 🤖, pero juego en serio","Soy una IA, sí 😄 ¡aun así no te lo pondré fácil!","Soy {n}, la IA rival. ¿Te sorprende? 😏"],
+ score_win:["Vamos {a}-{b}, voy ganando 😏","Ahora mismo {a}-{b} a mi favor 💪","{a}-{b} para mí. ¡Remonta si puedes!"],
+ score_lose:["Vamos {b}-{a} a tu favor... por ahora 😅","Vas ganando {b}-{a}, pero esto no ha acabado","{b}-{a} para ti. Me toca remontar 💪"],
+ score_tie:["Empatados {a}-{b}. ¡Qué igualado! 🔥","{a}-{b}, todo por decidir 😏","Igualados a {a}. Esto se pone bueno"],
+ compl:["¡Gracias! 😎","Gracias, tú tampoco juegas mal 👏","¡Buen partido, sí!"],
+ praise_ai:["¡Gracias! Intento hacerlo lo mejor posible 😄","Me halagas 😎 pero tú también eres duro","Gracias, ¡me estoy esforzando!"],
+ bad_ai:["¡Eh! Todavía no has visto lo mejor de mí 😏","Ya veremos quién dice eso al final 😤","Qué cruel... ¡pues demuéstralo en la pista!"],
+ taunt_e:["¡Jaja, inténtalo! Yo lo daré todo 😄","Puede ser... ¡pero no me rendiré!","¡A ver si es verdad! 😅"],
+ taunt_m:["Ya veremos 😏","Eso habrá que verlo en la pista","¡Inténtalo, que no te lo pondré fácil!"],
+ taunt_h:["Sueña lo que quieras 😎","Inténtalo. No vas a poder conmigo","¿Tú? Qué gracioso 😏"],
+ taunt_lead:["Pues de momento voy ganando yo 😏","Con este marcador a mi favor, lo dudo","Primero tendrás que remontar 😉"],
+ taunt_trail:["Ahora vas ganando, pero esto no ha acabado 💪","Vas por delante... ¡pero aún me queda mucho!","Cuidado, que remonto rápido 😤"],
+ luck:["Un poco de suerte sí, jaja 😅","La suerte también juega, pero hoy la tienes tú","¿Suerte? ¡Mérito mío! 😎"],
+ rematch:["¡Claro, cuando quieras la revancha! 💪","¡Otra! Me encanta 😄","Cuando termine este, repetimos 🏓"],
+ wait:["Tranquilo, no hay prisa ⏸️","Claro, tómate tu tiempo. Puedes pausar con P","Sin problema, aquí espero 😄"],
+ sorry:["Tranquilo, no pasa nada 😄","Sin problema, ¡sigamos!","No te preocupes, esto es un juego 🏓"],
+ insult:["Eh, juguemos limpio 😅","Tranquilo, que es solo un partido 🏓","Respira... y vuelve a la pelota 😉"],
+ lag:["Aquí no debería haber lag 🤔 Prueba a bajar las partículas en Ajustes","¿Se te traba? Quita las partículas en Ajustes y mejora","Si va lento, apaga las partículas en Ajustes 🙂"],
+ laugh:["Jaja 😄","Jajaja, qué bueno 😂","¡Ja! 😆"],
+ hype:["¡Vamos! 🔥","¡Eso es! A darlo todo 💪","¡Con todo! 🏓"],
+ yes:["¡Genial! 😄","Perfecto 👍","¡Hecho!"],
+ no:["Vale, como quieras 🙂","Entendido","Ok, no pasa nada"],
+ q:["Buena pregunta... ahora mismo solo pienso en la pelota 🏓","Mmm, déjame pensarlo... ¡tú sigue jugando! 😄","No lo sé, ¡pero lo averiguamos tras el partido!"],
+ ack:["Ya veo 😄","Interesante... 🤔","Vale 👍","Jaja, cierto","Entiendo 🙂"],
+ help:["Muévete con W/S o con ↑/↓. ¡No dejes pasar la pelota! 😉","W y S (o las flechas) mueven tu pala. En móvil, el joystick 🕹️","Mueve tu pala arriba y abajo para parar la pelota 🏓"],
+ ev_goal_for:["¡Golazo! 🎯","Así se juega 😎","¡Punto para mí! 🔥","¿Eso es todo? 😏"],
+ ev_goal_against:["Buen gol, {p} 👏","Uf, no me lo esperaba 😬","Esa no se repite 😤","Vale, ese fue bueno"],
+ ev_rally:["¡Menudo peloteo! 🔥","Esto se pone interesante 😏","¡Qué intercambio!"],
+ ev_win:["¡He ganado! Buen partido, {p} 🤝","¡Victoria! Gracias por jugar 😄","¡Gané! Revancha cuando quieras 🏆"],
+ ev_lose:["¡Bien jugado, {p}! Me has ganado 👏","Me ganaste... ¡pero la próxima es mía! 😤","Buen partido, me rindo 🏳️"],
+ ev_start:["¡Hola, {p}! Que gane el mejor 🏓","¡Suerte! Voy a darlo todo 😎"],
+ ev_start_reply:["¡Igualmente! Que empiece el duelo 🔥","¡Suerte a ti también! 😄"]
+},
+en:{
+ greet:["Hi, {p}! 😄","Hey! Let's play 🏓","Hello! Get ready 😎"],
+ bye:["See you soon! 👋","Good game! Come back anytime","Bye! 😄"],
+ thanks:["You're welcome! 😄","Anytime 🙌","Thanks for playing!"],
+ how:["Doing great, focused on the ball. And you?","Good! Ready to win 😏 How about you?","Pretty good, and you?"],
+ feel_good:["Glad to hear it! 😄","Nice! Let's enjoy the match","Perfect, then let's play 🏓"],
+ feel_bad:["Cheer up, a good match will help 💪","Oh no... just play relaxed, no pressure!","Take it easy, let's play 🙂"],
+ name:["I'm {n}. And you, {p}?","I'm {n}, your opponent 🏓","{n}, nice to meet you. You're {p}, right?"],
+ isai:["Yes, I'm the game's AI 🤖, but I play for real","I'm an AI, yes 😄 I won't go easy on you though!","I'm {n}, the rival AI. Surprised? 😏"],
+ score_win:["It's {a}-{b}, I'm winning 😏","Right now {a}-{b} in my favor 💪","{a}-{b} to me. Come back if you can!"],
+ score_lose:["It's {b}-{a} in your favor... for now 😅","You're winning {b}-{a}, but it's not over","{b}-{a} to you. Time for my comeback 💪"],
+ score_tie:["Tied at {a}-{b}. So close! 🔥","{a}-{b}, everything to play for 😏","All square at {a}. This is getting good"],
+ compl:["Thanks! 😎","Thanks, you're not bad either 👏","Good game, yes!"],
+ praise_ai:["Thanks! I'm doing my best 😄","You flatter me 😎 but you're tough too","Thanks, I'm trying hard!"],
+ bad_ai:["Hey! You haven't seen my best yet 😏","We'll see who's laughing at the end 😤","Harsh... then prove it on the court!"],
+ taunt_e:["Haha, give it a try! I'll give it my all 😄","Maybe... but I won't give up!","We'll see if that's true! 😅"],
+ taunt_m:["We'll see 😏","That remains to be seen on the court","Try it, I won't make it easy!"],
+ taunt_h:["Keep dreaming 😎","Try it. You can't beat me","You? That's funny 😏"],
+ taunt_lead:["Well, right now I'm the one winning 😏","With this score in my favor, I doubt it","You'll have to come back first 😉"],
+ taunt_trail:["You're ahead now, but it's not over 💪","You lead... but I've got plenty left!","Careful, I come back fast 😤"],
+ luck:["A bit of luck, haha 😅","Luck plays a part, but today it's yours","Luck? That was skill! 😎"],
+ rematch:["Sure, rematch whenever you want! 💪","Another one! Love it 😄","Once this one ends, we go again 🏓"],
+ wait:["No rush ⏸️","Sure, take your time. You can pause with P","No problem, I'll wait 😄"],
+ sorry:["No worries 😄","It's fine, let's keep going!","Don't worry, it's just a game 🏓"],
+ insult:["Hey, let's play fair 😅","Easy, it's just a match 🏓","Breathe... and get back to the ball 😉"],
+ lag:["There shouldn't be lag here 🤔 Try turning particles off in Settings","Stuttering? Turn off particles in Settings","If it's slow, disable particles in Settings 🙂"],
+ laugh:["Haha 😄","Hahaha, good one 😂","Ha! 😆"],
+ hype:["Let's go! 🔥","That's the spirit! Give it all 💪","All in! 🏓"],
+ yes:["Great! 😄","Perfect 👍","Done!"],
+ no:["Okay, as you like 🙂","Got it","Alright, no problem"],
+ q:["Good question... right now I only think about the ball 🏓","Hmm, let me think... you keep playing! 😄","Not sure, but we'll find out after the match!"],
+ ack:["I see 😄","Interesting... 🤔","Okay 👍","Haha, true","Got it 🙂"],
+ help:["Move with W/S or ↑/↓. Don't let the ball through! 😉","W and S (or the arrows) move your paddle. On mobile, use the joystick 🕹️","Move your paddle up and down to stop the ball 🏓"],
+ ev_goal_for:["What a goal! 🎯","That's how it's done 😎","Point for me! 🔥","Is that all? 😏"],
+ ev_goal_against:["Nice goal, {p} 👏","Ouch, didn't see that coming 😬","That won't happen again 😤","Okay, that was a good one"],
+ ev_rally:["What a rally! 🔥","This is getting interesting 😏","Great exchange!"],
+ ev_win:["I won! Good game, {p} 🤝","Victory! Thanks for playing 😄","I won! Rematch whenever you want 🏆"],
+ ev_lose:["Well played, {p}! You beat me 👏","You got me... but next one is mine! 😤","Good game, I give up 🏳️"],
+ ev_start:["Hi, {p}! May the best player win 🏓","Good luck! I'm giving it my all 😎"],
+ ev_start_reply:["Likewise! Let the duel begin 🔥","Good luck to you too! 😄"]
+},
+pt:{
+ greet:["Olá, {p}! 😄","Oi! Vamos jogar 🏓"],
+ bye:["Até logo! 👋","Boa partida! Volte quando quiser"],
+ thanks:["De nada! 😄","Disponha 🙌"],
+ how:["Bem, focado na bola. E você?","Ótimo! Com vontade de ganhar 😏 E você?"],
+ feel_good:["Que bom! 😄","Então vamos curtir a partida 🏓"],
+ feel_bad:["Força, uma boa partida vai te animar 💪","Calma, joga sem pressão 🙂"],
+ name:["Me chamo {n}. E você, {p}?","Sou {n}, seu rival 🏓"],
+ isai:["Sim, sou a IA do jogo 🤖, mas jogo sério","Sou uma IA, sim 😄 mas não vou pegar leve!"],
+ score_win:["Estamos {a} a {b}, estou ganhando 😏","{a} a {b} para mim. Vire se puder!"],
+ score_lose:["Você está ganhando {b} a {a}... por enquanto 😅","{b} a {a} para você. Hora de virar 💪"],
+ score_tie:["Empatados em {a} a {b}. Que equilíbrio! 🔥","{a} a {b}, tudo em aberto 😏"],
+ compl:["Obrigado! 😎","Valeu, você também joga bem 👏"],
+ praise_ai:["Obrigado! Estou me esforçando 😄","Você me elogia 😎 mas você também é duro"],
+ bad_ai:["Ei! Você ainda não viu o meu melhor 😏","Vamos ver quem ri no final 😤"],
+ taunt_e:["Haha, tente! Vou dar tudo 😄","Talvez... mas não vou desistir!"],
+ taunt_m:["Veremos 😏","Isso só na quadra, vem!"],
+ taunt_h:["Pode sonhar 😎","Tente. Você não vai conseguir"],
+ taunt_lead:["Por enquanto quem está ganhando sou eu 😏","Com esse placar, duvido 😉"],
+ taunt_trail:["Agora você está na frente, mas não acabou 💪","Cuidado, eu viro rápido 😤"],
+ luck:["Um pouco de sorte, haha 😅","Sorte? Foi mérito meu! 😎"],
+ rematch:["Claro, revanche quando quiser! 💪","Mais uma! Adoro 😄"],
+ wait:["Sem pressa ⏸️","Claro, pode pausar com P"],
+ sorry:["Tranquilo, sem problemas 😄","Relaxa, é só um jogo 🏓"],
+ insult:["Ei, vamos jogar limpo 😅","Calma, é só uma partida 🏓"],
+ lag:["Aqui não deveria ter lag 🤔 Desative as partículas em Configurações","Travando? Desligue as partículas nas Configurações 🙂"],
+ laugh:["Haha 😄","Kkkk boa 😂"],
+ hype:["Bora! 🔥","É isso! Com tudo 💪"],
+ yes:["Ótimo! 😄","Perfeito 👍"],
+ no:["Tudo bem, como quiser 🙂","Entendido"],
+ q:["Boa pergunta... agora só penso na bola 🏓","Hmm, deixa eu pensar... continue jogando! 😄"],
+ ack:["Entendi 😄","Interessante... 🤔","Certo 👍"],
+ help:["Mova com W/S ou ↑/↓. Não deixe a bola passar! 😉","No celular, use o joystick 🕹️"],
+ ev_goal_for:["Golaço! 🎯","É assim que se joga 😎","Ponto para mim! 🔥"],
+ ev_goal_against:["Belo gol, {p} 👏","Uau, não esperava 😬","Essa não se repete 😤"],
+ ev_rally:["Que troca de bolas! 🔥","Isso está ficando interessante 😏"],
+ ev_win:["Ganhei! Boa partida, {p} 🤝","Vitória! Obrigado por jogar 😄"],
+ ev_lose:["Muito bem, {p}! Você me venceu 👏","Você ganhou... mas a próxima é minha! 😤"],
+ ev_start:["Olá, {p}! Que vença o melhor 🏓","Boa sorte! Vou dar tudo 😎"],
+ ev_start_reply:["Igualmente! Que comece o duelo 🔥","Boa sorte para você também! 😄"]
+},
+de:{
+ greet:["Hallo, {p}! 😄","Hey! Lass uns spielen 🏓"],
+ bye:["Bis bald! 👋","Gutes Spiel! Komm jederzeit wieder"],
+ thanks:["Gern geschehen! 😄","Immer gern 🙌"],
+ how:["Gut, konzentriert auf den Ball. Und dir?","Super! Ich will gewinnen 😏 Und dir?"],
+ feel_good:["Schön zu hören! 😄","Dann genießen wir das Spiel 🏓"],
+ feel_bad:["Kopf hoch, ein gutes Spiel hilft 💪","Entspann dich, spiel ohne Druck 🙂"],
+ name:["Ich heiße {n}. Und du, {p}?","Ich bin {n}, dein Gegner 🏓"],
+ isai:["Ja, ich bin die KI des Spiels 🤖, aber ich spiele ernsthaft","Ich bin eine KI 😄 aber ich schenke dir nichts!"],
+ score_win:["Es steht {a}:{b}, ich führe 😏","{a}:{b} für mich. Hol auf, wenn du kannst!"],
+ score_lose:["Du führst {b}:{a}... noch 😅","{b}:{a} für dich. Zeit für mein Comeback 💪"],
+ score_tie:["Unentschieden {a}:{b}. So knapp! 🔥","{a}:{b}, alles ist offen 😏"],
+ compl:["Danke! 😎","Danke, du spielst auch nicht schlecht 👏"],
+ praise_ai:["Danke! Ich gebe mein Bestes 😄","Du schmeichelst mir 😎 aber du bist auch zäh"],
+ bad_ai:["Hey! Du hast mein Bestes noch nicht gesehen 😏","Mal sehen, wer am Ende lacht 😤"],
+ taunt_e:["Haha, versuch es! Ich gebe alles 😄","Vielleicht... aber ich gebe nicht auf!"],
+ taunt_m:["Das werden wir sehen 😏","Das musst du erst auf dem Feld beweisen"],
+ taunt_h:["Träum weiter 😎","Versuch es. Du schaffst es nicht"],
+ taunt_lead:["Im Moment führe ich 😏","Bei diesem Stand? Ich bezweifle es 😉"],
+ taunt_trail:["Du liegst vorn, aber es ist noch nicht vorbei 💪","Vorsicht, ich komme schnell zurück 😤"],
+ luck:["Ein bisschen Glück, haha 😅","Glück? Das war Können! 😎"],
+ rematch:["Klar, Revanche wann du willst! 💪","Noch eins! Ich liebe es 😄"],
+ wait:["Kein Stress, lass dir Zeit ⏸️","Klar, du kannst mit P pausieren"],
+ sorry:["Kein Problem 😄","Schon gut, es ist nur ein Spiel 🏓"],
+ insult:["Hey, spielen wir fair 😅","Ruhig, es ist nur ein Spiel 🏓"],
+ lag:["Hier sollte es nicht laggen 🤔 Schalte die Partikel in den Einstellungen aus","Ruckelt es? Partikel in den Einstellungen aus 🙂"],
+ laugh:["Haha 😄","Hahaha, gut 😂"],
+ hype:["Los geht's! 🔥","So ist es! Gib alles 💪"],
+ yes:["Super! 😄","Perfekt 👍"],
+ no:["Okay, wie du willst 🙂","Verstanden"],
+ q:["Gute Frage... gerade denke ich nur an den Ball 🏓","Hmm, lass mich überlegen... spiel weiter! 😄"],
+ ack:["Verstehe 😄","Interessant... 🤔","Okay 👍"],
+ help:["Bewege dich mit W/S oder ↑/↓. Lass den Ball nicht durch! 😉","Auf dem Handy nutzt du den Joystick 🕹️"],
+ ev_goal_for:["Was für ein Tor! 🎯","So spielt man 😎","Punkt für mich! 🔥"],
+ ev_goal_against:["Schönes Tor, {p} 👏","Autsch, damit hatte ich nicht gerechnet 😬","Das passiert nicht nochmal 😤"],
+ ev_rally:["Was für ein Ballwechsel! 🔥","Das wird spannend 😏"],
+ ev_win:["Ich habe gewonnen! Gutes Spiel, {p} 🤝","Sieg! Danke fürs Spielen 😄"],
+ ev_lose:["Gut gespielt, {p}! Du hast mich besiegt 👏","Du hast mich erwischt... aber das nächste gehört mir! 😤"],
+ ev_start:["Hallo, {p}! Möge der Beste gewinnen 🏓","Viel Glück! Ich gebe alles 😎"],
+ ev_start_reply:["Gleichfalls! Das Duell beginnt 🔥","Dir auch viel Glück! 😄"]
+},
+fr:{
+ greet:["Salut, {p} ! 😄","Bonjour ! On joue ? 🏓"],
+ bye:["À bientôt ! 👋","Bonne partie ! Reviens quand tu veux"],
+ thanks:["De rien ! 😄","Avec plaisir 🙌"],
+ how:["Bien, concentré sur la balle. Et toi ?","Super ! J'ai envie de gagner 😏 Et toi ?"],
+ feel_good:["Tant mieux ! 😄","Alors profitons de la partie 🏓"],
+ feel_bad:["Courage, un bon match va t'aider 💪","Détends-toi, joue sans pression 🙂"],
+ name:["Je m'appelle {n}. Et toi, {p} ?","Je suis {n}, ton adversaire 🏓"],
+ isai:["Oui, je suis l'IA du jeu 🤖, mais je joue sérieusement","Je suis une IA 😄 mais je ne te ferai pas de cadeau !"],
+ score_win:["On est à {a}-{b}, je mène 😏","{a}-{b} pour moi. Remonte si tu peux !"],
+ score_lose:["Tu mènes {b}-{a}... pour l'instant 😅","{b}-{a} pour toi. À moi de remonter 💪"],
+ score_tie:["Égalité {a}-{b}. Quel suspense ! 🔥","{a}-{b}, tout est possible 😏"],
+ compl:["Merci ! 😎","Merci, tu ne joues pas mal non plus 👏"],
+ praise_ai:["Merci ! Je fais de mon mieux 😄","Tu me flattes 😎 mais tu es coriace aussi"],
+ bad_ai:["Eh ! Tu n'as pas encore vu le meilleur de moi 😏","On verra qui rira à la fin 😤"],
+ taunt_e:["Haha, essaie ! Je vais tout donner 😄","Peut-être... mais je n'abandonne pas !"],
+ taunt_m:["On verra 😏","Ça, il faudra le prouver sur le terrain"],
+ taunt_h:["Continue de rêver 😎","Essaie. Tu n'y arriveras pas"],
+ taunt_lead:["Pour l'instant c'est moi qui mène 😏","Avec ce score, j'en doute 😉"],
+ taunt_trail:["Tu es devant, mais ce n'est pas fini 💪","Attention, je reviens vite 😤"],
+ luck:["Un peu de chance, haha 😅","De la chance ? C'était du talent ! 😎"],
+ rematch:["Bien sûr, revanche quand tu veux ! 💪","Encore une ! J'adore 😄"],
+ wait:["Pas de souci, prends ton temps ⏸️","Bien sûr, tu peux faire pause avec P"],
+ sorry:["Pas de souci 😄","Ce n'est rien, c'est juste un jeu 🏓"],
+ insult:["Eh, jouons fair-play 😅","Calme-toi, ce n'est qu'un match 🏓"],
+ lag:["Il ne devrait pas y avoir de lag ici 🤔 Désactive les particules dans Réglages","Ça rame ? Coupe les particules dans Réglages 🙂"],
+ laugh:["Haha 😄","Mdr, bien joué 😂"],
+ hype:["Allez ! 🔥","C'est ça ! Donne tout 💪"],
+ yes:["Super ! 😄","Parfait 👍"],
+ no:["D'accord, comme tu veux 🙂","Compris"],
+ q:["Bonne question... là je ne pense qu'à la balle 🏓","Hmm, laisse-moi réfléchir... continue de jouer ! 😄"],
+ ack:["Je vois 😄","Intéressant... 🤔","D'accord 👍"],
+ help:["Bouge avec W/S ou ↑/↓. Ne laisse pas passer la balle ! 😉","Sur mobile, utilise le joystick 🕹️"],
+ ev_goal_for:["Quel but ! 🎯","C'est comme ça qu'on joue 😎","Point pour moi ! 🔥"],
+ ev_goal_against:["Beau but, {p} 👏","Aïe, je ne m'y attendais pas 😬","Ça n'arrivera plus 😤"],
+ ev_rally:["Quel échange ! 🔥","Ça devient intéressant 😏"],
+ ev_win:["J'ai gagné ! Belle partie, {p} 🤝","Victoire ! Merci d'avoir joué 😄"],
+ ev_lose:["Bien joué, {p} ! Tu m'as battu 👏","Tu m'as eu... mais la prochaine est pour moi ! 😤"],
+ ev_start:["Salut, {p} ! Que le meilleur gagne 🏓","Bonne chance ! Je vais tout donner 😎"],
+ ev_start_reply:["Pareil ! Que le duel commence 🔥","Bonne chance à toi aussi ! 😄"]
+},
+ja:{
+ greet:["こんにちは、{p}！😄","やあ！さあ、遊ぼう 🏓"],
+ bye:["またね！👋","いい試合だったよ！いつでも来てね"],
+ thanks:["どういたしまして！😄","いつでもどうぞ 🙌"],
+ how:["元気だよ、ボールに集中してる。君は？","絶好調！勝つ気満々だよ 😏 君は？"],
+ feel_good:["それはよかった！😄","じゃあ試合を楽しもう 🏓"],
+ feel_bad:["元気出して、いい試合で気分転換しよう 💪","気楽にいこう、プレッシャーなしで 🙂"],
+ name:["{n}っていうよ。君は{p}だよね？","僕は{n}、君のライバルさ 🏓"],
+ isai:["うん、ゲームのAIだよ 🤖 でも本気でやるよ","AIだけど、手加減はしないよ 😄"],
+ score_win:["{a}対{b}で僕がリードしてる 😏","{a}対{b}、僕の勝ち越し。追いついてみて！"],
+ score_lose:["{b}対{a}で君がリード…今はね 😅","{b}対{a}で君の勝ち越し。ここから逆転するよ 💪"],
+ score_tie:["{a}対{b}の同点！接戦だね 🔥","{a}対{b}、まだまだこれから 😏"],
+ compl:["ありがとう！😎","ありがとう、君も上手いよ 👏"],
+ praise_ai:["ありがとう！頑張ってるよ 😄","照れるな 😎 でも君も強いよ"],
+ bad_ai:["おっと！まだ本気は見せてないよ 😏","最後に笑うのは誰かな 😤"],
+ taunt_e:["ははっ、やってみて！全力でいくよ 😄","かもね…でも諦めないよ！"],
+ taunt_m:["どうかな 😏","それはコートで証明してもらおう"],
+ taunt_h:["夢でも見てなよ 😎","やってみな。君には無理さ"],
+ taunt_lead:["今は僕がリードしてるけどね 😏","このスコアじゃ無理だと思うな 😉"],
+ taunt_trail:["今は君がリードだけど、まだ終わってない 💪","気をつけて、逆転は速いよ 😤"],
+ luck:["ちょっと運もあったかな、ははっ 😅","運？実力だよ！😎"],
+ rematch:["もちろん、いつでもリマッチ！💪","もう一回！いいね 😄"],
+ wait:["急がなくていいよ ⏸️","どうぞ、Pで一時停止できるよ"],
+ sorry:["気にしないで 😄","大丈夫、ただのゲームだよ 🏓"],
+ insult:["おいおい、フェアにいこう 😅","落ち着いて、ただの試合だよ 🏓"],
+ lag:["ここではラグは出ないはず 🤔 設定でエフェクトをオフにしてみて","カクつく？設定でエフェクトをオフにしてね 🙂"],
+ laugh:["ははっ 😄","あはは、いいね 😂"],
+ hype:["いくぞ！🔥","その調子！全力でいこう 💪"],
+ yes:["いいね！😄","オッケー 👍"],
+ no:["わかった、どうぞ 🙂","了解"],
+ q:["いい質問だね…今はボールのことしか考えてないよ 🏓","うーん、考えてみる…プレイを続けて！😄"],
+ ack:["なるほど 😄","面白いね… 🤔","オッケー 👍"],
+ help:["W/Sか↑/↓で動かせるよ。ボールを通さないで！😉","スマホならジョイスティックを使ってね 🕹️"],
+ ev_goal_for:["ゴール決めた！🎯","これがプレイってやつさ 😎","僕のポイント！🔥"],
+ ev_goal_against:["ナイスゴール、{p} 👏","うわ、予想外だった 😬","次はそうはいかないよ 😤"],
+ ev_rally:["すごいラリーだ！🔥","面白くなってきた 😏"],
+ ev_win:["勝ったよ！いい試合だった、{p} 🤝","勝利！遊んでくれてありがとう 😄"],
+ ev_lose:["お見事、{p}！負けたよ 👏","やられた…でも次は僕が勝つ！😤"],
+ ev_start:["やあ、{p}！最高の勝負にしよう 🏓","幸運を！全力でいくよ 😎"],
+ ev_start_reply:["こちらこそ！勝負開始だ 🔥","君にも幸運を！😄"]
+},
+zh:{
+ greet:["你好，{p}！😄","嗨！来玩吧 🏓"],
+ bye:["再见！👋","打得不错！随时再来"],
+ thanks:["不客气！😄","随时奉陪 🙌"],
+ how:["挺好的，专注在球上。你呢？","太棒了！我想赢 😏 你呢？"],
+ feel_good:["太好了！😄","那就好好享受比赛吧 🏓"],
+ feel_bad:["打起精神，一场好比赛会让你好起来 💪","放松点，别有压力 🙂"],
+ name:["我叫{n}。你是{p}吧？","我是{n}，你的对手 🏓"],
+ isai:["对，我是游戏里的AI 🤖，但我是认真的","我是AI 😄 但我不会让着你！"],
+ score_win:["现在{a}比{b}，我领先 😏","{a}比{b}我领先。有本事追上来！"],
+ score_lose:["{b}比{a}你领先……暂时 😅","{b}比{a}你领先。该我反超了 💪"],
+ score_tie:["{a}比{b}平局！势均力敌 🔥","{a}比{b}，一切未定 😏"],
+ compl:["谢谢！😎","谢谢，你也打得不错 👏"],
+ praise_ai:["谢谢！我在尽力 😄","你过奖了 😎 不过你也很强"],
+ bad_ai:["喂！你还没见到我的真本事 😏","看看最后谁笑 😤"],
+ taunt_e:["哈哈，来试试！我会全力以赴 😄","也许吧……但我不会放弃！"],
+ taunt_m:["走着瞧 😏","这得在球场上证明"],
+ taunt_h:["做梦吧 😎","试试看。你赢不了我"],
+ taunt_lead:["现在是我领先 😏","这个比分，我可不信 😉"],
+ taunt_trail:["现在你领先，但还没结束 💪","小心，我反超很快 😤"],
+ luck:["是有点运气，哈哈 😅","运气？这是实力！😎"],
+ rematch:["当然，随时重赛！💪","再来一局！太好了 😄"],
+ wait:["不急 ⏸️","好的，你可以按P暂停"],
+ sorry:["没关系 😄","没事，只是游戏 🏓"],
+ insult:["喂，公平竞争 😅","冷静点，只是一场比赛 🏓"],
+ lag:["这里不该卡顿 🤔 试试在设置里关掉粒子特效","卡吗？在设置里关闭粒子特效 🙂"],
+ laugh:["哈哈 😄","哈哈哈，不错 😂"],
+ hype:["冲！🔥","就是这样！全力以赴 💪"],
+ yes:["太好了！😄","没问题 👍"],
+ no:["好吧，随你 🙂","明白了"],
+ q:["好问题……我现在只想着球 🏓","嗯，让我想想……你继续打！😄"],
+ ack:["原来如此 😄","有意思…… 🤔","好的 👍"],
+ help:["用W/S或↑/↓移动。别让球过去！😉","手机上用摇杆操作 🕹️"],
+ ev_goal_for:["进球了！🎯","这才叫打球 😎","我得分了！🔥"],
+ ev_goal_against:["好球，{p} 👏","哎呀，没想到 😬","下次不会了 😤"],
+ ev_rally:["好精彩的回合！🔥","越来越有意思了 😏"],
+ ev_win:["我赢了！打得不错，{p} 🤝","胜利！谢谢你陪我玩 😄"],
+ ev_lose:["打得好，{p}！你赢了我 👏","被你赢了……下次我赢！😤"],
+ ev_start:["你好，{p}！愿最强者获胜 🏓","祝你好运！我会全力以赴 😎"],
+ ev_start_reply:["彼此彼此！决斗开始 🔥","你也好运！😄"]
+}
 };
 
-// ── Keyword-based chat replies (no API needed) ────────────────────────────────
-const CHAT_RULES = [
-  { keys:['hola','hello','hey','buenas','hi','ey'],
-    es:['¡Hola! 😄','¡Buenas! Vamos a jugar','¡Hey! 👋'],
-    en:['Hello! 😄','Hey! Let\'s play 👋','Hi there! 😄'] },
-  { keys:['gracias','thanks','thank','bien jugado','well played','buen partido'],
-    es:['¡Gracias! 😎','De nada 🙌','Tú también juegas bien'],
-    en:['Thanks! 😎','You too 🙌','Good game to you too'] },
-  { keys:['buen gol','golazo','gran gol','nice goal','great goal','what a goal'],
-    es:['¡Gracias! 😏','Sí, no estuvo mal 😎','Mérito mío 💪'],
-    en:['Thanks! 😏','Yeah, not bad 😎','All skill 💪'] },
-  { keys:['vas a perder','te voy a ganar','te voy a machacar',"you'll lose","i'll beat you",'gonna win'],
-    es:['Ya veremos 😏','Inténtalo 💪','Eso lo decides tú 😤'],
-    en:["We'll see 😏",'Try me 💪',"We'll find out 😤"] },
-  { keys:['qué suerte','que suerte','suerte','lucky','luck'],
-    es:['Un poco sí 😅','La suerte también cuenta','jaja, puede ser 😄'],
-    en:['A little bit 😅','Luck is part of the game','haha, maybe 😄'] },
-  { keys:['mal','qué haces','you suck','que malo','jugar mal','no sirves'],
-    es:['jaja 😅','Voy mejorando','Espera y verás 😏'],
-    en:['haha 😅',"I'm getting better",'Just wait 😏'] },
-  { keys:['fácil','easy','too easy','muy fácil'],
-    es:['Eso crees tú 😏','Todavía no terminamos','Aún queda partido 💪'],
-    en:["You think so? 😏",'We\'re not done yet','Game\'s not over 💪'] },
-  { keys:['difícil','hard','complicado','tough'],
-    es:['¡Sigue intentándolo! 😄','Así se aprende','Tú puedes 💪'],
-    en:['Keep trying! 😄','That\'s how you learn','You can do it 💪'] },
-  { keys:['adiós','bye','hasta luego','goodbye','see you'],
-    es:['¡Hasta pronto! 👋','¡Buena partida!','Vuelve cuando quieras 😄'],
-    en:['See you! 👋','Good game!','Come back anytime 😄'] },
+// Orden = prioridad. Los textos se normalizan (minúsculas, sin acentos ni signos) antes de probar.
+const AI_INTENTS = [
+ ['bye',      /\b(adios|chao|chau|hasta luego|hasta pronto|nos vemos|bye|goodbye|see you|see ya|tchau|ate logo|au revoir|a bientot|tschuss|auf wiedersehen)\b|さようなら|またね|再见|再見|拜拜/],
+ ['greet',    /\b(hola|holi|holaa+|buenas|buenos dias|buenas tardes|buenas noches|ey|hey|hi|hello|hallo|ola|oi|salut|bonjour|bonsoir|servus|moin)\b|こんにちは|こんばんは|やあ|你好|您好|嗨/],
+ ['how',      /\b(que tal|como estas|como andas|como vas|como te va|como te encuentras|how are you|how are u|how r u|hows it going|whats up|wassup|como vai|como voce esta|tudo bem|comment ca va|comment vas tu|comment allez vous|wie gehts|wie geht es dir|wie gehts dir)\b|元気ですか|調子はどう|你好吗|你怎么样|最近怎么样/],
+ ['name',     /\b(como te llamas|cual es tu nombre|como te dicen|quien eres|tu nombre|what is your name|whats your name|who are you|your name|qual e o seu nome|qual seu nome|como voce se chama|quem e voce|comment tu tappelles|comment tappelles tu|comment vous appelez vous|quel est ton nom|qui es tu|wie heisst du|wer bist du|wie ist dein name)\b|名前|なまえ|你叫什么|你是谁|你的名字/],
+ ['isai',     /\b(eres (una |un )?(ia|ai|robot|bot|maquina|humano|persona|real|inteligencia artificial)|are you (an? )?(ai|bot|robot|human|real|person|computer)|are u (an? )?(ai|bot)|voce e (uma? )?(ia|robo|bot|humano|pessoa)|tu es (une? )?(ia|robot|bot|humain)|es tu (une? )?(ia|robot|humain)|bist du (eine? )?(ki|bot|roboter|mensch|echt))\b|ロボットなの|人間なの|aiなの|你是机器人|你是ai|你是真人/],
+ ['score',    /\b(cuanto vamos|como vamos|quien va ganando|quien gana|quien esta ganando|marcador|resultado|cuantos puntos|que puntuacion|whats the score|what is the score|the score|score|who is winning|whos winning|who s winning|how are we doing|quanto estamos|placar|quem esta ganhando|como estamos|quel est le score|le score|qui gagne|on en est ou|wie steht es|spielstand|wer gewinnt)\b|スコア|点数|何対何|比分|谁赢|多少分/],
+ ['help',     /\b(como se juega|como juego|como se maneja|controles|que teclas|como me muevo|ayuda|instrucciones|como funciona|how to play|how do i play|how do you play|controls|how do i move|help|instructions|what keys|como jogar|como se joga|ajuda|como me movo|comment jouer|comment on joue|commandes|aide|comment bouger|wie spielt man|wie spiele ich|steuerung|hilfe|wie bewege ich)\b|遊び方|操作方法|ヘルプ|どうやって動|怎么玩|怎么操作|如何操作|帮助/],
+ ['insult',   /\b(idiota|imbecil|estupido|estupida|tonto|tonta|gilipollas|cabron|mierda|callate|cierra la boca|te odio|idiot|stupid|dumb|shut up|hate you|moron|bastard|burro|burra|cala a boca|odeio voce|stupide|ferme la|je te deteste|merde|dumm|halt die klappe|ich hasse dich|scheisse)\b|ばか|バカ|うるさい|くそ|死ね|嫌い|傻|笨蛋|闭嘴|讨厌你|混蛋|去死/],
+ ['thanks',   /\b(gracias|muchas gracias|thanks|thank you|thx|ty|obrigado|obrigada|merci|danke|vielen dank)\b|ありがとう|谢谢|謝謝|多谢/],
+ ['compl',    /\b(buen gol|buen golazo|golazo|gran gol|que golazo|bien jugado|buena jugada|buen partido|bien hecho|buen tiro|buen punto|gg|gj|nice goal|good goal|great goal|nice shot|good shot|well played|good game|nice one|nice play|wp|what a goal|bom gol|golaco|belo gol|bem jogado|boa jogada|bom jogo|beau but|joli but|bien joue|belle partie|beau jeu|bon match|bravo|magnifique|schones tor|gutes tor|gut gespielt|schon gespielt|tolles spiel|gutes spiel)\b|ナイス|うまい|上手|いいね|すごい|好球|打得好|厉害|漂亮|干得好|真棒/],
+ ['praise_ai',/\b(eres (muy |super |bastante )?(bueno|buena|crack|genial|increible|fuerte|dificil|rapido|un crack)|que bueno eres|juegas (muy )?bien|juegas genial|youre (so |really |very )?(good|great|amazing|strong|hard|tough|awesome|fast)|you are (so |really |very )?(good|great|amazing|strong|hard|tough|fast)|you re good|you play well|voce joga bem|voce e (muito )?(bom|forte|dificil|rapido)|tu joues bien|tu es (tres )?(fort|bon|rapide)|t es fort|du spielst gut|du bist (sehr )?(gut|stark|schnell))\b|強いね|上手だね|你很强|你真厉害|你打得好|你好强/],
+ ['bad_ai',   /\b(eres (muy |super )?(malo|mala|malisimo|manco|facil|lento|torpe|inutil|basura|novato)|juegas mal|que malo|que facil|muy facil|manco|noob|you suck|youre (so |really )?(bad|trash|slow|easy|terrible|awful)|you are (so |really )?(bad|trash|slow|easy|terrible)|too easy|so easy|trash|garbage|voce joga mal|voce e (muito )?(ruim|fraco|facil|lento)|muito facil|lixo|tu joues mal|tu es nul|trop facile|du bist schlecht|du spielst schlecht|zu leicht|zu einfach)\b|下手|弱い|よわい|簡単すぎ|ザコ|你太菜|太弱|太简单|垃圾|菜鸟/],
+ ['taunt',    /\b(vas a perder|te voy a ganar|te gano|te voy a machacar|te voy a destrozar|perderas|ya perdiste|has perdido|voy a ganar|ganare|you will lose|you ll lose|youll lose|i will win|i ll win|ill win|im going to win|gonna win|you lose|beat you|crush you|destroy you|voce vai perder|vou te ganhar|vou ganhar|tu vas perdre|je vais gagner|je vais te battre|tu as perdu|du wirst verlieren|ich werde gewinnen|ich gewinne|du verlierst)\b|負ける|勝つ|倒す|你会输|我会赢|我要赢|打败你|你输了/],
+ ['luck',     /\b(que suerte|vaya suerte|suerte|lucky|luck|what luck|sorte|que sorte|quelle chance|chanceux|chanceuse|gluck|glucklich)\b|運|ラッキー|运气|幸运|走运/],
+ ['rematch',  /\b(revancha|otra partida|otra vez|jugamos otra|una mas|de nuevo|rematch|play again|one more|another game|revanche|mais uma|outra partida|de novo|encore une|rejouer|une autre|nochmal|noch eine|nochmals)\b|もう一回|もう一度|リマッチ|再戦|再来一局|再来一次|再玩一次|重赛/],
+ ['wait',     /\b(espera|esperate|un momento|un segundo|pausa|para un momento|aguanta|wait|hold on|one sec|one second|pause|brb|give me a sec|aguenta|so um segundo|attends|attendez|une seconde|un instant|deux secondes|warte|einen moment|kurz)\b|待って|ちょっと待|ポーズ|等一下|稍等|等等|暂停/],
+ ['sorry',    /\b(perdon|lo siento|disculpa|perdona|sorry|my bad|apologies|oops|desculpa|me desculpe|perdao|pardon|desole|excuse moi|entschuldigung|tut mir leid|verzeihung)\b|ごめん|すみません|申し訳|对不起|抱歉|不好意思/],
+ ['lag',      /\b(lag|laggea|laggy|se traba|va lento|se pega|se congela|va a tirones|latencia|freezing|stuttering|slow connection|trava|travando|ca rame|laggt|ruckelt)\b|カクカク|重い|ラグ|卡顿|卡了|太卡/],
+ ['feel_good',/\b(estoy bien|todo bien|muy bien|bien gracias|estupendo|de lujo|contento|contenta|feliz|im good|im fine|im great|doing good|doing great|fine thanks|good thanks|great thanks|all good|pretty good|feeling good|estou bem|tudo otimo|bem obrigado|je vais bien|tres bien|bien merci|mir geht es gut|gut danke|es geht mir gut)\b|元気です|元気だよ|いい感じ|我很好|挺好|还不错|不错/],
+ ['feel_bad', /\b(estoy mal|estoy cansado|estoy cansada|estoy triste|me aburro|aburrido|aburrida|im bad|im tired|im sad|im bored|bored|tired|not good|feeling bad|estou mal|estou cansado|estou triste|entediado|je suis fatigue|je vais mal|ca va pas|triste|ennuye|mir geht es schlecht|mude|traurig|gelangweilt)\b|疲れた|悲しい|退屈|累了|难过|无聊|不开心/],
+ ['laugh',    /\b(ja(ja)+|je(je)+|ji(ji)+|xd+|lol|lmao|rofl|haha+|hehe+|kkk+|rsrs+|mdr|ptdr|w{2,})\b|笑|ｗｗ|草|哈哈|呵呵|嘿嘿|233/],
+ ['hype',     /\b(vamos|dale|a por ello|venga|animo|fuerza|a jugar|empecemos|empieza|lets go|lets play|come on|bring it|game on|ready|bora|vem|pronto|allez|on y va|vas y|cest parti|pret|los gehts|auf gehts|bereit|komm)\b|行くぞ|いくよ|始めよう|頑張|加油|开始吧|来吧|冲|准备好了/],
+ ['yes',      /^(si|sii+|claro|vale|ok|okay|okey|de acuerdo|por supuesto|obvio|sip|aja|yes|yeah|yep|yup|sure|of course|right|sim|beleza|certo|oui|ouais|dac|ja|jawohl|klar|gerne|はい|うん|いいよ|オッケー|好的|好|嗯|行|可以)$/],
+ ['no',       /^(no|nop|nope|para nada|nunca|jamas|nah|nein|non|nao|いいえ|ううん|不|不是|没有)$/]
 ];
 
-function getKeywordReply(text){
-  const lower = text.toLowerCase();
-  for(const rule of CHAT_RULES){
-    if(rule.keys.some(k=>lower.includes(k))){
-      const pool = currentLang==='en' ? rule.en : rule.es;
-      return pool[Math.floor(Math.random()*pool.length)];
+function P(es,en){ return currentLang==='en' ? en : es; }
+function pickPhrase(pool){ return pool[Math.floor(Math.random()*pool.length)]; }
+function pickFresh(pool){                       // una frase que no se haya dicho hace poco
+  const fresh=pool.filter(s=>!_aiRecent.includes(s));
+  const s=pickPhrase(fresh.length?fresh:pool);
+  _aiRecent.push(s); if(_aiRecent.length>16) _aiRecent.shift();
+  return s;
+}
+function aiFill(s, vars){ return s.replace(/\{(\w+)\}/g,(m,k)=> (vars && vars[k]!==undefined) ? vars[k] : m); }
+function aiTxt(lang,key){
+  return (AI_TXT[lang] && AI_TXT[lang][key]) || (AI_TXT.en && AI_TXT.en[key]) || AI_TXT.es[key] || ['…'];
+}
+function aiNorm(s){
+  return String(s).toLowerCase().replace(/ß/g,'ss')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'').normalize('NFC')
+    .replace(/['’`´]/g,'')
+    .replace(/[^a-z0-9\u3040-\u30ff\u4e00-\u9fff\s]/g,' ')
+    .replace(/\s+/g,' ').trim();
+}
+// Idioma del mensaje (si no se reconoce, el del juego)
+function aiDetectLang(raw){
+  if(/[\u3040-\u30ff]/.test(raw)) return 'ja';
+  if(/[\u4e00-\u9fff]/.test(raw)) return 'zh';
+  const L={
+    es:/^(que|eres|vas|voy|muy|hola|gracias|gol|pelota|partido|porque|estoy|estas|perdon|jugar|juegas|tienes|puedes|quiero|soy|suerte|vamos|buenas|tu|mi|como|cuanto)$/,
+    en:/^(the|you|your|are|is|what|whats|how|why|who|im|my|good|nice|lucky|thanks|hello|hi|lose|win|ball|game|play|please|can|this|that|score|youre|i|it)$/,
+    pt:/^(voce|nao|obrigado|obrigada|ola|tudo|sim|estou|jogar|jogo|partida|quero|sorte|desculpa|bora|bom|boa|muito)$/,
+    fr:/^(je|tu|vous|suis|bonjour|merci|salut|oui|pas|avec|pour|mon|ton|jeu|partie|perdre|gagner|tres|belle|bien|comment|est)$/,
+    de:/^(ich|du|ist|nicht|hallo|danke|bitte|ja|nein|spiel|gut|schon|wie|was|wer|und|das|der|verlieren|gewinnen|bist)$/
+  };
+  const score={es:0,en:0,pt:0,fr:0,de:0};
+  aiNorm(raw).split(' ').forEach(w=>{ for(const l in L) if(L[l].test(w)) score[l]++; });
+  let best=currentLang, bs=0;
+  for(const l in score) if(score[l]>bs){ best=l; bs=score[l]; }
+  return bs>0 ? best : currentLang;
+}
+function aiEmojiIntent(text){
+  if(/[😂🤣😆😹😄😁😀😃]/u.test(text)) return 'laugh';
+  if(/[😡😠🤬👿💢]/u.test(text)) return 'insult';
+  if(/[😢😭😞😔]/u.test(text)) return 'feel_bad';
+  if(/[👍👏🙌💪🔥😎]/u.test(text)) return 'hype';
+  if(/[❤💖😍🥰😘]/u.test(text)) return 'thanks';
+  return 'ack';
+}
+// Temas que contiene el mensaje, el principal primero
+function aiIntentsOf(raw){
+  const text=String(raw||'').trim();
+  const N=aiNorm(text);
+  if(!N && /\p{Extended_Pictographic}/u.test(text)) return [aiEmojiIntent(text)];
+  let found=[];
+  AI_INTENTS.forEach(([id,rx])=>{ if(rx.test(N)) found.push(id); });
+  if(_aiLastIntent==='how'){                       // tras "¿qué tal?", un "bien"/"mal" suelto es un estado de ánimo
+    const feel=found.filter(i=>i==='feel_good'||i==='feel_bad');
+    if(feel.length) found=feel.concat(found.filter(i=>!feel.includes(i)));
+    else if(/^(bien|muy bien|genial|good|fine|great|super|gut|bem|otimo|tres bien)$/.test(N)) found=['feel_good'];
+    else if(/^(mal|fatal|regular|cansado|bad|tired|schlecht|ruim|pas bien)$/.test(N)) found=['feel_bad'];
+  }
+  if(!found.length){
+    const isQ=/[?？]/.test(text) || /^(que|como|cuando|donde|por que|porque|quien|cual|cuanto|cuantos|what|how|when|where|why|who|which|do you|does|did|can you|could you|are you|is it|will you|o que|quando|onde|quem|qual|quand|pourquoi|qui|quel|quelle|wann|warum|wer|welche|was|wo)\b/.test(N) || /(か|吗|呢)[!！。\s]*$/.test(text);
+    found=[isQ?'q':'ack'];
+  }
+  return found;
+}
+// Persona de la IA que habla: {name, diff, side(1|2), foe}
+function aiPersona(fxIdx){
+  if(mode==='single') return {name:p2Name, diff:diff, side:2, foe:p1Name};
+  if(mode==='tourn'){
+    const fx=trnFixtures[fxIdx!==undefined ? fxIdx : trnMatchIdx];
+    if(fx){
+      const pA=trnPlayers[fx.i], pB=trnPlayers[fx.j];
+      if(pA.isCpu && !pB.isCpu) return {name:pA.name, diff:pA.diff||'medium', side:1, foe:pB.name};
+      if(pB.isCpu && !pA.isCpu) return {name:pB.name, diff:pB.diff||'medium', side:2, foe:pA.name};
+      if(pA.isCpu && pB.isCpu)  return {name:pA.name, diff:pA.diff||'medium', side:1, foe:pB.name};
     }
   }
-  // Generic fallbacks
-  const fallbacks = currentLang==='en'
-    ? ['haha 😄','Let\'s keep playing','Focus! 🎯','Good one','😏','Keep it up 💪']
-    : ['jaja 😄','Vamos a seguir','¡Concentración! 🎯','Buena','😏','¡Ánimo! 💪'];
-  return fallbacks[Math.floor(Math.random()*fallbacks.length)];
+  return {name:p2Name, diff:diff, side:2, foe:p1Name};
 }
-
-let _lastAutoChat = 0;   // timestamp of last auto-chat to avoid spam
-let _rallyHits = 0;      // count hits in current rally
-
-// Pick a random phrase from a pool
-function pickPhrase(pool){
-  return pool[Math.floor(Math.random()*pool.length)];
+function aiScores(pers){ return pers.side===1 ? {a:sc1,b:sc2} : {a:sc2,b:sc1}; }
+function aiOne(intent, L, pers, vars){
+  let key=intent;
+  if(intent==='score') key = vars.a>vars.b ? 'score_win' : vars.a<vars.b ? 'score_lose' : 'score_tie';
+  else if(intent==='taunt'){
+    const d=vars.a-vars.b;
+    key = d>=1 ? 'taunt_lead' : d<=-1 ? 'taunt_trail' : (pers.diff==='easy' ? 'taunt_e' : pers.diff==='hard' ? 'taunt_h' : 'taunt_m');
+  }
+  return {key:key, text:aiFill(pickFresh(aiTxt(L,key)),vars)};
 }
-
-// Auto-chat: called from goal() and hit events — no API, instant
-function aiAutoChat(event){ // event: 'goal_scored'|'goal_received'|'nice_rally'
-  if(!CFG.aiChat) return;
-  if(!opponentIsCpu()) return;
-  if(mode==='online') return;
+// Respuesta a lo que escribe el jugador: entiende el tema, el idioma, el marcador y la personalidad
+function aiReply(raw, pers){
+  pers = pers || aiPersona();
+  const text=String(raw||'').trim().slice(0,200);
+  const L=aiDetectLang(text);
+  const sc=aiScores(pers);
+  const vars={n:pers.name, p:pers.foe||humanName(), a:sc.a, b:sc.b};
+  const intents=aiIntentsOf(text);
+  const lead=intents[0];
+  const parts=[aiOne(lead,L,pers,vars)];
+  const APPEND=['how','name','score','isai','help','rematch'];
+  const CAN_LEAD=['greet','thanks','compl','praise_ai','hype','sorry'];
+  const second=intents.slice(1).find(i=>APPEND.includes(i));
+  if(second && CAN_LEAD.includes(lead)) parts.push(aiOne(second,L,pers,vars));
+  _aiLastIntent = parts.some(p=>p.key==='how') ? 'how' : lead;
+  let out=parts.map(p=>p.text).join(' ');
+  if(out.length>120) out=parts[0].text;
+  return out;
+}
+// Frases de eventos (gol, peloteo, fin de partido...)
+function aiLine(kind, pers, L){
+  const sc=aiScores(pers);
+  return aiFill(pickFresh(aiTxt(L||currentLang,kind)), {n:pers.name, p:pers.foe||humanName(), a:sc.a, b:sc.b});
+}
+// Frases automáticas durante la partida: event = 'goal_scored' | 'goal_received' | 'nice_rally'
+function aiAutoChat(event){
+  if(!CFG.aiChat || !opponentIsCpu() || mode==='online') return;
+  if(isCpuVsCpu()) return;                       // IA vs IA tiene su propio diálogo
   const now=Date.now();
-  if(now-_lastAutoChat < 4000) return; // max 1 auto message per 4s
+  if(now-_lastAutoChat < 4000) return;           // como mucho 1 frase automática cada 4 s
   _lastAutoChat=now;
-  const poolFn=AI_PHRASES[event];
-  if(!poolFn) return;
-  const pool=poolFn();
-  const msg=pickPhrase(pool);
-  const oppNm=opponentName();
-  const delay=600+Math.random()*800;
+  const kind = event==='goal_scored' ? 'ev_goal_for' : event==='goal_received' ? 'ev_goal_against' : 'ev_rally';
+  const pers=aiPersona();
+  const msg=aiLine(kind,pers);
+  _aiLastIntent='';
   setTimeout(()=>{
     if(!gameRunning) return;
-    appendMsg(msg, false, oppNm);
-    showSpeechBubble(msg, mode==='tourn'&&trnFixtures.length>0?trnPlayers[trnFixtures[trnMatchIdx].i].isCpu:false);
-  }, delay);
+    appendMsg(msg,false,pers.name);
+    showSpeechBubble(msg, pers.side===1);
+  }, 600+Math.random()*800);
+}
+// Nombre histórico: ahora responde el motor local (con una pequeña pausa de "escribiendo…")
+async function askClaude(userMessage){
+  const reply=aiReply(userMessage);
+  await new Promise(r=>setTimeout(r, Math.min(1000, 350+reply.length*10)+Math.random()*250));
+  return reply;
 }
 
-// Build the system prompt for the AI character
-function buildAiSystemPrompt(){
-  const nm = opponentName();
-  const difficulty = (()=>{
-    if(mode==='single') return diff;
-    if(mode==='tourn'){
-      const fx=trnFixtures[trnMatchIdx];
-      const pA=trnPlayers[fx.i], pB=trnPlayers[fx.j];
-      return pA.isCpu ? (pA.diff||'medium') : (pB.diff||'medium');
-    }
-    return 'medium';
-  })();
-  const diffLabel = difficulty==='easy'?'novato simpático y torpe':
-                    difficulty==='medium'?'competitivo, picón y divertido':
-                    'experto arrogante y retador';
-  const lang = currentLang==='en' ? 'English' : 'Spanish';
-  return `You are ${nm}, an AI playing Ping-Pong in a game called "PING vs PONG".
-Personality: ${diffLabel}. Always reply in ${lang}.
-Keep replies VERY SHORT (1 sentence max), natural, conversational, with occasional emojis.
-Never break character. You are the opponent, not an AI assistant.
-Score: ${sc1}-${sc2}. You are ${p2Name}, the human is ${p1Name}.
-React naturally to what the human says — like a real player would in a game chat.`;
-}
-
-// Reply to player chat — keyword system first, API as fallback
-async function askClaude(userMessage, context){
-  // 1. Always get an instant keyword-based reply
-  const instant = getKeywordReply(userMessage);
-
-  // 2. Try to get a better Claude reply asynchronously
-  //    Return instant immediately, Claude reply will override if it arrives fast
-  try{
-    aiChatHistory.push({role:'user', content:userMessage});
-    if(aiChatHistory.length > 12) aiChatHistory = aiChatHistory.slice(-12);
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 60,
-        system: buildAiSystemPrompt(),
-        messages: aiChatHistory
-      })
-    });
-    const data = await response.json();
-    const reply = (data.content && data.content[0] && data.content[0].text)
-      ? data.content[0].text.trim() : instant;
-    aiChatHistory.push({role:'assistant', content:reply});
-    return reply;
-  } catch(e){
-    return instant; // API failed → use keyword reply
-  }
-}
-
-// Determine if the opponent in the current match is an AI
 function opponentIsCpu(){
   if(mode==='online') return false;
   if(mode==='multi')  return false;
@@ -4131,7 +4430,7 @@ function sendMsg(text){
         appendMsg(reply, false, oppNm);
         showSpeechBubble(reply, isLeft);
       });
-    }, 800+Math.random()*900);
+    }, 350+Math.random()*450);
   }
 
   document.getElementById('chatInput').value='';
@@ -4159,122 +4458,85 @@ function isCpuVsCpu(){
   return trnPlayers[fx.i].isCpu && trnPlayers[fx.j].isCpu;
 }
 
-// For CPU-vs-CPU: get both AI names and histories
-// Each AI has its own separate history so they feel like different characters
-const aiHistories = {A:[], B:[]};
-
-async function cpuVsCpuExchange(triggerCtxA, triggerCtxB){
-  if(!CFG.aiVsAiChat) return;
-  const fx=trnFixtures[trnMatchIdx];
-  const nameA=trnPlayers[fx.i].name, nameB=trnPlayers[fx.j].name;
-  const diffA=trnPlayers[fx.i].diff||'medium', diffB=trnPlayers[fx.j].diff||'medium';
-
-  function sysPrompt(myName, oppName, myDiff){
-    const dl=myDiff==='easy'?'novato, amigable':myDiff==='medium'?'competitivo':'arrogante y retador';
-    return `Eres ${myName}, una IA jugando al Ping-Pong en "PING vs PONG". Personalidad: ${dl}.
-Tu rival es ${oppName}. El marcador es ${sc1}-${sc2} (${nameA} vs ${nameB}).
-Responde en español. Máximo 1 frase corta con emoji opcional. No te salgas del personaje.`;
-  }
-
-  // A speaks first
-  aiHistories.A.push({role:'user', content:triggerCtxA});
-  if(aiHistories.A.length>10) aiHistories.A=aiHistories.A.slice(-10);
-
-  let replyA = '';
-  try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:80,
-        system:sysPrompt(nameA,nameB,diffA), messages:aiHistories.A})
-    });
-    const d=await r.json();
-    replyA=(d.content&&d.content[0]&&d.content[0].text)?d.content[0].text.trim():'...';
-    aiHistories.A.push({role:'assistant',content:replyA});
-  } catch(e){ replyA='...'; }
-
-  appendMsg(replyA, false, nameA);
-  showSpeechBubble(replyA, true);
-
-  // B responds after a short delay
-  await new Promise(r=>setTimeout(r, 1200+Math.random()*600));
-  aiHistories.B.push({role:'user', content:`${nameA} dijo: "${replyA}". ${triggerCtxB}`});
-  if(aiHistories.B.length>10) aiHistories.B=aiHistories.B.slice(-10);
-
-  let replyB = '';
-  try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:80,
-        system:sysPrompt(nameB,nameA,diffB), messages:aiHistories.B})
-    });
-    const d=await r.json();
-    replyB=(d.content&&d.content[0]&&d.content[0].text)?d.content[0].text.trim():'...';
-    aiHistories.B.push({role:'assistant',content:replyB});
-  } catch(e){ replyB='...'; }
-
-  appendMsg(replyB, false, nameB);
-  showSpeechBubble(replyB, false);
+// IA vs IA: diálogo entre las dos IAs (frases locales, sin internet)
+function cpuBanter(kind, side, fxIdx){
+  if(!CFG.aiChat || !CFG.aiVsAiChat) return;
+  const idx = fxIdx!==undefined ? fxIdx : trnMatchIdx;
+  const fx=trnFixtures[idx]; if(!fx) return;
+  const A={name:trnPlayers[fx.i].name, diff:trnPlayers[fx.i].diff||'medium', side:1, foe:trnPlayers[fx.j].name};
+  const B={name:trnPlayers[fx.j].name, diff:trnPlayers[fx.j].diff||'medium', side:2, foe:trnPlayers[fx.i].name};
+  let first, second, k1, k2;
+  if(kind==='start'){ first=A; second=B; k1='ev_start'; k2='ev_start_reply'; }
+  else if(kind==='goal'){ first=(side===1?A:B); second=(side===1?B:A); k1='ev_goal_for'; k2='ev_goal_against'; }
+  else if(kind==='end'){  first=(side===1?A:B); second=(side===1?B:A); k1='ev_win'; k2='ev_lose'; }
+  else return;
+  if(kind==='goal'){ const now=Date.now(); if(now-_lastAutoChat<5000) return; _lastAutoChat=now; }
+  const line1=aiLine(k1,first), line2=aiLine(k2,second);
+  const say=(pers,msg)=>{ appendMsg(msg,false,pers.name); showSpeechBubble(msg,pers.side===1); };
+  setTimeout(()=>{ if(kind!=='end' && !gameRunning) return; say(first,line1); }, 700+Math.random()*400);
+  setTimeout(()=>{ if(kind!=='end' && !gameRunning) return; say(second,line2); }, 2300+Math.random()*600);
 }
-
+// Gol: contra el humano ya habla aiAutoChat; aquí solo el diálogo IA vs IA (true = marcó la IA de la izquierda)
 function aiCommentGoal(scorerIsAI){
-  if(!CFG.aiChat) return;
-
-  // CPU vs CPU case
-  if(isCpuVsCpu()){
-    if(!CFG.aiVsAiChat) return;
-    const ctxA = scorerIsAI
-      ? 'Acabo de marcar un gol. Di algo breve y triunfal (1 frase).'
-      : 'Mi rival acaba de marcar un gol. Reacciona brevemente (1 frase).';
-    const ctxB = scorerIsAI
-      ? 'El rival está celebrando su gol. Respóndele brevemente (1 frase).'
-      : 'Acabo de marcar un gol. Di algo triunfal brevemente (1 frase).';
-    setTimeout(()=>cpuVsCpuExchange(ctxA, ctxB), 800+Math.random()*400);
-    return;
-  }
-
-  if(!opponentIsCpu()) return;
-  const oppNm=opponentName();
-  const ctx = scorerIsAI ? 'Acabo de marcar un gol. Di algo breve y triunfal (1 frase, emoji opcional).'
-                         : 'El humano acaba de marcarme un gol. Di algo breve (sorpresa, enfado suave o reto, 1 frase, emoji opcional).';
-  const isLeft = mode==='tourn' && trnFixtures.length>0
-    ? trnPlayers[trnFixtures[trnMatchIdx].i].isCpu : false;
-  setTimeout(async ()=>{
-    const reply = await askClaude(ctx);
-    appendMsg(reply, false, oppNm);
-    showSpeechBubble(reply, isLeft);
-  }, 800 + Math.random()*500);
+  if(isCpuVsCpu()) cpuBanter('goal', scorerIsAI ? 1 : 2);
 }
-
-// AI comments on match end
+// Fin de partido (endMatch ya avanzó trnMatchIdx: el partido jugado es el anterior)
 function aiCommentMatchEnd(humanWon){
   if(!CFG.aiChat) return;
+  const fxIdx = mode==='tourn' ? Math.max(0,trnMatchIdx-1) : undefined;
+  if(mode==='tourn'){
+    const fx=trnFixtures[fxIdx];
+    if(!fx) return;
+    const pA=trnPlayers[fx.i], pB=trnPlayers[fx.j];
+    if(pA.isCpu && pB.isCpu){ cpuBanter('end', humanWon ? 2 : 1, fxIdx); return; }   // aquí "humanWon" = ganó el de la derecha
+    if(!pA.isCpu && !pB.isCpu) return;                                              // dos humanos: no habla nadie
+  } else if(mode!=='single') return;
+  const pers=aiPersona(fxIdx);
+  const msg=aiLine(humanWon ? 'ev_lose' : 'ev_win', pers);
+  setTimeout(()=>{ appendMsg(msg,false,pers.name); }, 1200);
+}
 
-  // CPU vs CPU case
-  if(isCpuVsCpu()){
-    if(!CFG.aiVsAiChat) return;
-    const fx=trnFixtures[trnMatchIdx>0?trnMatchIdx-1:0];
-    const winnerName = sc1>sc2 ? trnPlayers[fx.i].name : trnPlayers[fx.j].name;
-    const ctxA='La partida ha terminado. Di algo breve sobre el resultado (1 frase).';
-    const ctxB='La partida ha terminado. Responde a tu rival sobre el resultado (1 frase).';
-    setTimeout(()=>cpuVsCpuExchange(ctxA, ctxB), 1000);
-    return;
+// ── Torneo: salir de un partido IA vs IA que estás viendo ────────────────────
+function simulateRest(s1, s2, dA, dB){
+  const a=diffCfgFor(dA).cpu, b=diffCfgFor(dB).cpu, pa=a/(a+b);
+  let guard=0;
+  while(guard++<300){
+    if(Math.max(s1,s2)>=winPts && s1!==s2) break;
+    if(Math.random()<pa) s1++; else s2++;
   }
-
-  if(!opponentIsCpu()) return;
-  const oppNm=opponentName();
-  const ctx = humanWon
-    ? 'El humano acaba de ganar la partida. Di algo breve de felicitación (algo burlón pero deportivo, 1 frase).'
-    : 'Acabo de ganar la partida. Di algo breve y triunfal (1 frase, emoji opcional).';
-  setTimeout(async ()=>{
-    const reply = await askClaude(ctx);
-    appendMsg(reply, false, oppNm);
-  }, 1200);
+  return [s1,s2];
+}
+function updateWatchBtn(){
+  const b=document.getElementById('watchExitBtn'); if(!b) return;
+  const fx=(mode==='tourn' && trnActive) ? trnFixtures[trnMatchIdx] : null;
+  const show=!!fx && gameRunning && trnPlayers[fx.i].isCpu && trnPlayers[fx.j].isCpu;
+  b.style.display = show ? 'block' : 'none';
+}
+function exitWatchedMatch(){
+  if(mode!=='tourn' || !trnActive) return;
+  const idx=trnMatchIdx, fx=trnFixtures[idx];
+  if(!fx || fx.played) return;
+  const pA=trnPlayers[fx.i], pB=trnPlayers[fx.j];
+  if(!(pA.isCpu && pB.isCpu)) return;                       // solo partidos entre IAs
+  // 1) cortar el partido en seco, sin pantallas de fin
+  if(goalTm){ clearTimeout(goalTm); goalTm=null; }
+  gameRunning=false; paused=false; cancelAnimationFrame(animId); stopMusic();
+  ['overlay','wins'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  document.getElementById('pbtn').style.display='none';
+  document.getElementById('hud').classList.add('hidden');
+  showChatBtn(false); clearChat(); updateWatchBtn();
+  // 2) el resultado se completa desde el marcador actual
+  const res=simulateRest(sc1, sc2, pA.diff||'medium', pB.diff||'medium');
+  trnRecordResult(idx, res[0], res[1]);
+  trnMatchIdx=idx+1;
+  // 3) se saltan los siguientes partidos de IAs hasta que te toque jugar a ti (o se acaba el torneo)
+  skipAllCpuMatches();
 }
 
 // Clear chat log between matches
 function clearChat(){
   document.getElementById('chatLog').innerHTML='';
-  aiChatHistory = [];      // Reset human-vs-AI context
+  aiChatHistory = []; _aiLastIntent = '';   // Reset human-vs-AI context
   aiHistories.A = [];      // Reset CPU A context
   aiHistories.B = [];      // Reset CPU B context
 }
@@ -5102,6 +5364,16 @@ zh:{
 }
 };
 Object.keys(LANGS_EXTRA).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA[l]); });
+const LANGS_EXTRA2 = {
+  es:{ watch_exit:"⏭ Volver al torneo", watch_hint:"Podrás volver al torneo en cualquier momento." },
+  en:{ watch_exit:"⏭ Back to tournament", watch_hint:"You can return to the tournament at any time." },
+  pt:{ watch_exit:"⏭ Voltar ao torneio", watch_hint:"Você pode voltar ao torneio a qualquer momento." },
+  de:{ watch_exit:"⏭ Zurück zum Turnier", watch_hint:"Du kannst jederzeit zum Turnier zurückkehren." },
+  fr:{ watch_exit:"⏭ Retour au tournoi", watch_hint:"Vous pourrez revenir au tournoi à tout moment." },
+  ja:{ watch_exit:"⏭ トーナメントに戻る", watch_hint:"いつでもトーナメントに戻れます。" },
+  zh:{ watch_exit:"⏭ 返回锦标赛", watch_hint:"你可以随时返回锦标赛。" }
+};
+Object.keys(LANGS_EXTRA2).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA2[l]); });
 
 function tf(key, vars){
   let s=t(key);
