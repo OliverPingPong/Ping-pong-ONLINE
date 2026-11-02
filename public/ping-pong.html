@@ -712,12 +712,23 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
   75%{opacity:1;}
   100%{opacity:0;}
 }
+
 /* ══ SETTINGS SCREEN ══ */
 #sSettings{
   overflow-y:auto;
   justify-content:flex-start!important;
   padding:56px 12px 20px;
   gap:0;
+  background-image:
+    linear-gradient(
+      rgba(3, 5, 20, 0.30),
+      rgba(3, 5, 20, 0.42)
+    ),
+    url("ajustes-ping-pongol.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 #settingsInner{
   display:grid;
