@@ -841,6 +841,7 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
     <button class="btn sm" onclick="goTo('sSettings')" data-i18n="settings">⚙️ Ajustes</button>
   </div>
   <button class="btn sm" onclick="goTo('sShop')" style="border-color:#ffe44d;color:#ffe44d" data-i18n="shop_btn">🛒 Tienda</button>
+  <button class="btn sm" onclick="openBugReport()" style="border-color:#ff6688;color:#ff8899;width:100%">🐞 Reportar un bug</button>
 </div>
 
 <!-- ── SETTINGS ── -->
@@ -1209,6 +1210,16 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
     <button class="shop-tab" onclick="switchShopTab('gem')" data-i18n="shop_gems">💎 Gemas</button>
   </div>
   <div class="shop-grid" id="shopGrid"></div>
+</div>
+
+<!-- ── BUG REPORT ── -->
+<div id="sBugReport" class="screen hidden">
+  <button class="back" onclick="goTo('sMenu')">← Volver</button>
+  <div class="trn-header" style="color:#ff8899;font-size:.8rem;letter-spacing:.2em">🐞 REPORTAR UN BUG</div>
+  <p style="max-width:320px;text-align:center;padding:0 18px;color:#ccc;font-size:1rem;line-height:1.4">Cuéntanos qué ha fallado para ayudarnos a mejorar PING-PONGOL.</p>
+  <textarea id="bugReportMessage" maxlength="2000" placeholder="Describe el problema (mínimo 10 caracteres)…" aria-label="Descripción del error" style="width:min(86vw,360px);height:150px;resize:vertical;padding:12px;border:1px solid #ff8899;border-radius:8px;background:#111318;color:#f0f4ff;font:1rem Rajdhani,sans-serif;touch-action:pan-y;user-select:text;-webkit-user-select:text"></textarea>
+  <div id="bugReportStatus" role="status" aria-live="polite" style="max-width:320px;text-align:center;min-height:24px;padding:0 12px;color:#ffb347;font-size:.95rem"></div>
+  <button id="bugReportSubmit" class="btn sm" onclick="submitBugReport()" style="border-color:#ff6688;color:#ff8899">Enviar reporte</button>
 </div>
 
 <!-- CANVAS -->
@@ -5904,6 +5915,52 @@ applyLang();
 document.addEventListener('click', ()=>{ if(musicOn&&!musIv) startMusic(); }, {once:true});
 document.addEventListener('keydown', ()=>{ if(musicOn&&!musIv) startMusic(); }, {once:true});
 document.addEventListener('touchstart', ()=>{ if(musicOn&&!musIv) startMusic(); }, {once:true});
+
+
+// ── Bug reports (solo para usuarios con sesión iniciada) ───────────────────
+function openBugReport(){
+  const status=document.getElementById('bugReportStatus');
+  const message=document.getElementById('bugReportMessage');
+  const submit=document.getElementById('bugReportSubmit');
+  if(status) status.textContent='';
+  if(message) message.value='';
+  if(submit) submit.disabled=false;
+  goTo('sBugReport');
+  if(!currentUser || !FB_OK){
+    if(status) status.textContent='Para enviar un reporte, inicia sesión primero desde «Mi Cuenta».';
+    if(submit) submit.disabled=true;
+  }
+}
+
+async function submitBugReport(){
+  const status=document.getElementById('bugReportStatus');
+  const field=document.getElementById('bugReportMessage');
+  const submit=document.getElementById('bugReportSubmit');
+  const message=String(field && field.value || '').trim();
+  if(!currentUser || !FB_OK || !window.db || !window.firebase){
+    if(status) status.textContent='Inicia sesión desde «Mi Cuenta» antes de enviar un reporte.';
+    if(submit) submit.disabled=true;
+    return;
+  }
+  if(message.length<10){ if(status) status.textContent='Describe el problema con al menos 10 caracteres.'; return; }
+  if(message.length>2000){ if(status) status.textContent='El reporte no puede superar los 2000 caracteres.'; return; }
+  if(submit) submit.disabled=true;
+  if(status) status.textContent='Enviando reporte…';
+  try{
+    await db.collection('bugReports').add({
+      uid:currentUser.uid,
+      message:message,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    if(field) field.value='';
+    if(status) status.textContent='✅ Reporte enviado. ¡Gracias por ayudarnos a mejorar!';
+  }catch(e){
+    console.error('Error enviando bug report:',e);
+    if(status) status.textContent='No se pudo enviar. Comprueba tu conexión e inténtalo de nuevo.';
+  }finally{
+    if(submit) submit.disabled=!(currentUser && FB_OK);
+  }
+}
 </script>
 </body>
 </html>
