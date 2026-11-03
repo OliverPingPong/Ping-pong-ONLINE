@@ -2915,12 +2915,18 @@ function bugQueue(){
   try{ const a=JSON.parse(localStorage.getItem(BUG_KEY)||'[]'); return Array.isArray(a) ? a : []; }catch(e){ return []; }
 }
 function bugQueueSave(a){ try{ localStorage.setItem(BUG_KEY, JSON.stringify(a.slice(-20))); }catch(e){} }
+// Las reglas de Firestore solo aceptan {uid, message, createdAt}: categoría y datos técnicos van dentro del mensaje
+function bugPayload(r, uid){
+  let msg='['+(r.category||'other')+'] '+String(r.text||'');
+  if(r.tech) msg+='\n\n--- datos técnicos ---\n'+JSON.stringify(r.tech);
+  return {uid:uid, message:msg.slice(0,2000), createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+}
 async function flushBugQueue(){
   if(!(FB_OK && currentUser)) return;
   const q=bugQueue(); if(!q.length) return;
   const left=[];
   for(const r of q){
-    try{ await db.collection('bugReports').add(Object.assign({}, r, {createdAt: firebase.firestore.FieldValue.serverTimestamp()})); }
+    try{ await db.collection('bugReports').add(bugPayload(r, currentUser.uid)); }
     catch(e){ left.push(r); }
   }
   bugQueueSave(left);
@@ -2939,7 +2945,7 @@ async function sendBugReport(){
   };
   if(FB_OK && currentUser){
     try{
-      await db.collection('bugReports').add(Object.assign({}, report, {createdAt: firebase.firestore.FieldValue.serverTimestamp()}));
+      await db.collection('bugReports').add(bugPayload(report, currentUser.uid));
       msg.style.color='#00cc66'; msg.textContent=t('bug_sent'); box.value='';
       return;
     }catch(e){ /* sin permiso o sin conexión: se guarda abajo y se reenvía después */ }
