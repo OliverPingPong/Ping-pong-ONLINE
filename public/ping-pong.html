@@ -52,6 +52,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Rajdhani','Noto Sans JP'
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+padding-top: 24px;
 }
      .screen{position:absolute;inset:0;display:flex;align-items:center;
   justify-content:center;flex-direction:column;gap:13px;z-index:100;
@@ -901,13 +902,16 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
   <button class="accountBtn" onclick="goTo('sAccount')">👤 Mi Cuenta</button>
   <div style="height:6px"></div>
   <button class="btn" onclick="goTo('sMode')" data-i18n="play">▶ Jugar</button>
-  <div class="row">
-    <button class="btn sm" onclick="goTo('sSkins')" data-i18n="skins">🎨 Skins</button>
-    <button class="btn sm" onclick="goTo('sSettings')" data-i18n="settings">⚙️ Ajustes</button>
-  </div>
+  
+<div class="menu-options-row">
+  <button class="btn sm" onclick="goTo('sSkins')" data-i18n="skins">🎨 Skins</button>
+  <button class="btn sm" onclick="goTo('sSettings')" data-i18n="settings">⚙️ Ajustes</button>
   <button class="btn sm" onclick="goTo('sShop')" style="border-color:#ffe44d;color:#ffe44d" data-i18n="shop_btn">🛒 Tienda</button>
+</div>
+
+<div class="menu-options-row">
   <button class="btn sm" onclick="goTo('sMissions')" style="border-color:#88ffcc;color:#88ffcc" data-i18n="mis_btn">🎯 Misiones</button>
-  <button class="btn sm" onclick="goTo('sBug')" data-i18n="bug_btn" style="border-color:#ff6688;color:#ff8899;width:auto;align-self:center;padding:5px 12px;font-size:.55rem">🐞 Reportar un bug</button>
+  <button class="btn sm" onclick="goTo('sBug')" data-i18n="bug_btn" style="border-color:#ff6688;color:#ff8899;width:auto;padding:5px 12px;font-size:.55rem">🐞 Reportar un bug</button>
 </div>
 
 <!-- ── SETTINGS ── -->
