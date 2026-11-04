@@ -47,36 +47,26 @@ body{background:var(--bg);color:var(--txt);font-family:'Rajdhani','Noto Sans JP'
   overflow:hidden;height:100vh;width:100vw;display:flex;align-items:center;
   justify-content:center;user-select:none;-webkit-user-select:none;}
 
-
 #sMenu {
   background-image: url("menu-ping-pongol.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-
-  justify-content: flex-start;
-  box-sizing: border-box;
-  padding-top: clamp(28px, 7vh, 70px);
-  gap: 9px;
 }
+     .screen{position:absolute;inset:0;display:flex;align-items:center;
+  justify-content:center;flex-direction:column;gap:13px;z-index:100;
+  background:radial-gradient(ellipse at 50% 30%,#1a2040 0%,#0a0c14 70%);
+  touch-action:pan-y;-webkit-overflow-scrolling:touch;}
+.screen.hidden{display:none;}
 
-.menu-options-row {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: nowrap;
-  gap: 6px;
-  width: 100%;
-}
+.logo{font-family:'Orbitron',monospace;font-size:clamp(2.2rem,7vw,5rem);
+  font-weight:900;letter-spacing:.08em;line-height:1;}
+.logo .p1{color:var(--p1);text-shadow:0 0 28px #ff224488;}
+.logo .vs{color:var(--acc);font-size:.52em;vertical-align:middle;margin:0 10px;}
+.logo .p2{color:var(--p2);text-shadow:0 0 28px #2266ff88;}
+.subtitle{font-family:'Orbitron',monospace;font-size:clamp(.6rem,1.6vw,.85rem);
+  letter-spacing:.28em;color:#888;text-transform:uppercase;margin-top:-6px;}
 
-.menu-options-row .btn {
-  min-width: 0;
-  padding: 7px 9px;
-  font-size: clamp(.48rem, 2.5vw, .65rem);
-  letter-spacing: .04em;
-}
-     
 .btn{background:transparent;border:2px solid var(--acc);color:var(--acc);
   font-family:'Orbitron',monospace;font-size:clamp(.65rem,1.7vw,.85rem);
   font-weight:700;letter-spacing:.12em;padding:10px 24px;cursor:pointer;
@@ -901,31 +891,25 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
 <body>
 
 <!-- ── MENU ── -->
-
 <div id="sMenu" class="screen">
+  <!-- Barra de monedas y botón de cuenta: solo existen dentro del menú (y de ajustes) -->
   <div id="currencyBar">
     <div class="cur-item cur-coin">🪙 <span id="curCoins">0</span></div>
     <div style="width:1px;height:14px;background:#333"></div>
     <div class="cur-item cur-gem">💎 <span id="curGems">0</span></div>
   </div>
-
   <button class="accountBtn" onclick="goTo('sAccount')">👤 Mi Cuenta</button>
   <div style="height:6px"></div>
-
   <button class="btn" onclick="goTo('sMode')" data-i18n="play">▶ Jugar</button>
-
-  <div class="menu-options-row">
+  <div class="row">
     <button class="btn sm" onclick="goTo('sSkins')" data-i18n="skins">🎨 Skins</button>
     <button class="btn sm" onclick="goTo('sSettings')" data-i18n="settings">⚙️ Ajustes</button>
-    <button class="btn sm" onclick="goTo('sShop')" style="border-color:#ffe44d;color:#ffe44d" data-i18n="shop_btn">🛒 Tienda</button>
   </div>
-
-  <div class="menu-options-row">
-    <button class="btn sm" onclick="goTo('sMissions')" style="border-color:#88ffcc;color:#88ffcc" data-i18n="mis_btn">🎯 Misiones</button>
-    <button class="btn sm" onclick="goTo('sBug')" data-i18n="bug_btn" style="border-color:#ff6688;color:#ff8899;width:auto;padding:5px 12px;font-size:.55rem">🐞 Reportar un bug</button>
-  </div>
+  <button class="btn sm" onclick="goTo('sShop')" style="border-color:#ffe44d;color:#ffe44d" data-i18n="shop_btn">🛒 Tienda</button>
+  <button class="btn sm" onclick="goTo('sMissions')" style="border-color:#88ffcc;color:#88ffcc" data-i18n="mis_btn">🎯 Misiones</button>
+  <button class="btn sm" onclick="goTo('sBug')" data-i18n="bug_btn" style="border-color:#ff6688;color:#ff8899;width:auto;align-self:center;padding:5px 12px;font-size:.55rem">🐞 Reportar un bug</button>
 </div>
-     
+
 <!-- ── SETTINGS ── -->
 <div id="sSettings" class="screen hidden">
   <button class="accountBtn" onclick="goTo('sAccount')">👤 Mi Cuenta</button>
