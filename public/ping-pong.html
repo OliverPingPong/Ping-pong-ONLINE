@@ -891,25 +891,31 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
 <body>
 
 <!-- ── MENU ── -->
+
 <div id="sMenu" class="screen">
-  <!-- Barra de monedas y botón de cuenta: solo existen dentro del menú (y de ajustes) -->
   <div id="currencyBar">
     <div class="cur-item cur-coin">🪙 <span id="curCoins">0</span></div>
     <div style="width:1px;height:14px;background:#333"></div>
     <div class="cur-item cur-gem">💎 <span id="curGems">0</span></div>
   </div>
+
   <button class="accountBtn" onclick="goTo('sAccount')">👤 Mi Cuenta</button>
   <div style="height:6px"></div>
+
   <button class="btn" onclick="goTo('sMode')" data-i18n="play">▶ Jugar</button>
-  <div class="row">
+
+  <div class="menu-options-row">
     <button class="btn sm" onclick="goTo('sSkins')" data-i18n="skins">🎨 Skins</button>
     <button class="btn sm" onclick="goTo('sSettings')" data-i18n="settings">⚙️ Ajustes</button>
+    <button class="btn sm" onclick="goTo('sShop')" style="border-color:#ffe44d;color:#ffe44d" data-i18n="shop_btn">🛒 Tienda</button>
   </div>
-  <button class="btn sm" onclick="goTo('sShop')" style="border-color:#ffe44d;color:#ffe44d" data-i18n="shop_btn">🛒 Tienda</button>
-  <button class="btn sm" onclick="goTo('sMissions')" style="border-color:#88ffcc;color:#88ffcc" data-i18n="mis_btn">🎯 Misiones</button>
-  <button class="btn sm" onclick="goTo('sBug')" data-i18n="bug_btn" style="border-color:#ff6688;color:#ff8899;width:auto;align-self:center;padding:5px 12px;font-size:.55rem">🐞 Reportar un bug</button>
-</div>
 
+  <div class="menu-options-row">
+    <button class="btn sm" onclick="goTo('sMissions')" style="border-color:#88ffcc;color:#88ffcc" data-i18n="mis_btn">🎯 Misiones</button>
+    <button class="btn sm" onclick="goTo('sBug')" data-i18n="bug_btn" style="border-color:#ff6688;color:#ff8899;width:auto;padding:5px 12px;font-size:.55rem">🐞 Reportar un bug</button>
+  </div>
+</div>
+     
 <!-- ── SETTINGS ── -->
 <div id="sSettings" class="screen hidden">
   <button class="accountBtn" onclick="goTo('sAccount')">👤 Mi Cuenta</button>
