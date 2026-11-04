@@ -887,6 +887,115 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
 .toggle.on::after{transform:translateX(20px);}
 .toggle-lbl{font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.1em;color:#888;}
 .toggle.on+.toggle-lbl{color:var(--acc);}
+
+/* ══ CINEMATIC VICTORY — PING-PONGOL ══ */
+#wins {
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 45%, #202b55 0%, #090b16 68%);
+}
+
+#wins::before {
+  content: "";
+  position: absolute;
+  inset: -35%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    conic-gradient(
+      from 0deg at 50% 50%,
+      transparent 0deg,
+      #ffe44d18 35deg,
+      transparent 75deg,
+      #2266ff20 125deg,
+      transparent 175deg,
+      #ff224420 230deg,
+      transparent 285deg,
+      #ffe44d18 325deg,
+      transparent 360deg
+    );
+  animation: victoryLights 12s linear infinite;
+}
+
+#wins.show {
+  animation: victoryCameraIn 0.8s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+#wins > * {
+  position: relative;
+  z-index: 1;
+}
+
+#wins.show .wt {
+  animation: victoryTitleIn 1s cubic-bezier(.16, 1, .3, 1) both;
+  text-shadow:
+    0 0 10px currentColor,
+    0 0 28px currentColor,
+    0 0 60px #ffe44d66;
+}
+
+#wins.show .ws {
+  animation: victorySubtitleIn 0.7s ease-out 0.25s both;
+}
+
+#wins.show #wReward {
+  animation: victorySubtitleIn 0.7s ease-out 0.4s both;
+}
+
+#wins.show #wBtns {
+  animation: victoryButtonsIn 0.7s cubic-bezier(.16, 1, .3, 1) 0.35s both;
+}
+
+@keyframes victoryLights {
+  from { transform: rotate(0deg) scale(1.05); }
+  to   { transform: rotate(360deg) scale(1.05); }
+}
+
+@keyframes victoryCameraIn {
+  0%   { opacity: 0; transform: scale(1.08); }
+  70%  { opacity: 1; transform: scale(.995); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes victoryTitleIn {
+  0% {
+    opacity: 0;
+    transform: scale(.45) translateY(35px);
+    filter: blur(10px);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(1.08) translateY(-3px);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes victorySubtitleIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes victoryButtonsIn {
+  from { opacity: 0; transform: translateY(24px) scale(.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #wins::before,
+  #wins.show,
+  #wins.show .wt,
+  #wins.show .ws,
+  #wins.show #wReward,
+  #wins.show #wBtns {
+    animation: none;
+  }
+}
 </style>
 </head>
 <body>
