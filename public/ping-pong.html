@@ -1433,30 +1433,6 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
   <div class="shop-grid" id="shopGrid"></div>
 </div>
 
-<!-- ── REPORTAR BUG ── -->
-<div id="sBug" class="screen hidden">
-  <button class="back" onclick="goTo('sMenu')" data-i18n="back">← Volver</button>
-  <div class="trn-header" style="color:#ff8899;font-size:.8rem;letter-spacing:.2em" data-i18n="bug_title">🐞 REPORTAR BUG</div>
-  <div class="bug-form">
-    <label class="bug-lbl" for="bugCat" data-i18n="bug_cat">Categoría</label>
-    <select id="bugCat" class="bug-in">
-      <option value="match" data-i18n="bug_cat_match">Partida</option>
-      <option value="controls" data-i18n="bug_cat_controls">Controles</option>
-      <option value="graphics" data-i18n="bug_cat_graphics">Gráficos</option>
-      <option value="online" data-i18n="bug_cat_online">Online</option>
-      <option value="account" data-i18n="bug_cat_account">Cuenta y tienda</option>
-      <option value="other" data-i18n="bug_cat_other">Otro</option>
-    </select>
-    <textarea id="bugText" class="bug-in" rows="6" maxlength="2000" data-i18n-ph="bug_text_ph" placeholder="Describe qué pasó y cómo reproducirlo"></textarea>
-    <label class="bug-chk"><input type="checkbox" id="bugTech" checked> <span data-i18n="bug_tech">Adjuntar datos técnicos</span></label>
-    <button class="btn" onclick="sendBugReport()" data-i18n="bug_send">Enviar reporte</button>
-    <div id="bugMsg" class="bug-msg"></div>
-    <button class="btn sm" onclick="copyBugQueue()" data-i18n="bug_copy">📋 Copiar reportes guardados</button>
-    <textarea id="bugDump" class="bug-in" rows="6" readonly style="display:none"></textarea>
-  </div>
-</div>
-
-
 <!-- CANVAS -->
 <canvas id="gameCanvas"></canvas>
 <canvas id="confCanvas"></canvas>
