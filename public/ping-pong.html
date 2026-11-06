@@ -52,7 +52,6 @@ body{background:var(--bg);color:var(--txt);font-family:'Rajdhani','Noto Sans JP'
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-padding-top: 24px;
 }
      .screen{position:absolute;inset:0;display:flex;align-items:center;
   justify-content:center;flex-direction:column;gap:13px;z-index:100;
@@ -556,21 +555,26 @@ input[type=text]:focus{border-color:var(--acc);}
 #sMissions {
   background-image:
     linear-gradient(
-      rgba(3, 5, 20, 0.25),
-      rgba(3, 5, 20, 0.40)
+      rgba(3, 5, 20, 0.28),
+      rgba(3, 5, 20, 0.42)
     ),
-    url("fondo-misiones.png");
+    url("tienda-ping-pongol.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
 #sBug {
-  background-image: url("fondo-reportar-bugs.png");
-background-size: cover;
-background-position: center;
-background-repeat: no-repeat;
-background-attachment: fixed;
+  background-image:
+    linear-gradient(
+      rgba(3, 5, 20, 0.28),
+      rgba(3, 5, 20, 0.42)
+    ),
+    url("ajustes-ping-pongol.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 /* Demo badge */
 .demo-badge{
@@ -882,115 +886,6 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
 .toggle.on::after{transform:translateX(20px);}
 .toggle-lbl{font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.1em;color:#888;}
 .toggle.on+.toggle-lbl{color:var(--acc);}
-
-/* ══ CINEMATIC VICTORY — PING-PONGOL ══ */
-#wins {
-  isolation: isolate;
-  overflow: hidden;
-  background:
-    radial-gradient(ellipse at 50% 45%, #202b55 0%, #090b16 68%);
-}
-
-#wins::before {
-  content: "";
-  position: absolute;
-  inset: -35%;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    conic-gradient(
-      from 0deg at 50% 50%,
-      transparent 0deg,
-      #ffe44d18 35deg,
-      transparent 75deg,
-      #2266ff20 125deg,
-      transparent 175deg,
-      #ff224420 230deg,
-      transparent 285deg,
-      #ffe44d18 325deg,
-      transparent 360deg
-    );
-  animation: victoryLights 12s linear infinite;
-}
-
-#wins.show {
-  animation: victoryCameraIn 0.8s cubic-bezier(.16, 1, .3, 1) both;
-}
-
-#wins > * {
-  position: relative;
-  z-index: 1;
-}
-
-#wins.show .wt {
-  animation: victoryTitleIn 1s cubic-bezier(.16, 1, .3, 1) both;
-  text-shadow:
-    0 0 10px currentColor,
-    0 0 28px currentColor,
-    0 0 60px #ffe44d66;
-}
-
-#wins.show .ws {
-  animation: victorySubtitleIn 0.7s ease-out 0.25s both;
-}
-
-#wins.show #wReward {
-  animation: victorySubtitleIn 0.7s ease-out 0.4s both;
-}
-
-#wins.show #wBtns {
-  animation: victoryButtonsIn 0.7s cubic-bezier(.16, 1, .3, 1) 0.35s both;
-}
-
-@keyframes victoryLights {
-  from { transform: rotate(0deg) scale(1.05); }
-  to   { transform: rotate(360deg) scale(1.05); }
-}
-
-@keyframes victoryCameraIn {
-  0%   { opacity: 0; transform: scale(1.08); }
-  70%  { opacity: 1; transform: scale(.995); }
-  100% { opacity: 1; transform: scale(1); }
-}
-
-@keyframes victoryTitleIn {
-  0% {
-    opacity: 0;
-    transform: scale(.45) translateY(35px);
-    filter: blur(10px);
-  }
-  65% {
-    opacity: 1;
-    transform: scale(1.08) translateY(-3px);
-    filter: blur(0);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-    filter: blur(0);
-  }
-}
-
-@keyframes victorySubtitleIn {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes victoryButtonsIn {
-  from { opacity: 0; transform: translateY(24px) scale(.96); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  #wins::before,
-  #wins.show,
-  #wins.show .wt,
-  #wins.show .ws,
-  #wins.show #wReward,
-  #wins.show #wBtns {
-    animation: none;
-  }
-}
 </style>
 </head>
 <body>
@@ -1006,18 +901,13 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
   <button class="accountBtn" onclick="goTo('sAccount')">👤 Mi Cuenta</button>
   <div style="height:6px"></div>
   <button class="btn" onclick="goTo('sMode')" data-i18n="play">▶ Jugar</button>
-  
-<div class="menu-options-row">
-  <button class="btn sm" onclick="goTo('sSkins')" data-i18n="skins">🎨 Skins</button>
-  <button class="btn sm" onclick="goTo('sSettings')" data-i18n="settings">⚙️ Ajustes</button>
+  <div class="row">
+    <button class="btn sm" onclick="goTo('sSkins')" data-i18n="skins">🎨 Skins</button>
+    <button class="btn sm" onclick="goTo('sSettings')" data-i18n="settings">⚙️ Ajustes</button>
+  </div>
   <button class="btn sm" onclick="goTo('sShop')" style="border-color:#ffe44d;color:#ffe44d" data-i18n="shop_btn">🛒 Tienda</button>
-</div>
-
-<div class="menu-options-row">
   <button class="btn sm" onclick="goTo('sMissions')" style="border-color:#88ffcc;color:#88ffcc" data-i18n="mis_btn">🎯 Misiones</button>
-  <button class="btn sm" onclick="goTo('sBug')" data-i18n="bug_btn" style="border-color:#ff6688;color:#ff8899;width:auto;padding:5px 12px;font-size:.55rem">🐞 Reportar un bug</button>
-</div>
-
+  <button class="btn sm" onclick="goTo('sBug')" data-i18n="bug_btn" style="border-color:#ff6688;color:#ff8899;width:auto;align-self:center;padding:5px 12px;font-size:.55rem">🐞 Reportar un bug</button>
 </div>
 
 <!-- ── SETTINGS ── -->
@@ -1359,7 +1249,7 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
   </div>
 
   <!-- Logged in -->
-  <div id="accLogged" style="display:none;flex-direction:column;align-items:center;gap:12px;width:min(320px,90vw)">
+  <div id="accLogged" style="display:none;flex-direction:column;align-items:center;gap:12px;width:min(340px,92vw)">
     <div class="acc-info">
       <strong id="accUsername">—</strong>
       <span id="accPremiumBadge" class="acc-badge premium" style="display:none" data-i18n="acc_premium">⭐ PREMIUM</span>
@@ -1369,7 +1259,23 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
       <div class="acc-stat"><div class="acc-stat-val cur-coin" id="accCoins">0</div><div class="acc-stat-lbl">🪙 CoinClothes</div></div>
       <div class="acc-stat"><div class="acc-stat-val cur-gem" id="accGems">0</div><div class="acc-stat-lbl">💎 Exclusives</div></div>
     </div>
-    <button class="btn sm" onclick="goTo('sShop')" style="border-color:#ffe44d;color:#ffe44d;width:100%" data-i18n="acc_go_shop">🛒 Ir a la Tienda</button>
+    <div class="acc-section" data-i18n="acc_stats_title">📊 ESTADÍSTICAS</div>
+    <div class="acc-grid">
+      <div class="acc-stat"><div class="acc-stat-val" id="accPlayed">0</div><div class="acc-stat-lbl" data-i18n="acc_played">Partidas</div></div>
+      <div class="acc-stat"><div class="acc-stat-val" id="accWins">0</div><div class="acc-stat-lbl" data-i18n="acc_wins">Victorias</div></div>
+      <div class="acc-stat"><div class="acc-stat-val" id="accLosses">0</div><div class="acc-stat-lbl" data-i18n="acc_losses">Derrotas</div></div>
+      <div class="acc-stat"><div class="acc-stat-val" id="accRate">0%</div><div class="acc-stat-lbl" data-i18n="acc_rate">% victorias</div></div>
+      <div class="acc-stat"><div class="acc-stat-val" id="accGoalsFor">0</div><div class="acc-stat-lbl" data-i18n="acc_goals_for">Goles marcados</div></div>
+      <div class="acc-stat"><div class="acc-stat-val" id="accGoalsAgainst">0</div><div class="acc-stat-lbl" data-i18n="acc_goals_against">Goles encajados</div></div>
+    </div>
+    <div class="acc-fav">
+      <div class="acc-fav-swatch" id="accFavSwatch"></div>
+      <div class="acc-fav-info">
+        <div class="acc-stat-lbl" data-i18n="acc_fav">Skin favorita</div>
+        <div class="acc-fav-name" id="accFavName">—</div>
+        <div class="acc-stat-lbl" id="accFavCount"></div>
+      </div>
+    </div>
     <button class="btn sm" onclick="accLogout()" style="border-color:var(--err);color:var(--err);width:100%" data-i18n="acc_logout">Cerrar sesión</button>
   </div>
 </div>
@@ -1389,7 +1295,7 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
 
 <!-- ── REPORTAR BUG ── -->
 <div id="sBug" class="screen hidden">
-  <button class="back" onclick="goTo('sMenu')" data-i18n="back">← Volver</button>
+  <button class="back" onclick="goTo('sSettings')" data-i18n="back">← Volver</button>
   <div class="trn-header" style="color:#ff8899;font-size:.8rem;letter-spacing:.2em" data-i18n="bug_title">🐞 REPORTAR BUG</div>
   <div class="bug-form">
     <label class="bug-lbl" for="bugCat" data-i18n="bug_cat">Categoría</label>
@@ -1432,6 +1338,30 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
   </div>
   <div class="shop-grid" id="shopGrid"></div>
 </div>
+
+<!-- ── REPORTAR BUG ── -->
+<div id="sBug" class="screen hidden">
+  <button class="back" onclick="goTo('sSettings')" data-i18n="back">← Volver</button>
+  <div class="trn-header" style="color:#ff8899;font-size:.8rem;letter-spacing:.2em" data-i18n="bug_title">🐞 REPORTAR BUG</div>
+  <div class="bug-form">
+    <label class="bug-lbl" for="bugCat" data-i18n="bug_cat">Categoría</label>
+    <select id="bugCat" class="bug-in">
+      <option value="match" data-i18n="bug_cat_match">Partida</option>
+      <option value="controls" data-i18n="bug_cat_controls">Controles</option>
+      <option value="graphics" data-i18n="bug_cat_graphics">Gráficos</option>
+      <option value="online" data-i18n="bug_cat_online">Online</option>
+      <option value="account" data-i18n="bug_cat_account">Cuenta y tienda</option>
+      <option value="other" data-i18n="bug_cat_other">Otro</option>
+    </select>
+    <textarea id="bugText" class="bug-in" rows="6" maxlength="2000" data-i18n-ph="bug_text_ph" placeholder="Describe qué pasó y cómo reproducirlo"></textarea>
+    <label class="bug-chk"><input type="checkbox" id="bugTech" checked> <span data-i18n="bug_tech">Adjuntar datos técnicos</span></label>
+    <button class="btn" onclick="sendBugReport()" data-i18n="bug_send">Enviar reporte</button>
+    <div id="bugMsg" class="bug-msg"></div>
+    <button class="btn sm" onclick="copyBugQueue()" data-i18n="bug_copy">📋 Copiar reportes guardados</button>
+    <textarea id="bugDump" class="bug-in" rows="6" readonly style="display:none"></textarea>
+  </div>
+</div>
+
 
 <!-- CANVAS -->
 <canvas id="gameCanvas"></canvas>
@@ -2943,6 +2873,8 @@ const PROMO_CODES = {
   'BIENVENIDO': {coins:100, gems:5},
   'PINGPONG26': {gems:10},
   'COSMICO':    {skin:'skin_cosmic'},
+  'ONLINE':     {coins:150, gems:4},
+  'EXPERTO':    {coins:250, gems:6},
 };
 function grantRewards(r){
   const parts=[];
@@ -3076,7 +3008,7 @@ function pwMul(p, key){
   return m;
 }
 function pwReset(){
-  pwActive=null; pwNextAt=pwGap(); pwEffects={1:{}, 2:{}}; pwFloats=[]; lastHit=0;
+  pwActive=null; pwNextAt=pwGap(); pwEffects={1:{}, 2:{}}; pwFloats=[]; lastHit=0; pwBursts=[];
 }
 function pwTick(){                                                      // una vez por fotograma de juego
   if(mode==='online') return;
@@ -3104,6 +3036,7 @@ function pwCheckPickup(br){                                             // tras 
   pwEffects[lastHit][type]=d.ttl; if(mySide()===lastHit) missionsAdd('pw_total',1);
   pwActive=null; pwNextAt=pwGap();
   sndPower(d.good);
+  pwBurst(d.col);
   const who = lastHit===1 ? p1Name : p2Name;
   pwFloats.push({text:tf('pw_got',{p:who, n:t('pw_'+type)}), x:W/2, y:H/2-pwRadius()*1.8, age:0, col:d.col});
 }
@@ -3112,43 +3045,117 @@ function sndPower(good){
   tone(good?660:200, good?'triangle':'sawtooth', .18, .35);
   setTimeout(()=>tone(good?990:150,'sine',.22,.3), 90);
 }
+let pwBursts = [];              // destellos al recoger un potenciador
+// Iconos dibujados con trazos (no emojis: se ven igual en todos los dispositivos)
+function pwIcon(type, x, y, r, col){
+  CX.save();
+  CX.strokeStyle='#ffffff'; CX.fillStyle='#ffffff';
+  CX.lineWidth=Math.max(2, r*.16); CX.lineJoin='round'; CX.lineCap='round';
+  CX.shadowColor=col; CX.shadowBlur=r*.7;
+  CX.beginPath();
+  if(type==='big'){                                   // doble flecha arriba
+    [0, r*.55].forEach(dy=>{ CX.moveTo(x-r*.42, y+r*.12+dy); CX.lineTo(x, y-r*.4+dy); CX.lineTo(x+r*.42, y+r*.12+dy); });
+    CX.stroke();
+  } else if(type==='small'){                          // flecha abajo
+    CX.moveTo(x, y-r*.5); CX.lineTo(x, y+r*.38);
+    CX.moveTo(x-r*.4, y+r*.05); CX.lineTo(x, y+r*.45); CX.lineTo(x+r*.4, y+r*.05);
+    CX.stroke();
+  } else if(type==='fast'){                           // rayo
+    CX.moveTo(x+r*.18, y-r*.6); CX.lineTo(x-r*.36, y+r*.1); CX.lineTo(x-r*.02, y+r*.1);
+    CX.lineTo(x-r*.18, y+r*.6); CX.lineTo(x+r*.36, y-r*.1); CX.lineTo(x+r*.02, y-r*.1);
+    CX.closePath(); CX.fill();
+  } else {                                            // reloj de arena (lenta)
+    CX.moveTo(x-r*.38, y-r*.5); CX.lineTo(x+r*.38, y-r*.5); CX.lineTo(x-r*.04, y);
+    CX.lineTo(x+r*.38, y+r*.5); CX.lineTo(x-r*.38, y+r*.5); CX.lineTo(x+r*.04, y); CX.closePath();
+    CX.stroke();
+  }
+  CX.restore();
+}
+function pwBurst(col){
+  const parts=[];
+  for(let k=0;k<24;k++){
+    const a=Math.random()*Math.PI*2, sp=2+Math.random()*5;
+    parts.push({x:W/2, y:H/2, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp});
+  }
+  pwBursts.push({col:col, parts:parts, age:0});
+}
 function drawPowerups(){
   if(mode==='online' || !pd1 || pd1.x===undefined) return;
   const tm=performance.now()*0.001;
   if(pwActive){
-    const d=PW_TYPES[pwActive.type], R=pwRadius(), x=W/2, y=H/2;
+    const d=PW_TYPES[pwActive.type], R0=pwRadius(), x=W/2, y=H/2;
     const left=PW_LIFE-pwActive.age;
-    CX.save();
-    CX.globalAlpha = (left<120 && Math.floor(left/10)%2) ? 0.35 : 1;   // parpadea al final
-    const pulse=1+Math.sin(tm*5)*.06;
-    const g=CX.createRadialGradient(x,y,0,x,y,R*2.6*pulse);
-    g.addColorStop(0,d.col+'aa'); g.addColorStop(1,'rgba(0,0,0,0)');
-    CX.fillStyle=g; CX.beginPath(); arc(x,y,R*2.6*pulse,0,Math.PI*2); CX.fill();
-    CX.fillStyle='rgba(10,12,20,.88)'; CX.beginPath(); arc(x,y,R*pulse,0,Math.PI*2); CX.fill();
-    CX.strokeStyle=d.col; CX.lineWidth=3; CX.beginPath(); arc(x,y,R*pulse,0,Math.PI*2); CX.stroke();
-    CX.font=`${Math.round(R*1.1)}px serif`; CX.textAlign='center'; CX.textBaseline='middle';
-    CX.fillStyle='#fff'; CX.fillText(d.icon,x,y+1);
+    const grow=Math.min(1, pwActive.age/20);                  // aparece creciendo
+    const shrink= left<60 ? Math.max(0, left/60) : 1;          // desaparece encogiéndose
+    const blink = (left<150 && Math.floor(left/10)%2) ? 0.45 : 1;
+    const R=R0*(0.5+0.5*grow)*shrink*(1+Math.sin(tm*4)*.04);
+    CX.save(); CX.globalAlpha=blink*Math.min(1, shrink+.2);
+    // halo de color
+    let g=CX.createRadialGradient(x,y,R*.6,x,y,R*3);
+    g.addColorStop(0, d.col+'aa'); g.addColorStop(1, d.col+'00');
+    CX.fillStyle=g; CX.beginPath(); arc(x,y,R*3,0,Math.PI*2); CX.fill();
+    // cuerpo con brillo (esfera)
+    g=CX.createRadialGradient(x-R*.35, y-R*.4, R*.1, x, y, R);
+    g.addColorStop(0,'#ffffff'); g.addColorStop(.28,d.col); g.addColorStop(1,'#0a0c14');
+    CX.fillStyle=g; CX.beginPath(); arc(x,y,R,0,Math.PI*2); CX.fill();
+    // aro con cuatro segmentos que giran
+    CX.lineWidth=Math.max(2, R*.08); CX.strokeStyle=d.col; CX.shadowColor=d.col; CX.shadowBlur=R*.5;
+    for(let k=0;k<4;k++){ const a0=tm*2+k*Math.PI/2; CX.beginPath(); arc(x,y,R*1.12,a0,a0+Math.PI/4); CX.stroke(); }
+    CX.shadowBlur=0;
+    pwIcon(pwActive.type, x, y, R*.9, d.col);
     CX.restore();
+    // chispas que orbitan
+    for(let k=0;k<6;k++){
+      const a=tm*1.5+k*Math.PI/3, orb=R*(1.35+Math.sin(tm*3+k)*.1);
+      CX.save(); CX.globalAlpha=blink*.9; CX.fillStyle=d.col; CX.shadowColor=d.col; CX.shadowBlur=8;
+      CX.beginPath(); arc(x+Math.cos(a)*orb, y+Math.sin(a)*orb, Math.max(1.5,R*.07), 0, Math.PI*2); CX.fill();
+      CX.restore();
+    }
   }
-  // Efectos activos sobre cada paleta, con los segundos que quedan
+  // Efectos activos: contorno luminoso en la paleta y una insignia con icono y tiempo
   [1,2].forEach(p=>{
     const pd = p===1 ? pd1 : pd2;
     if(!pd || pd.x===undefined) return;
-    Object.keys(pwEffects[p]).forEach((k,i)=>{
-      const d=PW_TYPES[k], secs=Math.ceil(pwEffects[p][k]/60);
+    const keys=Object.keys(pwEffects[p]);
+    if(!keys.length) return;
+    const first=PW_TYPES[keys[0]];
+    CX.save();
+    CX.globalAlpha=.5+Math.sin(tm*6)*.2; CX.strokeStyle=first.col; CX.lineWidth=3;
+    CX.shadowColor=first.col; CX.shadowBlur=14;
+    rr(pd.x-pd.w/2-3, pd.y-pd.h/2-3, pd.w+6, pd.h+6, pd.w*.5); CX.stroke();
+    CX.restore();
+    keys.forEach((k,i)=>{
+      const d=PW_TYPES[k], left=pwEffects[p][k], secs=Math.ceil(left/60);
+      const bw=Math.max(58, W*.065), bh=Math.max(20, H*.03);
+      const bx=pd.x-bw/2, by=pd.y-pd.h/2-bh-10-i*(bh+6);
       CX.save();
-      CX.font=`bold ${Math.max(10,Math.round(W*.011))}px Orbitron,monospace`;
-      CX.fillStyle=d.col; CX.textAlign='center'; CX.textBaseline='bottom';
-      CX.fillText(`${d.icon} ${secs}s`, pd.x, pd.y-pd.h/2-8-i*(W*.016));
+      CX.fillStyle='rgba(8,10,18,.85)'; rr(bx,by,bw,bh,bh/2); CX.fill();
+      CX.fillStyle=d.col; rr(bx+3, by+bh-5, Math.max(1,(bw-6)*Math.min(1,left/d.ttl)), 3, 1.5); CX.fill();
+      pwIcon(k, bx+bh*.55, by+bh/2, bh*.34, d.col);
+      CX.fillStyle='#ffffff'; CX.font=`bold ${Math.round(bh*.5)}px Orbitron,monospace`;
+      CX.textAlign='left'; CX.textBaseline='middle';
+      CX.fillText(secs+'s', bx+bh*1.0, by+bh/2+1);
       CX.restore();
     });
   });
-  // Textos que suben al recoger un potenciador
+  // Destellos al recoger
+  pwBursts.forEach(b=>{
+    b.age++;
+    const alpha=Math.max(0, 1-b.age/65);
+    b.parts.forEach(q=>{
+      q.x+=q.vx; q.y+=q.vy; q.vx*=.94; q.vy*=.94;
+      CX.save(); CX.globalAlpha=alpha; CX.fillStyle=b.col; CX.shadowColor=b.col; CX.shadowBlur=8;
+      CX.beginPath(); arc(q.x,q.y,2.6,0,Math.PI*2); CX.fill(); CX.restore();
+    });
+  });
+  pwBursts=pwBursts.filter(b=>b.age<65);
+  // Textos que suben al recoger
   pwFloats.forEach(f=>{
     CX.save();
     CX.globalAlpha=Math.max(0,1-f.age/70);
     CX.font=`bold ${Math.max(12,Math.round(W*.016))}px Orbitron,monospace`;
-    CX.fillStyle=f.col; CX.textAlign='center'; CX.textBaseline='middle';
+    CX.fillStyle=f.col; CX.shadowColor=f.col; CX.shadowBlur=10;
+    CX.textAlign='center'; CX.textBaseline='middle';
     CX.fillText(f.text, f.x, f.y-f.age*0.6);
     CX.restore();
   });
@@ -3510,7 +3517,7 @@ function goal(scorer){
 }
 
 function endMatch(winner){
-  if(_matchEnded) return; _matchEnded=true; missionsOnMatchEnd(winner);
+  if(_matchEnded) return; _matchEnded=true; missionsOnMatchEnd(winner); statsOnMatchEnd(winner);
   gameRunning=false;stopMusic();cancelAnimationFrame(animId);
   updateWatchBtn();
   if(mode==='online'&&netRole==='host')netSend({t:'end',w:winner});
@@ -3644,6 +3651,14 @@ function startGameLoop(){
 // ═══════════════════════════════════════════
 //  HUD
 // ═══════════════════════════════════════════
+// Color legible sobre el marcador oscuro: si la skin es casi negra (Ninja), el texto sale en blanco
+function readableOn(hex){
+  const h=String(hex||'');
+  if(!/^#[0-9a-f]{6}$/i.test(h)) return h||'#ffffff';
+  const r=parseInt(h.slice(1,3),16), g=parseInt(h.slice(3,5),16), b=parseInt(h.slice(5,7),16);
+  const lum=(0.299*r+0.587*g+0.114*b)/255;
+  return lum<0.28 ? '#ffffff' : h;
+}
 function updateHUD(){
   document.getElementById('hN1').textContent=p1Name;
   document.getElementById('hN2').textContent=p2Name;
@@ -3659,7 +3674,7 @@ function updateHUD(){
   // Apply skin colors
   const c=col();
   [['#hN1',c.a],['#hS1',c.a],['#hN2',c.b],['#hS2',c.b]]
-    .forEach(([id,clr])=>{const el=document.querySelector(id);if(el)el.style.color=clr;});
+    .forEach(([id,clr])=>{const el=document.querySelector(id);if(el)el.style.color=readableOn(clr);});
   // Tournament match badge
   const hm=document.getElementById('hMatch');
   if(mode==='tourn'&&trnActive){
@@ -6338,6 +6353,16 @@ zh:{ promo_title:"兑换码", promo_ph:"输入兑换码", promo_btn:"兑换", pr
   bug_copied:"已复制", bug_none:"没有已保存的报告" }
 };
 Object.keys(LANGS_EXTRA6).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA6[l]); });
+const LANGS_EXTRA7 = {
+es:{ acc_stats_title:"📊 ESTADÍSTICAS", acc_played:"Partidas", acc_wins:"Victorias", acc_losses:"Derrotas", acc_rate:"% victorias", acc_goals_for:"Goles marcados", acc_goals_against:"Goles encajados", acc_fav:"Skin favorita", acc_fav_none:"Aún no tienes favorita", acc_fav_count:"Usada en {n} partidas" },
+en:{ acc_stats_title:"📊 STATISTICS", acc_played:"Matches", acc_wins:"Wins", acc_losses:"Losses", acc_rate:"Win rate", acc_goals_for:"Goals scored", acc_goals_against:"Goals conceded", acc_fav:"Favorite skin", acc_fav_none:"No favorite yet", acc_fav_count:"Used in {n} matches" },
+pt:{ acc_stats_title:"📊 ESTATÍSTICAS", acc_played:"Partidas", acc_wins:"Vitórias", acc_losses:"Derrotas", acc_rate:"% vitórias", acc_goals_for:"Gols marcados", acc_goals_against:"Gols sofridos", acc_fav:"Skin favorita", acc_fav_none:"Ainda sem favorita", acc_fav_count:"Usada em {n} partidas" },
+de:{ acc_stats_title:"📊 STATISTIK", acc_played:"Spiele", acc_wins:"Siege", acc_losses:"Niederlagen", acc_rate:"Siegquote", acc_goals_for:"Tore erzielt", acc_goals_against:"Gegentore", acc_fav:"Lieblingsskin", acc_fav_none:"Noch kein Favorit", acc_fav_count:"In {n} Spielen genutzt" },
+fr:{ acc_stats_title:"📊 STATISTIQUES", acc_played:"Matchs", acc_wins:"Victoires", acc_losses:"Défaites", acc_rate:"% victoires", acc_goals_for:"Buts marqués", acc_goals_against:"Buts encaissés", acc_fav:"Skin favorite", acc_fav_none:"Pas encore de favorite", acc_fav_count:"Utilisée dans {n} matchs" },
+ja:{ acc_stats_title:"📊 統計", acc_played:"試合数", acc_wins:"勝利", acc_losses:"敗北", acc_rate:"勝率", acc_goals_for:"得点", acc_goals_against:"失点", acc_fav:"お気に入りスキン", acc_fav_none:"お気に入りはまだありません", acc_fav_count:"{n}試合で使用" },
+zh:{ acc_stats_title:"📊 统计", acc_played:"场次", acc_wins:"胜", acc_losses:"负", acc_rate:"胜率", acc_goals_for:"进球", acc_goals_against:"失球", acc_fav:"最爱皮肤", acc_fav_none:"还没有最爱皮肤", acc_fav_count:"已使用 {n} 场" }
+};
+Object.keys(LANGS_EXTRA7).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA7[l]); });
 const LANGS_EXTRA4 = {
 es:{ pw_big:"Paleta grande", pw_fast:"Paleta rápida", pw_slow:"Paleta lenta", pw_small:"Paleta pequeña", pw_got:"¡{p} consigue {n}!" },
 en:{ pw_big:"Big paddle", pw_fast:"Fast paddle", pw_slow:"Slow paddle", pw_small:"Small paddle", pw_got:"{p} gets {n}!" },
@@ -6398,7 +6423,7 @@ function goalColors(scorer){
 
 // ── Perfil del jugador (local o nube) ────────────────────────────────────────
 function defaultProfile(){
-  return { coins:0, gems:0, unlockedSkins:['skin_default'], selectedSkin1:'skin_default', selectedSkin2:'skin_default', isPremium:false, missions:{}, redeemed:[] };
+  return { coins:0, gems:0, unlockedSkins:['skin_default'], selectedSkin1:'skin_default', selectedSkin2:'skin_default', isPremium:false, missions:{}, redeemed:[], stats:{played:0,wins:0,losses:0,goalsFor:0,goalsAgainst:0}, skinUse:{} };
 }
 function sanitizeProfile(p){
   const known=new Set(ALL_SKINS.map(s=>s.k));
@@ -6411,6 +6436,10 @@ function sanitizeProfile(p){
   });
   p.isPremium=!!p.isPremium;
   p.redeemed=Array.isArray(p.redeemed) ? p.redeemed.filter(x=>typeof x==='string').slice(0,200) : [];
+  const st=(p.stats && typeof p.stats==='object') ? p.stats : {};
+  p.stats={played:Math.max(0,+st.played||0), wins:Math.max(0,+st.wins||0), losses:Math.max(0,+st.losses||0), goalsFor:Math.max(0,+st.goalsFor||0), goalsAgainst:Math.max(0,+st.goalsAgainst||0)};
+  const su=(p.skinUse && typeof p.skinUse==='object') ? p.skinUse : {};
+  p.skinUse={}; Object.keys(su).forEach(k=>{ if(typeof su[k]==='number' && su[k]>0) p.skinUse[k]=Math.floor(su[k]); });
   return p;
 }
 function loadLocalProfile(){
@@ -6428,7 +6457,7 @@ function saveLocalProfile(){
       coins:playerData.coins||0, gems:playerData.gems||0,
       unlockedSkins:playerData.unlockedSkins||['skin_default'],
       selectedSkin1:playerData.selectedSkin1, selectedSkin2:playerData.selectedSkin2,
-    missions:playerData.missions||{}, redeemed:playerData.redeemed||[]
+    missions:playerData.missions||{}, redeemed:playerData.redeemed||[], stats:playerData.stats||{}, skinUse:playerData.skinUse||{}
   }));
   }catch(e){}
 }
@@ -6570,6 +6599,47 @@ function switchAccTab(tab){
   document.getElementById('accUser').style.display=tab==='register'?'':'none';
   document.getElementById('accErr').textContent='';
 }
+// Estadísticas de la cuenta: partidas, victorias, derrotas, goles y skin más usada
+function statsOnMatchEnd(winner){
+  if(demoActive) return;
+  const me=mySide(); if(!me) return;
+  const s=Object.assign({played:0,wins:0,losses:0,goalsFor:0,goalsAgainst:0}, playerData.stats||{});
+  s.played++;
+  if(winner===me) s.wins++; else s.losses++;
+  s.goalsFor+=mStat.goals; s.goalsAgainst+=mStat.conceded;
+  playerData.stats=s;
+  const k=playerData.selectedSkin1||'skin_default';
+  const su=Object.assign({}, playerData.skinUse||{});
+  su[k]=(su[k]||0)+1;
+  playerData.skinUse=su;
+  savePlayerData();
+  refreshAccountStatsIfOpen();
+}
+function favoriteSkin(){
+  const use=playerData.skinUse||{}; let best=null, n=0;
+  Object.keys(use).forEach(k=>{ if(use[k]>n){ n=use[k]; best=k; } });
+  return best ? {k:best, n:n} : null;
+}
+function renderAccountStats(){
+  const s=Object.assign({played:0,wins:0,losses:0,goalsFor:0,goalsAgainst:0}, playerData.stats||{});
+  const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
+  set('accPlayed', s.played); set('accWins', s.wins); set('accLosses', s.losses);
+  set('accRate', s.played ? Math.round(s.wins/s.played*100)+'%' : '0%');
+  set('accGoalsFor', s.goalsFor); set('accGoalsAgainst', s.goalsAgainst);
+  const fav=favoriteSkin(), sk=fav ? ALL_SKINS.find(x=>x.k===fav.k) : null;
+  const sw=document.getElementById('accFavSwatch');
+  if(sk){
+    if(sw) sw.style.background='linear-gradient(160deg,'+sk.a+' 40%,'+sk.b+' 100%)';
+    set('accFavName', skinLabel(sk)); set('accFavCount', tf('acc_fav_count',{n:fav.n}));
+  } else {
+    if(sw) sw.style.background='#222';
+    set('accFavName', t('acc_fav_none')); set('accFavCount','');
+  }
+}
+function refreshAccountStatsIfOpen(){
+  const s=document.getElementById('sAccount');
+  if(s && !s.classList.contains('hidden') && currentUser) renderAccountStats();
+}
 function renderAccountScreen(){
   const un=document.getElementById('accUnavailable');
   const guest=document.getElementById('accGuest'), logged=document.getElementById('accLogged');
@@ -6582,6 +6652,7 @@ function renderAccountScreen(){
   if(un) un.style.display='none';
   if(currentUser){
     guest.style.display='none'; logged.style.display='flex';
+    renderAccountStats();
     document.getElementById('accUsername').textContent=playerData.displayName||String(currentUser.email||'').split('@')[0];
     document.getElementById('accPremiumBadge').style.display=playerData.isPremium?'':'none';
     document.getElementById('accNormalBadge').style.display=playerData.isPremium?'none':'';
