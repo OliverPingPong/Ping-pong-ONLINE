@@ -3270,13 +3270,15 @@ const aiCache={L:{lastVx:0,target:0}, R:{lastVx:0,target:0}};
 // BALL_BASE_SPD: pixels/frame for ball to cross ~50% of field width in ~2s at 60fps
 // Formula: (W * 0.47) / (TARGET_SECONDS * 60) / cos(MAX_ANGLE)
 // W is read at runtime so speed is consistent across all devices
-function ballBaseSpd(){ return Math.max(6, W * 0.47 / (2 * 60 / 0.9)); }
+// Velocidad base: la pelota cruza el campo en ~2 s en cualquier dispositivo (0.955 = ángulo medio de saque)
+function ballBaseSpd(){ return W * 0.94 / (2 * 60 * 0.955); }
 
 function diffCfgFor(d){
   const base = ballBaseSpd();
-  if(d==='easy')   return{cpu:5,   spd:base*0.80, max:base*2.0, lag:0.18, err:0.55};
-  if(d==='medium') return{cpu:8,   spd:base*1.00, max:base*2.6, lag:0.30, err:0.22};
-  return                 {cpu:11,  spd:base*1.25, max:base*3.2, lag:0.55, err:0.04};
+  // La IA va a la misma escala que la pelota, para que el reto no cambie
+  if(d==='easy')   return{cpu:base*0.83, spd:base*0.90, max:base*2.0, lag:0.18, err:0.55};
+  if(d==='medium') return{cpu:base*1.18, spd:base*1.00, max:base*2.6, lag:0.30, err:0.22};
+  return                 {cpu:base*1.43, spd:base*1.10, max:base*3.2, lag:0.55, err:0.04};
 }
 
 // Smooth tracking target per paddle (used for lag simulation)
