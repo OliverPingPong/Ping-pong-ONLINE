@@ -2347,6 +2347,26 @@ function resetBall(scorer){
   aiCache.R.lastVx=0;
 }
 
+// ── Quién saca primero (1 = izquierda, 2 = derecha) ─────────────────────────
+// Por nombre (orden alfabético, sin tildes): el que va antes saca. Así lo deciden igual los dos dispositivos.
+function nameServes(){
+  const norm=s=>String(s||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const a=norm(p1Name), b=norm(p2Name);
+  if(a===b) return 1;
+  return a<b ? 1 : 2;
+}
+function firstServer(){
+  if(mode==='single') return Math.random()<0.5 ? 1 : 2;             // humano (1) o IA (2), al azar
+  if(mode==='multi' || mode==='online') return nameServes();         // dos jugadores: decide el nombre
+  if(mode==='tourn'){
+    const fx=trnFixtures[trnMatchIdx];
+    if(!fx) return 1;
+    const hA=!trnPlayers[fx.i].isCpu, hB=!trnPlayers[fx.j].isCpu;
+    if(hA && hB) return nameServes();                                // dos humanos (J2 existe): decide el nombre
+    return Math.random()<0.5 ? 1 : 2;                                 // humano contra IA: al azar
+  }
+  return 1;
+}
 function initGame(){
   sc1=0;sc2=0;paused=false;goalCd=0;parts=[];confs=[];flashA=0;goldenGoal=false; matchTarget=winPts; _matchEnded=false; _lastTick=0; mStatReset(); pwReset();
   matchTimerEnd = CFG.timerOn ? Date.now() + CFG.timerMins*60000 : 0;
@@ -2357,7 +2377,7 @@ function initGame(){
   emoteWheel.active=false;
   pd1={x:PW()*2.5,y:H/2,w:PW(),h:PH()};
   pd2={x:W-PW()*2.5-PW(),y:H/2,w:PW(),h:PH()};
-  resetBall(1);
+  resetBall(firstServer());
   initCrowd();
   updateHUD();
   const T2=LANGS[currentLang];
@@ -2970,6 +2990,8 @@ const PROMO_CODES = {
   'BIENVENIDO': {coins:100, gems:5},
   'PINGPONG26': {gems:10},
   'COSMICO':    {skin:'skin_cosmic'},
+  'ONLINE':     {coins:50, gems:2},
+  'EXPERTO':    {coins:80, gems:3},
 };
 function grantRewards(r){
   const parts=[];
@@ -3032,13 +3054,7 @@ function bugQueueSave(a){ try{ localStorage.setItem(BUG_KEY, JSON.stringify(a.sl
 function bugPayload(r, uid){
   let msg='['+(r.category||'other')+'] '+String(r.text||'');
   if(r.tech) msg+='\n\n--- datos técnicos ---\n'+JSON.stringify(r.tech);
-
-  return {
-    uid: uid,
-    username: (r.username || (currentUser && playerData.displayName) || 'Jugador'),
-    message: msg.slice(0,2000),
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
+  return {uid:uid, message:msg.slice(0,2000), createdAt:firebase.firestore.FieldValue.serverTimestamp()};
 }
 async function flushBugQueue(){
   if(!(FB_OK && currentUser)) return;
