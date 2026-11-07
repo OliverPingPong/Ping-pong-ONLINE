@@ -3040,6 +3040,7 @@ function bugPayload(r, uid){
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   };
 }
+}
 async function flushBugQueue(){
   if(!(FB_OK && currentUser)) return;
   const q=bugQueue(); if(!q.length) return;
