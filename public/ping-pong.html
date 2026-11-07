@@ -3032,7 +3032,13 @@ function bugQueueSave(a){ try{ localStorage.setItem(BUG_KEY, JSON.stringify(a.sl
 function bugPayload(r, uid){
   let msg='['+(r.category||'other')+'] '+String(r.text||'');
   if(r.tech) msg+='\n\n--- datos técnicos ---\n'+JSON.stringify(r.tech);
-  return {uid:uid, message:msg.slice(0,2000), createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+
+  return {
+    uid: uid,
+    username: (r.username || (currentUser && playerData.displayName) || 'Jugador'),
+    message: msg.slice(0,2000),
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
 }
 async function flushBugQueue(){
   if(!(FB_OK && currentUser)) return;
