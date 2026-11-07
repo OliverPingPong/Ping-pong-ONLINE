@@ -1453,6 +1453,10 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
     <button class="shop-tab" onclick="switchShopTab('coin')" data-i18n="shop_coins">🪙 Monedas</button>
     <button class="shop-tab" onclick="switchShopTab('gem')" data-i18n="shop_gems">💎 Gemas</button>
   </div>
+  <div class="shop-bulk">
+    <button class="shop-bulk-btn" id="bulkUp" onclick="bulkBuy('one')"><span data-i18n="shop_bulk_one">▲ Una más</span></button>
+    <button class="shop-bulk-btn" id="bulkDown" onclick="bulkBuy('max')"><span data-i18n="shop_bulk_max">▼ Máximo</span> <span id="bulkMaxN"></span></button>
+  </div>
   <div class="shop-grid" id="shopGrid"></div>
 </div>
 
@@ -2332,7 +2336,7 @@ function col(){return{a:SKINS[skin1].a,b:SKINS[skin2].b};}
 function h2r(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
 
 function resetBall(scorer){
-  _rallyHits=0; lastHit=0;
+  _rallyHits=0; lastHit=0; _ballT=0;
   const cfg=diffCfg(),a=(Math.random()*60-30)*Math.PI/180,d=scorer===1?1:-1;
   ball={x:W/2,y:H/2,vx:d*cfg.spd*Math.cos(a),vy:cfg.spd*Math.sin(a),tr:[]};
   // Reset paddles to center so players start from neutral position
@@ -3099,7 +3103,7 @@ function pwMul(p, key){
   return m;
 }
 function pwReset(){
-  pwActive=null; pwNextAt=pwGap(); pwEffects={1:{}, 2:{}}; pwFloats=[]; lastHit=0;
+  pwActive=null; pwNextAt=pwGap(); pwEffects={1:{}, 2:{}}; pwFloats=[]; lastHit=0; pwBursts=[];
 }
 function pwTick(){                                                      // una vez por fotograma de juego
   if(mode==='online') return;
@@ -3127,6 +3131,7 @@ function pwCheckPickup(br){                                             // tras 
   pwEffects[lastHit][type]=d.ttl; if(mySide()===lastHit) missionsAdd('pw_total',1);
   pwActive=null; pwNextAt=pwGap();
   sndPower(d.good);
+  pwBurst(d.col);
   const who = lastHit===1 ? p1Name : p2Name;
   pwFloats.push({text:tf('pw_got',{p:who, n:t('pw_'+type)}), x:W/2, y:H/2-pwRadius()*1.8, age:0, col:d.col});
 }
@@ -3135,43 +3140,118 @@ function sndPower(good){
   tone(good?660:200, good?'triangle':'sawtooth', .18, .35);
   setTimeout(()=>tone(good?990:150,'sine',.22,.3), 90);
 }
+let pwBursts = [];
+let _ballT = 0;                 // fotogramas para la aceleración automática de la pelota              // destellos al recoger un potenciador
+// Iconos dibujados con trazos (no emojis: se ven igual en todos los dispositivos)
+function pwIcon(type, x, y, r, col){
+  CX.save();
+  CX.strokeStyle='#ffffff'; CX.fillStyle='#ffffff';
+  CX.lineWidth=Math.max(2, r*.16); CX.lineJoin='round'; CX.lineCap='round';
+  CX.shadowColor=col; CX.shadowBlur=r*.7;
+  CX.beginPath();
+  if(type==='big'){                                   // doble flecha arriba
+    [0, r*.55].forEach(dy=>{ CX.moveTo(x-r*.42, y+r*.12+dy); CX.lineTo(x, y-r*.4+dy); CX.lineTo(x+r*.42, y+r*.12+dy); });
+    CX.stroke();
+  } else if(type==='small'){                          // flecha abajo
+    CX.moveTo(x, y-r*.5); CX.lineTo(x, y+r*.38);
+    CX.moveTo(x-r*.4, y+r*.05); CX.lineTo(x, y+r*.45); CX.lineTo(x+r*.4, y+r*.05);
+    CX.stroke();
+  } else if(type==='fast'){                           // rayo
+    CX.moveTo(x+r*.18, y-r*.6); CX.lineTo(x-r*.36, y+r*.1); CX.lineTo(x-r*.02, y+r*.1);
+    CX.lineTo(x-r*.18, y+r*.6); CX.lineTo(x+r*.36, y-r*.1); CX.lineTo(x+r*.02, y-r*.1);
+    CX.closePath(); CX.fill();
+  } else {                                            // reloj de arena (lenta)
+    CX.moveTo(x-r*.38, y-r*.5); CX.lineTo(x+r*.38, y-r*.5); CX.lineTo(x-r*.04, y);
+    CX.lineTo(x+r*.38, y+r*.5); CX.lineTo(x-r*.38, y+r*.5); CX.lineTo(x+r*.04, y); CX.closePath();
+    CX.stroke();
+  }
+  CX.restore();
+}
+function pwBurst(col){
+  const parts=[];
+  for(let k=0;k<24;k++){
+    const a=Math.random()*Math.PI*2, sp=2+Math.random()*5;
+    parts.push({x:W/2, y:H/2, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp});
+  }
+  pwBursts.push({col:col, parts:parts, age:0});
+}
 function drawPowerups(){
   if(mode==='online' || !pd1 || pd1.x===undefined) return;
   const tm=performance.now()*0.001;
   if(pwActive){
-    const d=PW_TYPES[pwActive.type], R=pwRadius(), x=W/2, y=H/2;
+    const d=PW_TYPES[pwActive.type], R0=pwRadius(), x=W/2, y=H/2;
     const left=PW_LIFE-pwActive.age;
-    CX.save();
-    CX.globalAlpha = (left<120 && Math.floor(left/10)%2) ? 0.35 : 1;   // parpadea al final
-    const pulse=1+Math.sin(tm*5)*.06;
-    const g=CX.createRadialGradient(x,y,0,x,y,R*2.6*pulse);
-    g.addColorStop(0,d.col+'aa'); g.addColorStop(1,'rgba(0,0,0,0)');
-    CX.fillStyle=g; CX.beginPath(); arc(x,y,R*2.6*pulse,0,Math.PI*2); CX.fill();
-    CX.fillStyle='rgba(10,12,20,.88)'; CX.beginPath(); arc(x,y,R*pulse,0,Math.PI*2); CX.fill();
-    CX.strokeStyle=d.col; CX.lineWidth=3; CX.beginPath(); arc(x,y,R*pulse,0,Math.PI*2); CX.stroke();
-    CX.font=`${Math.round(R*1.1)}px serif`; CX.textAlign='center'; CX.textBaseline='middle';
-    CX.fillStyle='#fff'; CX.fillText(d.icon,x,y+1);
+    const grow=Math.min(1, pwActive.age/20);                  // aparece creciendo
+    const shrink= left<60 ? Math.max(0, left/60) : 1;          // desaparece encogiéndose
+    const blink = (left<150 && Math.floor(left/10)%2) ? 0.45 : 1;
+    const R=R0*(0.5+0.5*grow)*shrink*(1+Math.sin(tm*4)*.04);
+    CX.save(); CX.globalAlpha=blink*Math.min(1, shrink+.2);
+    // halo de color
+    let g=CX.createRadialGradient(x,y,R*.6,x,y,R*3);
+    g.addColorStop(0, d.col+'aa'); g.addColorStop(1, d.col+'00');
+    CX.fillStyle=g; CX.beginPath(); arc(x,y,R*3,0,Math.PI*2); CX.fill();
+    // cuerpo con brillo (esfera)
+    g=CX.createRadialGradient(x-R*.35, y-R*.4, R*.1, x, y, R);
+    g.addColorStop(0,'#ffffff'); g.addColorStop(.28,d.col); g.addColorStop(1,'#0a0c14');
+    CX.fillStyle=g; CX.beginPath(); arc(x,y,R,0,Math.PI*2); CX.fill();
+    // aro con cuatro segmentos que giran
+    CX.lineWidth=Math.max(2, R*.08); CX.strokeStyle=d.col; CX.shadowColor=d.col; CX.shadowBlur=R*.5;
+    for(let k=0;k<4;k++){ const a0=tm*2+k*Math.PI/2; CX.beginPath(); arc(x,y,R*1.12,a0,a0+Math.PI/4); CX.stroke(); }
+    CX.shadowBlur=0;
+    pwIcon(pwActive.type, x, y, R*.9, d.col);
     CX.restore();
+    // chispas que orbitan
+    for(let k=0;k<6;k++){
+      const a=tm*1.5+k*Math.PI/3, orb=R*(1.35+Math.sin(tm*3+k)*.1);
+      CX.save(); CX.globalAlpha=blink*.9; CX.fillStyle=d.col; CX.shadowColor=d.col; CX.shadowBlur=8;
+      CX.beginPath(); arc(x+Math.cos(a)*orb, y+Math.sin(a)*orb, Math.max(1.5,R*.07), 0, Math.PI*2); CX.fill();
+      CX.restore();
+    }
   }
-  // Efectos activos sobre cada paleta, con los segundos que quedan
+  // Efectos activos: contorno luminoso en la paleta y una insignia con icono y tiempo
   [1,2].forEach(p=>{
     const pd = p===1 ? pd1 : pd2;
     if(!pd || pd.x===undefined) return;
-    Object.keys(pwEffects[p]).forEach((k,i)=>{
-      const d=PW_TYPES[k], secs=Math.ceil(pwEffects[p][k]/60);
+    const keys=Object.keys(pwEffects[p]);
+    if(!keys.length) return;
+    const first=PW_TYPES[keys[0]];
+    CX.save();
+    CX.globalAlpha=.5+Math.sin(tm*6)*.2; CX.strokeStyle=first.col; CX.lineWidth=3;
+    CX.shadowColor=first.col; CX.shadowBlur=14;
+    rr(pd.x-pd.w/2-3, pd.y-pd.h/2-3, pd.w+6, pd.h+6, pd.w*.5); CX.stroke();
+    CX.restore();
+    keys.forEach((k,i)=>{
+      const d=PW_TYPES[k], left=pwEffects[p][k], secs=Math.ceil(left/60);
+      const bw=Math.max(58, W*.065), bh=Math.max(20, H*.03);
+      const bx=pd.x-bw/2, by=pd.y-pd.h/2-bh-10-i*(bh+6);
       CX.save();
-      CX.font=`bold ${Math.max(10,Math.round(W*.011))}px Orbitron,monospace`;
-      CX.fillStyle=d.col; CX.textAlign='center'; CX.textBaseline='bottom';
-      CX.fillText(`${d.icon} ${secs}s`, pd.x, pd.y-pd.h/2-8-i*(W*.016));
+      CX.fillStyle='rgba(8,10,18,.85)'; rr(bx,by,bw,bh,bh/2); CX.fill();
+      CX.fillStyle=d.col; rr(bx+3, by+bh-5, Math.max(1,(bw-6)*Math.min(1,left/d.ttl)), 3, 1.5); CX.fill();
+      pwIcon(k, bx+bh*.55, by+bh/2, bh*.34, d.col);
+      CX.fillStyle='#ffffff'; CX.font=`bold ${Math.round(bh*.5)}px Orbitron,monospace`;
+      CX.textAlign='left'; CX.textBaseline='middle';
+      CX.fillText(secs+'s', bx+bh*1.0, by+bh/2+1);
       CX.restore();
     });
   });
-  // Textos que suben al recoger un potenciador
+  // Destellos al recoger
+  pwBursts.forEach(b=>{
+    b.age++;
+    const alpha=Math.max(0, 1-b.age/65);
+    b.parts.forEach(q=>{
+      q.x+=q.vx; q.y+=q.vy; q.vx*=.94; q.vy*=.94;
+      CX.save(); CX.globalAlpha=alpha; CX.fillStyle=b.col; CX.shadowColor=b.col; CX.shadowBlur=8;
+      CX.beginPath(); arc(q.x,q.y,2.6,0,Math.PI*2); CX.fill(); CX.restore();
+    });
+  });
+  pwBursts=pwBursts.filter(b=>b.age<65);
+  // Textos que suben al recoger
   pwFloats.forEach(f=>{
     CX.save();
     CX.globalAlpha=Math.max(0,1-f.age/70);
     CX.font=`bold ${Math.max(12,Math.round(W*.016))}px Orbitron,monospace`;
-    CX.fillStyle=f.col; CX.textAlign='center'; CX.textBaseline='middle';
+    CX.fillStyle=f.col; CX.shadowColor=f.col; CX.shadowBlur=10;
+    CX.textAlign='center'; CX.textBaseline='middle';
     CX.fillText(f.text, f.x, f.y-f.age*0.6);
     CX.restore();
   });
@@ -3402,6 +3482,9 @@ function updateGame(){
 
   // ── ball (host only) ──
   const cfg=diffCfg();
+  // La pelota se acelera sola cada 2 s (aunque no rebote), sin pasar de su velocidad máxima
+  _ballT++;
+  if(_ballT>=120){ _ballT=0; const sp=Math.hypot(ball.vx,ball.vy); if(sp>0){ const f=Math.min(1.05, cfg.max/sp); if(f>1){ ball.vx*=f; ball.vy*=f; } } }
   ball.tr=ball.tr||[];
   ball.tr.push({x:ball.x,y:ball.y});
   if(ball.tr.length>10)ball.tr.shift();
@@ -3669,6 +3752,14 @@ function startGameLoop(){
 // ═══════════════════════════════════════════
 //  HUD
 // ═══════════════════════════════════════════
+// Color legible sobre el marcador oscuro: si la skin es casi negra (Ninja), el texto sale en blanco
+function readableOn(hex){
+  const h=String(hex||'');
+  if(!/^#[0-9a-f]{6}$/i.test(h)) return h||'#ffffff';
+  const r=parseInt(h.slice(1,3),16), g=parseInt(h.slice(3,5),16), b=parseInt(h.slice(5,7),16);
+  const lum=(0.299*r+0.587*g+0.114*b)/255;
+  return lum<0.28 ? '#ffffff' : h;
+}
 function updateHUD(){
   document.getElementById('hN1').textContent=p1Name;
   document.getElementById('hN2').textContent=p2Name;
@@ -3684,7 +3775,7 @@ function updateHUD(){
   // Apply skin colors
   const c=col();
   [['#hN1',c.a],['#hS1',c.a],['#hN2',c.b],['#hS2',c.b]]
-    .forEach(([id,clr])=>{const el=document.querySelector(id);if(el)el.style.color=clr;});
+    .forEach(([id,clr])=>{const el=document.querySelector(id);if(el)el.style.color=readableOn(clr);});
   // Tournament match badge
   const hm=document.getElementById('hMatch');
   if(mode==='tourn'&&trnActive){
@@ -6720,6 +6811,8 @@ function previewRR(c,x,y,w,h,r){
   c.lineTo(x+r,y+h); c.quadraticCurveTo(x,y+h,x,y+h-r);
   c.lineTo(x,y+r); c.quadraticCurveTo(x,y,x+r,y); c.closePath();
 }
+function shopSellValue(s){ return Math.floor(s.price*0.5); }     // se devuelve el 50 % del precio
+
 function buildShopGrid(){
   const grid=document.getElementById('shopGrid');
   if(!grid) return;
@@ -6756,13 +6849,83 @@ function buildShopGrid(){
     if(selK===s.k){ const ck=document.createElement('div'); ck.className='shop-check'; ck.textContent='✓'; card.appendChild(ck); }
     else if(!owned){ const lk=document.createElement('div'); lk.className='shop-lock'; lk.textContent='🔒'; card.appendChild(lk); }
 
+    if(owned && s.currency!=='free'){                       // vender (solo skins de pago que ya tienes)
+      const sb=document.createElement('button');
+      sb.className='shop-sell';
+      sb.textContent='💰 '+shopSellValue(s)+' '+icon;
+      sb.title=t('shop_sell');
+      sb.onclick=ev=>{ ev.stopPropagation(); shopConfirmSell(s); };
+      card.appendChild(sb);
+    }
+
     card.onclick=()=>{
       if(owned){ equipSkin(s.k); buildShopGrid(); return; }
       shopConfirmBuy(s);
     };
     grid.appendChild(card);
   });
+  updateBulkBar();
 }
+
+// Lotes: 'one' = la siguiente skin de la lista que puedas pagar · 'max' = el mayor número posible (empezando por las baratas)
+function bulkPlan(kind){
+  let coins=playerData.coins||0, gems=playerData.gems||0;
+  const inTab=s=>s.currency!=='free' && !isSkinOwned(s) && (shopTabCurrent==='all' || s.currency===shopTabCurrent);
+  const plan=[]; let costCoins=0, costGems=0;
+  const take=s=>{
+    if(s.currency==='coin' && s.price<=coins){ coins-=s.price; costCoins+=s.price; plan.push(s); return true; }
+    if(s.currency==='gem'  && s.price<=gems ){ gems-=s.price;  costGems+=s.price;  plan.push(s); return true; }
+    return false;
+  };
+  if(kind==='one'){ for(const s of ALL_SKINS.filter(inTab)){ if(take(s)) break; } }
+  else { ALL_SKINS.filter(inTab).sort((a,b)=>a.price-b.price).forEach(take); }
+  return {plan:plan, costCoins:costCoins, costGems:costGems};
+}
+function updateBulkBar(){
+  const up=document.getElementById('bulkUp'), down=document.getElementById('bulkDown'), n=document.getElementById('bulkMaxN');
+  if(!up||!down) return;
+  const k=bulkPlan('max').plan.length;
+  up.disabled=down.disabled=(k===0);
+  if(n) n.textContent=k?('('+k+')'):'';
+}
+function bulkBuy(kind){
+  const r=bulkPlan(kind);
+  if(!r.plan.length){
+    uiModal('<div style="color:#ffe44d;font-weight:700;font-size:.78rem;line-height:1.5">'+t('shop_bulk_none')+'</div>',[{label:t('ok')}]);
+    return;
+  }
+  const names=r.plan.map(skinLabel).join(', ');
+  const cost=[r.costCoins?('🪙 '+r.costCoins+' CoinClothes'):'', r.costGems?('💎 '+r.costGems+' Exclusives'):''].filter(Boolean).join(' + ');
+  uiModal('<div style="color:#ffe44d;font-weight:700;font-size:.85rem">'+tf('shop_bulk_q',{k:r.plan.length})+'</div>'+
+          '<div style="color:#aab;font-size:.64rem;margin-top:10px;line-height:1.6">'+names+'</div>'+
+          '<div style="color:#ccc;font-size:.72rem;margin-top:10px">'+tf('shop_bulk_total',{a:cost})+'</div>',
+    [{label:t('shop_buy'), onClick:()=>{
+        if(r.costCoins>(playerData.coins||0) || r.costGems>(playerData.gems||0)) return;     // el saldo cambió
+        playerData.coins=(playerData.coins||0)-r.costCoins;
+        playerData.gems=(playerData.gems||0)-r.costGems;
+        if(!Array.isArray(playerData.unlockedSkins)) playerData.unlockedSkins=['skin_default'];
+        r.plan.forEach(s=>{ if(!playerData.unlockedSkins.includes(s.k)) playerData.unlockedSkins.push(s.k); });
+        updateCurrencyDisplay();
+        missionsAdd('buy', r.plan.length); missionsSetMax('skins_owned',(playerData.unlockedSkins||[]).length);
+        if(r.plan.length===1) equipSkin(r.plan[0].k); else savePlayerData();
+        buildShopGrid();
+      }},
+     {label:t('shop_cancel')}]);
+}
+function shopConfirmSell(s){
+  const v=shopSellValue(s), isCoin=s.currency==='coin', icon=isCoin?'🪙':'💎', name=isCoin?'CoinClothes':'Exclusives';
+  uiModal('<div style="color:#ffe44d;font-weight:700;font-size:.85rem">'+tf('shop_sell_q',{n:skinLabel(s)})+'</div>'+
+          '<div style="color:#ccc;font-size:.72rem;margin-top:10px">+'+icon+' '+v+' '+name+'</div>',
+    [{label:t('shop_sell'), onClick:()=>{
+        playerData.unlockedSkins=(playerData.unlockedSkins||[]).filter(k=>k!==s.k);
+        if(isCoin) playerData.coins=(playerData.coins||0)+v; else playerData.gems=(playerData.gems||0)+v;
+        if(playerData.selectedSkin1===s.k) playerData.selectedSkin1='skin_default';
+        if(playerData.selectedSkin2===s.k) playerData.selectedSkin2='skin_default';
+        applyPlayerSkins(); updateCurrencyDisplay(); savePlayerData(); buildShopGrid();
+      }},
+     {label:t('shop_cancel')}]);
+}
+
 function shopConfirmBuy(s){
   const isCoin = s.currency==='coin';
   const have = isCoin ? (playerData.coins||0) : (playerData.gems||0);
