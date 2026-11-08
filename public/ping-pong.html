@@ -2714,6 +2714,12 @@ function drawPaddle(pd,isP1){
 
   } else if(fx==='hacker'){
     // Código binario que baja por los lados de la pala, marco verde y etiqueta DEVELOPER encima
+    // Cuerpo con negro: franjas oscuras recortadas a la forma de la pala
+    CX.save(); CX.beginPath(); rr(px,py,pw,ph,pw*.4); CX.clip();
+    CX.fillStyle='rgba(0,0,0,.6)';
+    for(let k=0;k<4;k++){ CX.fillRect(px, py+ph*(0.12+k*0.2), pw, ph*0.09); }
+    CX.fillStyle='rgba(0,0,0,.35)'; CX.fillRect(px+pw*.3, py, pw*.4, ph);
+    CX.restore();
     const fsz=Math.max(8, pw*.55);
     CX.save();
     CX.font=`bold ${Math.round(fsz)}px monospace`; CX.textAlign='center'; CX.textBaseline='middle';
@@ -4293,7 +4299,7 @@ function buildSkins(){
     sp.style.cssText="font-family:'Orbitron',monospace;font-size:.38rem;letter-spacing:.04em;text-shadow:0 1px 3px #000;padding:2px 3px;background:rgba(0,0,0,.5);border-radius:3px;color:#fff;text-align:center;display:block";
     sp.textContent=skinName;
     d.appendChild(sp);
-    d.onclick=()=>{ equipSkin(s.k, skinTab==='p1'?1:skinTab==='p2'?2:undefined); buildSkins(); };
+    d.onclick=()=>{ equipSkin(s.k, skinTab==='p1'?1:skinTab==='p2'?2:'both'); buildSkins(); };
     grid.appendChild(d);
   });
   wrap.appendChild(grid);
@@ -6659,6 +6665,7 @@ function applyPlayerSkins(){
 function equipSkin(k, which){
   const idx=ALL_SKINS.findIndex(x=>x.k===k);
   if(idx<0 || !isSkinOwned(ALL_SKINS[idx])) return;
+  if(which===undefined) which=1;                       // por defecto solo tu skin: la de la IA no se toca
   if(which!==2){ skin1=idx; playerData.selectedSkin1=k; }
   if(which!==1){ skin2=idx; playerData.selectedSkin2=k; }
   skin=skin1;
