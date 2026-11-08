@@ -579,6 +579,7 @@ background-attachment: fixed;
 .acc-fav-swatch{width:38px;height:38px;border-radius:9px;flex-shrink:0;border:1px solid #444;background:#222;}
 .acc-fav-info{display:flex;flex-direction:column;gap:2px;min-width:0;}
 .acc-fav-name{font-family:'Orbitron',monospace;font-size:.75rem;color:#fff;letter-spacing:.06em;}
+.acc-badge.vip{color:#ffd700;}
 /* Demo badge */
 .demo-badge{
   background:#ff224422;border:1.5px solid #ff2244;color:#ff2244;
@@ -1393,6 +1394,8 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
         <div class="acc-stat-lbl" id="accFavCount"></div>
       </div>
     </div>
+    <div id="accVipBadge" class="acc-badge" style="display:none;border-color:#ffd700;color:#ffd700" data-i18n="vip_badge">👑 VIP</div>
+    <button class="btn sm" id="accVipBtn" onclick="buyVipAccount()" style="border-color:#ffd700;color:#ffd700;width:100%" data-i18n="vip_buy">💎 Hacerme VIP</button>
     <button class="btn sm" onclick="accLogout()" style="border-color:var(--err);color:var(--err);width:100%" data-i18n="acc_logout">Cerrar sesión</button>
   </div>
 </div>
@@ -1612,6 +1615,7 @@ var ALL_SKINS=[
   {k:'skin_aurora',  l:'Aurora',    price:6,   currency:'gem',  a:'#00ff88',b:'#ff00cc', ga:'#00ff88aa',gb:'#ff00ccaa', shape:'thin',  fx:'aurora'},
   {k:'skin_legendary',l:'Leyenda',  price:8,   currency:'gem',  a:'#ffd700',b:'#ff4400', ga:'#ffd700cc',gb:'#ff4400cc', shape:'rect',  fx:'legendary'},
   {k:'skin_hacker',  l:'Anonymous', price:0,   currency:'premium', a:'#040704',b:'#040704', ga:'#00ff66aa',gb:'#00ff66aa', shape:'rect',  fx:'hacker'},
+  {k:'skin_vip',     l:'VIP',       price:0,   currency:'vip',     a:'#7fe7ff',b:'#3aa8ff', ga:'#bff4ffcc',gb:'#3aa8ffcc', shape:'rect',  fx:'diamond'},
 ];
 let mode='single', diff='easy', winPts=7;
 let p1Name='PING', p2Name='PONG';
@@ -2764,6 +2768,30 @@ function drawPaddle(pd,isP1){
     CX.fillText('DEVELOPER', cx0, py-4);
     CX.restore();
     CX.shadowBlur=0; CX.lineWidth=1;
+  } else if(fx==='diamond'){
+    // Diamante: cuerpo cristalino con facetas, destellos, borde dorado y etiqueta VIP encima
+    CX.save();
+    const gg=CX.createLinearGradient(px,py,px+pw,py+ph);
+    gg.addColorStop(0,'#eafcff'); gg.addColorStop(.45,'#7fe7ff'); gg.addColorStop(1,'#2a7fd4');
+    CX.fillStyle=gg; CX.beginPath(); rr(px,py,pw,ph,pw*.4); CX.fill();
+    CX.save(); CX.beginPath(); rr(px,py,pw,ph,pw*.4); CX.clip();
+    CX.strokeStyle='rgba(255,255,255,.7)'; CX.lineWidth=1;
+    for(let k=0;k<4;k++){ const y0=py+ph*(k*0.25); CX.beginPath(); CX.moveTo(px,y0); CX.lineTo(px+pw,y0+ph*0.12); CX.stroke(); }
+    CX.restore();
+    CX.strokeStyle='#ffd700'; CX.lineWidth=Math.max(1.2,pw*.07); CX.shadowColor='#ffd700'; CX.shadowBlur=8;
+    CX.beginPath(); rr(px,py,pw,ph,pw*.4); CX.stroke(); CX.shadowBlur=0;
+    for(let k=0;k<4;k++){
+      const a=t*1.2+k*1.6, sx=px+pw/2+Math.cos(a)*pw*.8, sy=py+ph*(0.2+0.6*((k*0.37+t*0.2)%1));
+      CX.globalAlpha=.4+Math.sin(t*4+k)*.35; CX.fillStyle='#ffffff'; CX.shadowColor='#ffffff'; CX.shadowBlur=8;
+      CX.beginPath(); arc(sx,sy,Math.max(1.5,pw*.12),0,Math.PI*2); CX.fill();
+    }
+    CX.globalAlpha=1; CX.shadowBlur=0;
+    CX.font=`bold ${Math.max(10, Math.round(H*.018))}px Orbitron,monospace`; CX.fillStyle='#ffd700';
+    CX.textAlign='center'; CX.textBaseline='bottom'; CX.shadowColor='#ffd700'; CX.shadowBlur=10;
+    CX.fillText('VIP', px+pw/2, py-4);
+    CX.restore();
+    CX.shadowBlur=0; CX.lineWidth=1;
+
   } else {
     // Default highlight
     CX.fillStyle='rgba(255,255,255,.22)';rr(px+pw*.15,py+ph*.08,pw*.4,ph*.34,pw*.4);CX.fill();
@@ -6550,6 +6578,16 @@ ja:{ skin_hacker:"Anonymous", prem_only_title:"プレミアム限定", prem_only
 zh:{ skin_hacker:"Anonymous", prem_only_title:"仅限高级版", prem_only_body:"此皮肤仅限高级账号使用。", shop_premium_only:"⭐ 高级版" }
 };
 Object.keys(LANGS_EXTRA8).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA8[l]); });
+const LANGS_EXTRA9 = {
+es:{ skin_vip:"VIP", shop_vip_only:"👑 VIP", vip_only_title:"Cuenta VIP", vip_only_body:"Esta skin es exclusiva de la cuenta VIP. Hazte VIP desde Mi Cuenta.", vip_buy:"💎 Hacerme VIP", vip_badge:"👑 VIP", vip_login:"Inicia sesión para hacerte VIP", vip_already:"Ya tienes la cuenta VIP", vip_not_ready:"El pago de la cuenta VIP todavía no está configurado", vip_wait:"Completa el pago en la pestaña que se ha abierto. Tu cuenta VIP se activará cuando se confirme el pago." },
+en:{ skin_vip:"VIP", shop_vip_only:"👑 VIP", vip_only_title:"VIP account", vip_only_body:"This skin is exclusive to the VIP account. Get VIP from My Account.", vip_buy:"💎 Get VIP", vip_badge:"👑 VIP", vip_login:"Log in to get VIP", vip_already:"You already have the VIP account", vip_not_ready:"VIP payment is not set up yet", vip_wait:"Complete the payment in the tab that opened. Your VIP account will be activated once the payment is confirmed." },
+pt:{ skin_vip:"VIP", shop_vip_only:"👑 VIP", vip_only_title:"Conta VIP", vip_only_body:"Esta skin é exclusiva da conta VIP. Torne-se VIP em Minha Conta.", vip_buy:"💎 Tornar-me VIP", vip_badge:"👑 VIP", vip_login:"Entre para se tornar VIP", vip_already:"Você já tem a conta VIP", vip_not_ready:"O pagamento VIP ainda não está configurado", vip_wait:"Conclua o pagamento na aba que abriu. Sua conta VIP será ativada quando o pagamento for confirmado." },
+de:{ skin_vip:"VIP", shop_vip_only:"👑 VIP", vip_only_title:"VIP-Konto", vip_only_body:"Dieser Skin ist exklusiv für das VIP-Konto. Werde im Mein Konto VIP.", vip_buy:"💎 VIP werden", vip_badge:"👑 VIP", vip_login:"Melde dich an, um VIP zu werden", vip_already:"Du hast bereits das VIP-Konto", vip_not_ready:"Die VIP-Zahlung ist noch nicht eingerichtet", vip_wait:"Schließe die Zahlung im geöffneten Tab ab. Dein VIP-Konto wird nach der Bestätigung aktiviert." },
+fr:{ skin_vip:"VIP", shop_vip_only:"👑 VIP", vip_only_title:"Compte VIP", vip_only_body:"Ce skin est réservé au compte VIP. Devenez VIP depuis Mon Compte.", vip_buy:"💎 Devenir VIP", vip_badge:"👑 VIP", vip_login:"Connectez-vous pour devenir VIP", vip_already:"Vous avez déjà le compte VIP", vip_not_ready:"Le paiement VIP n'est pas encore configuré", vip_wait:"Terminez le paiement dans l'onglet ouvert. Votre compte VIP sera activé une fois le paiement confirmé." },
+ja:{ skin_vip:"VIP", shop_vip_only:"👑 VIP", vip_only_title:"VIPアカウント", vip_only_body:"このスキンはVIPアカウント専用です。マイアカウントからVIPになれます。", vip_buy:"💎 VIPになる", vip_badge:"👑 VIP", vip_login:"VIPになるにはログインしてください", vip_already:"すでにVIPアカウントです", vip_not_ready:"VIPの支払いはまだ設定されていません", vip_wait:"開いたタブで支払いを完了してください。支払いが確認されるとVIPが有効になります。" },
+zh:{ skin_vip:"VIP", shop_vip_only:"👑 VIP", vip_only_title:"VIP账号", vip_only_body:"此皮肤仅限VIP账号。请在“我的账号”中开通VIP。", vip_buy:"💎 开通VIP", vip_badge:"👑 VIP", vip_login:"请先登录再开通VIP", vip_already:"你已经是VIP账号", vip_not_ready:"VIP付款尚未配置", vip_wait:"请在打开的页面完成付款。付款确认后，VIP账号将自动开通。" }
+};
+Object.keys(LANGS_EXTRA9).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA9[l]); });
 const LANGS_EXTRA4 = {
 es:{ pw_big:"Paleta grande", pw_fast:"Paleta rápida", pw_slow:"Paleta lenta", pw_small:"Paleta pequeña", pw_got:"¡{p} consigue {n}!" },
 en:{ pw_big:"Big paddle", pw_fast:"Fast paddle", pw_slow:"Slow paddle", pw_small:"Small paddle", pw_got:"{p} gets {n}!" },
@@ -6594,7 +6632,8 @@ const SKIN_BALL = {
   skin_cosmic:['#d8a0ff','#9000ff','180,60,255','#8800ff'],
   skin_aurora:['#90ffd0','#e000b0','0,255,160','#00ff88'],
   skin_legendary:['#fff0a0','#ffb400','255,215,0','#ffd700'],
-  skin_hacker:['#ffffff','#c8ccd4','225,230,240','#e6eaf0']
+  skin_hacker:['#ffffff','#c8ccd4','225,230,240','#e6eaf0'],
+  skin_vip:['#fffbe0','#d4a017','255,215,0','#ffd700']
 };
 // La pelota lleva los colores de quien la golpeó por última vez (vx>0 viene de la izquierda = J1)
 function ballPalette(){
@@ -6611,7 +6650,7 @@ function goalColors(scorer){
 
 // ── Perfil del jugador (local o nube) ────────────────────────────────────────
 function defaultProfile(){
-  return { coins:0, gems:0, unlockedSkins:['skin_default'], selectedSkin1:'skin_default', selectedSkin2:'skin_default', isPremium:false, missions:{}, redeemed:[], stats:{played:0,wins:0,losses:0,goalsFor:0,goalsAgainst:0}, skinUse:{} };
+  return { coins:0, gems:0, unlockedSkins:['skin_default'], selectedSkin1:'skin_default', selectedSkin2:'skin_default', isPremium:false, isVip:false, missions:{}, redeemed:[], stats:{played:0,wins:0,losses:0,goalsFor:0,goalsAgainst:0}, skinUse:{} };
 }
 function sanitizeProfile(p){
   const known=new Set(ALL_SKINS.map(s=>s.k));
@@ -6620,7 +6659,7 @@ function sanitizeProfile(p){
   p.unlockedSkins=Array.from(new Set(['skin_default'].concat(Array.isArray(p.unlockedSkins)?p.unlockedSkins.filter(k=>known.has(k)):[])));
   ['selectedSkin1','selectedSkin2'].forEach(f=>{
     const s=ALL_SKINS.find(x=>x.k===p[f]);
-    if(!s || !(s.currency==='free' || (s.currency==='premium' ? !!p.isPremium : p.unlockedSkins.includes(s.k)))) p[f]='skin_default';
+    if(!s || !(s.currency==='free' || (s.currency==='premium' ? !!p.isPremium : (s.currency==='vip' ? !!p.isVip : p.unlockedSkins.includes(s.k))))) p[f]='skin_default';
   });
   p.isPremium=!!p.isPremium;
   p.redeemed=Array.isArray(p.redeemed) ? p.redeemed.filter(x=>typeof x==='string').slice(0,200) : [];
@@ -6634,8 +6673,8 @@ function loadLocalProfile(){
   let raw=null;
   try{ raw=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null'); }catch(e){ raw=null; }
   const p=Object.assign(defaultProfile(), (raw && typeof raw==='object') ? raw : {});
+  p.isPremium=false; p.isVip=false;   // Premium y VIP solo pueden venir de una cuenta (antes de limpiar las skins)
   sanitizeProfile(p);
-  p.isPremium=false;           // Premium solo puede venir de una cuenta
   delete p.displayName;
   playerData=p;
 }
@@ -6676,7 +6715,7 @@ async function savePlayerData(){
   }
 }
 function isSkinOwned(s){
-  return !!s && (s.currency==='free' || (s.currency==='premium' ? !!playerData.isPremium : (playerData.unlockedSkins||[]).includes(s.k)));
+  return !!s && (s.currency==='free' || (s.currency==='premium' ? !!playerData.isPremium : (s.currency==='vip' ? !!playerData.isVip : (playerData.unlockedSkins||[]).includes(s.k))));
 }
 function applyPlayerSkins(){
   const s1=ALL_SKINS.findIndex(s=>s.k===playerData.selectedSkin1);
@@ -6810,6 +6849,9 @@ function favoriteSkin(){
   return best ? {k:best, n:n} : null;
 }
 function renderAccountStats(){
+  const vb=document.getElementById('accVipBtn'), vg=document.getElementById('accVipBadge');
+  if(vb) vb.style.display = playerData.isVip ? 'none' : '';
+  if(vg) vg.style.display = playerData.isVip ? '' : 'none';
   const s=Object.assign({played:0,wins:0,losses:0,goalsFor:0,goalsAgainst:0}, playerData.stats||{});
   const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
   set('accPlayed', s.played); set('accWins', s.wins); set('accLosses', s.losses);
@@ -6828,6 +6870,18 @@ function renderAccountStats(){
 function refreshAccountStatsIfOpen(){
   const s=document.getElementById('sAccount');
   if(s && !s.classList.contains('hidden') && currentUser) renderAccountStats();
+}
+// ── Cuenta VIP (pago real) ──────────────────────────────────────────────────
+// Pega aquí el enlace de tu pasarela de pago. Vacío = el botón avisa de que aún no está configurado.
+const VIP_CHECKOUT_URL = '';
+// La confirmación del pago la hace tu servidor (webhook) y ahí se marca isVip=true en players/{uid}.
+// El cliente nunca se hace VIP por sí mismo.
+function buyVipAccount(){
+  if(!currentUser){ uiModal('<div style="color:#ffe44d;font-weight:700;font-size:.8rem">'+t('vip_login')+'</div>',[{label:t('ok')}]); return; }
+  if(playerData.isVip){ uiModal('<div style="color:#ffd700;font-weight:700;font-size:.8rem">'+t('vip_already')+'</div>',[{label:t('ok')}]); return; }
+  if(!VIP_CHECKOUT_URL){ uiModal('<div style="color:#ffe44d;font-weight:700;font-size:.8rem">'+t('vip_not_ready')+'</div>',[{label:t('ok')}]); return; }
+  window.open(VIP_CHECKOUT_URL+(VIP_CHECKOUT_URL.indexOf('?')>=0?'&':'?')+'client_reference_id='+encodeURIComponent(currentUser.uid), '_blank');
+  uiModal('<div style="color:#ffd700;font-weight:700;font-size:.8rem;line-height:1.5">'+t('vip_wait')+'</div>',[{label:t('ok')}]);
 }
 function renderAccountScreen(){
   const un=document.getElementById('accUnavailable');
@@ -6931,12 +6985,12 @@ function buildShopGrid(){
     const nm=document.createElement('div'); nm.className='shop-name'; nm.textContent=skinLabel(s);
     const pr=document.createElement('div');
     pr.className='shop-price '+((s.currency==='free'||owned)?'free':s.currency);
-    pr.textContent = s.currency==='free' ? t('shop_price_free') : owned ? t('shop_owned') : (s.currency==='premium' ? t('shop_premium_only') : icon+' '+s.price);
+    pr.textContent = s.currency==='free' ? t('shop_price_free') : owned ? t('shop_owned') : (s.currency==='premium' ? t('shop_premium_only') : (s.currency==='vip' ? t('shop_vip_only') : icon+' '+s.price));
     card.appendChild(cv); card.appendChild(nm); card.appendChild(pr);
     if(selK===s.k){ const ck=document.createElement('div'); ck.className='shop-check'; ck.textContent='✓'; card.appendChild(ck); }
     else if(!owned){ const lk=document.createElement('div'); lk.className='shop-lock'; lk.textContent='🔒'; card.appendChild(lk); }
 
-    if(owned && s.currency!=='free' && s.currency!=='premium'){                       // vender (solo skins de pago que ya tienes)
+    if(owned && s.currency!=='free' && s.currency!=='premium' && s.currency!=='vip'){                       // vender (solo skins de pago que ya tienes)
       const sb=document.createElement('button');
       sb.className='shop-sell';
       sb.textContent='💰 '+shopSellValue(s)+' '+icon;
@@ -6947,6 +7001,7 @@ function buildShopGrid(){
 
     card.onclick=()=>{
       if(owned){ equipSkin(s.k); buildShopGrid(); return; }
+      if(s.currency==='vip'){ uiModal('<div style="color:#ffd700;font-weight:700;font-size:.85rem">'+t('vip_only_title')+'</div><div style="color:#aaa;font-size:.68rem;margin-top:10px;line-height:1.6">'+t('vip_only_body')+'</div>',[{label:t('ok')}]); return; }
       if(s.currency==='premium'){ uiModal('<div style="color:#ffe44d;font-weight:700;font-size:.85rem">'+t('prem_only_title')+'</div><div style="color:#aaa;font-size:.68rem;margin-top:10px;line-height:1.6">'+t('prem_only_body')+'</div>',[{label:t('ok')}]); return; }
       shopConfirmBuy(s);
     };
