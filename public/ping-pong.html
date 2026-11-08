@@ -1611,7 +1611,7 @@ var ALL_SKINS=[
   {k:'skin_cosmic',  l:'Cósmico',   price:4,   currency:'gem',  a:'#8800ff',b:'#ff0088', ga:'#8800ffaa',gb:'#ff0088aa', shape:'rect',  fx:'cosmic'},
   {k:'skin_aurora',  l:'Aurora',    price:6,   currency:'gem',  a:'#00ff88',b:'#ff00cc', ga:'#00ff88aa',gb:'#ff00ccaa', shape:'thin',  fx:'aurora'},
   {k:'skin_legendary',l:'Leyenda',  price:8,   currency:'gem',  a:'#ffd700',b:'#ff4400', ga:'#ffd700cc',gb:'#ff4400cc', shape:'rect',  fx:'legendary'},
-  {k:'skin_hacker',  l:'Hacker',    price:0,   currency:'premium', a:'#00ff66',b:'#00cc55', ga:'#00ff66aa',gb:'#00cc5588', shape:'rect',  fx:'hacker'},
+  {k:'skin_hacker',  l:'Anonymous', price:0,   currency:'premium', a:'#040704',b:'#040704', ga:'#00ff66aa',gb:'#00ff66aa', shape:'rect',  fx:'hacker'},
 ];
 let mode='single', diff='easy', winPts=7;
 let p1Name='PING', p2Name='PONG';
@@ -2713,33 +2713,57 @@ function drawPaddle(pd,isP1){
     CX.shadowBlur=0;CX.lineWidth=1;
 
   } else if(fx==='hacker'){
-    // Código binario que baja por los lados de la pala, marco verde y etiqueta DEVELOPER encima
-    // Cuerpo con negro: franjas oscuras recortadas a la forma de la pala
-    CX.save(); CX.beginPath(); rr(px,py,pw,ph,pw*.4); CX.clip();
-    CX.fillStyle='rgba(0,0,0,.6)';
-    for(let k=0;k<4;k++){ CX.fillRect(px, py+ph*(0.12+k*0.2), pw, ph*0.09); }
-    CX.fillStyle='rgba(0,0,0,.35)'; CX.fillRect(px+pw*.3, py, pw*.4, ph);
-    CX.restore();
-    const fsz=Math.max(8, pw*.55);
+    // Skin Anonymous: cuerpo negro con borde verde, careto, código binario flotando y DEVELOPER encima
+    const cx0=px+pw/2, cy0=py+ph*.5;
     CX.save();
+    CX.fillStyle='#040704'; CX.beginPath(); rr(px,py,pw,ph,pw*.4); CX.fill();
+    CX.strokeStyle='#00ff66'; CX.lineWidth=Math.max(1.5,pw*.1); CX.shadowColor='#00ff66'; CX.shadowBlur=10;
+    CX.beginPath(); rr(px,py,pw,ph,pw*.4); CX.stroke(); CX.shadowBlur=0;
+    // careto de Anonymous
+    const fw=pw*.82, fh=Math.min(ph*.3, pw*2.6), top=cy0-fh*.5, bot=cy0+fh*.5;
+    CX.fillStyle='#d8ffe0';
+    CX.beginPath(); CX.moveTo(cx0,top);
+    CX.quadraticCurveTo(cx0+fw*.62,top,cx0+fw*.5,cy0-fh*.05);
+    CX.quadraticCurveTo(cx0+fw*.42,bot-fh*.02,cx0,bot);
+    CX.quadraticCurveTo(cx0-fw*.42,bot-fh*.02,cx0-fw*.5,cy0-fh*.05);
+    CX.quadraticCurveTo(cx0-fw*.62,top,cx0,top); CX.fill();
+    CX.strokeStyle='#040704'; CX.lineWidth=Math.max(1,pw*.08); CX.lineCap='round';
+    CX.beginPath(); CX.moveTo(cx0-fw*.38,cy0-fh*.2); CX.quadraticCurveTo(cx0-fw*.2,cy0-fh*.3,cx0-fw*.06,cy0-fh*.22);
+    CX.moveTo(cx0+fw*.06,cy0-fh*.22); CX.quadraticCurveTo(cx0+fw*.2,cy0-fh*.3,cx0+fw*.38,cy0-fh*.2); CX.stroke();
+    CX.fillStyle='#040704';
+    CX.beginPath(); CX.ellipse(cx0-fw*.18,cy0-fh*.12,fw*.09,fh*.05,0,0,Math.PI*2); CX.fill();
+    CX.beginPath(); CX.ellipse(cx0+fw*.18,cy0-fh*.12,fw*.09,fh*.05,0,0,Math.PI*2); CX.fill();
+    CX.fillStyle='rgba(0,255,102,.35)';
+    CX.beginPath(); CX.arc(cx0-fw*.3,cy0+fh*.05,fw*.07,0,Math.PI*2); CX.fill();
+    CX.beginPath(); CX.arc(cx0+fw*.3,cy0+fh*.05,fw*.07,0,Math.PI*2); CX.fill();
+    CX.fillStyle='#040704';
+    CX.beginPath(); CX.moveTo(cx0,cy0+fh*.12); CX.quadraticCurveTo(cx0-fw*.2,cy0+fh*.02,cx0-fw*.36,cy0+fh*.1);
+    CX.quadraticCurveTo(cx0-fw*.2,cy0+fh*.14,cx0,cy0+fh*.16);
+    CX.quadraticCurveTo(cx0+fw*.2,cy0+fh*.14,cx0+fw*.36,cy0+fh*.1);
+    CX.quadraticCurveTo(cx0+fw*.2,cy0+fh*.02,cx0,cy0+fh*.12); CX.fill();
+    CX.strokeStyle='#040704'; CX.lineWidth=Math.max(1,pw*.07);
+    CX.beginPath(); CX.moveTo(cx0-fw*.25,cy0+fh*.22); CX.quadraticCurveTo(cx0,cy0+fh*.34,cx0+fw*.25,cy0+fh*.22); CX.stroke();
+    CX.fillStyle='#040704';
+    CX.beginPath(); CX.moveTo(cx0-fw*.1,cy0+fh*.3); CX.lineTo(cx0+fw*.1,cy0+fh*.3); CX.lineTo(cx0,cy0+fh*.46); CX.closePath(); CX.fill();
+    // código binario flotando alrededor de la pala
+    const fsz=Math.max(8, pw*.5);
     CX.font=`bold ${Math.round(fsz)}px monospace`; CX.textAlign='center'; CX.textBaseline='middle';
-    const rowH=fsz*1.15, rows=Math.floor(ph/rowH), scroll=Math.floor(t*8);
-    for(let r=0;r<rows;r++){
-      const y=py+r*rowH+rowH/2;
-      const bl=((r*7+scroll)%3)?'1':'0', br2=((r*5+scroll*2)%4)?'0':'1';
-      CX.globalAlpha=0.55+Math.sin(t*3+r)*0.25;
+    for(let i=0;i<10;i++){
+      const ang=i*(Math.PI*2/10)+t*.5*(i%2?1:-1);
+      const rx=pw*1.5+(i%3)*pw*.35, ry=ph*.42;
+      const x=cx0+Math.cos(ang)*rx, y=cy0+Math.sin(ang)*ry;
+      const txt=((i*5+Math.floor(t*3))%3)===0 ? '01' : ((i+Math.floor(t*2))%2 ? '1' : '0');
+      CX.globalAlpha=.45+Math.sin(t*3+i)*.3;
       CX.fillStyle='#00ff66'; CX.shadowColor='#00ff66'; CX.shadowBlur=6;
-      CX.fillText(bl, px-fsz*0.7, y);
-      CX.fillText(br2, px+pw+fsz*0.7, y);
+      CX.fillText(txt, x, y);
     }
     CX.globalAlpha=1; CX.shadowBlur=0;
-    CX.strokeStyle='#00ff66'; CX.lineWidth=1.5; rr(px-1,py-1,pw+2,ph+2,pw*.45); CX.stroke();
+    // DEVELOPER justo encima de la skin
     CX.font=`bold ${Math.max(10, Math.round(H*.018))}px monospace`; CX.fillStyle='#00ff66';
-    CX.shadowColor='#00ff66'; CX.shadowBlur=8;
-    CX.fillText('DEVELOPER', px+pw/2, py-Math.max(10, H*.02));
+    CX.textAlign='center'; CX.textBaseline='bottom'; CX.shadowColor='#00ff66'; CX.shadowBlur=8;
+    CX.fillText('DEVELOPER', cx0, py-4);
     CX.restore();
-    CX.shadowBlur=0;CX.lineWidth=1;
-
+    CX.shadowBlur=0; CX.lineWidth=1;
   } else {
     // Default highlight
     CX.fillStyle='rgba(255,255,255,.22)';rr(px+pw*.15,py+ph*.08,pw*.4,ph*.34,pw*.4);CX.fill();
@@ -6517,13 +6541,13 @@ zh:{ acc_stats_title:"📊 统计", acc_played:"场次", acc_wins:"胜", acc_los
 };
 Object.keys(LANGS_EXTRA7).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA7[l]); });
 const LANGS_EXTRA8 = {
-es:{ skin_hacker:"Hacker", prem_only_title:"Solo Premium", prem_only_body:"Esta skin es exclusiva para cuentas Premium.", shop_premium_only:"⭐ Premium" },
-en:{ skin_hacker:"Hacker", prem_only_title:"Premium only", prem_only_body:"This skin is exclusive to Premium accounts.", shop_premium_only:"⭐ Premium" },
-pt:{ skin_hacker:"Hacker", prem_only_title:"Só Premium", prem_only_body:"Esta skin é exclusiva para contas Premium.", shop_premium_only:"⭐ Premium" },
-de:{ skin_hacker:"Hacker", prem_only_title:"Nur Premium", prem_only_body:"Dieser Skin ist exklusiv für Premium-Konten.", shop_premium_only:"⭐ Premium" },
-fr:{ skin_hacker:"Hacker", prem_only_title:"Premium uniquement", prem_only_body:"Ce skin est réservé aux comptes Premium.", shop_premium_only:"⭐ Premium" },
-ja:{ skin_hacker:"ハッカー", prem_only_title:"プレミアム限定", prem_only_body:"このスキンはプレミアムアカウント専用です。", shop_premium_only:"⭐ プレミアム" },
-zh:{ skin_hacker:"黑客", prem_only_title:"仅限高级版", prem_only_body:"此皮肤仅限高级账号使用。", shop_premium_only:"⭐ 高级版" }
+es:{ skin_hacker:"Anonymous", prem_only_title:"Solo Premium", prem_only_body:"Esta skin es exclusiva para cuentas Premium.", shop_premium_only:"⭐ Premium" },
+en:{ skin_hacker:"Anonymous", prem_only_title:"Premium only", prem_only_body:"This skin is exclusive to Premium accounts.", shop_premium_only:"⭐ Premium" },
+pt:{ skin_hacker:"Anonymous", prem_only_title:"Só Premium", prem_only_body:"Esta skin é exclusiva para contas Premium.", shop_premium_only:"⭐ Premium" },
+de:{ skin_hacker:"Anonymous", prem_only_title:"Nur Premium", prem_only_body:"Dieser Skin ist exklusiv für Premium-Konten.", shop_premium_only:"⭐ Premium" },
+fr:{ skin_hacker:"Anonymous", prem_only_title:"Premium uniquement", prem_only_body:"Ce skin est réservé aux comptes Premium.", shop_premium_only:"⭐ Premium" },
+ja:{ skin_hacker:"Anonymous", prem_only_title:"プレミアム限定", prem_only_body:"このスキンはプレミアムアカウント専用です。", shop_premium_only:"⭐ プレミアム" },
+zh:{ skin_hacker:"Anonymous", prem_only_title:"仅限高级版", prem_only_body:"此皮肤仅限高级账号使用。", shop_premium_only:"⭐ 高级版" }
 };
 Object.keys(LANGS_EXTRA8).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA8[l]); });
 const LANGS_EXTRA4 = {
