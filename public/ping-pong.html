@@ -6,7 +6,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>PING-PONG: The Ultimate Duel</title>
+<title>PING-PONGOL: The Ultimate Duel</title>
 <!-- ═══ CUENTAS (Firebase) ═══
      Interruptor: déjalo en false hasta tener Firebase listo (Authentication con email/contraseña + reglas de Firestore).
      Con true se cargan los scripts de Firebase y se activan "Mi Cuenta" y el guardado en la nube. -->
@@ -580,13 +580,21 @@ background-attachment: fixed;
 .acc-fav-info{display:flex;flex-direction:column;gap:2px;min-width:0;}
 .acc-fav-name{font-family:'Orbitron',monospace;font-size:.75rem;color:#fff;letter-spacing:.06em;}
 .acc-badge.vip{color:#ffd700;}
-/* Demo badge */
-.demo-badge{
-  background:#ff224422;border:1.5px solid #ff2244;color:#ff2244;
-  font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:.12em;
-  padding:3px 8px;border-radius:8px;display:inline-block;
-}
 
+.tut-canvas{width:min(340px,86vw);height:auto;border:2px solid #334;border-radius:12px;background:#0a0d18;}
+.tut-num{font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:.14em;color:#88aaff;}
+.tut-h{font-family:'Orbitron',monospace;font-size:.75rem;color:#fff;text-align:center;letter-spacing:.06em;}
+.tut-p{font-family:'Rajdhani',sans-serif;font-size:.95rem;color:#ccd;text-align:center;max-width:min(360px,88vw);line-height:1.4;min-height:2.8em;}
+.tut-dots{display:flex;gap:8px;}
+.tut-dot{width:9px;height:9px;border-radius:50%;background:#333;display:inline-block;}
+.tut-dot.on{background:#88aaff;box-shadow:0 0 8px #88aaff;}
+.tut-row{display:flex;gap:10px;}
+.tut-canvas{width:min(400px,92vw);height:auto;border:2px solid #334;border-radius:12px;background:#0a0d18;}
+.tut-phase{font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.12em;color:#ffe44d;}
+.tut-hint{font-family:'Rajdhani',sans-serif;font-size:1rem;color:#fff;text-align:center;max-width:min(380px,90vw);min-height:1.4em;}
+.tut-msg{font-family:'Orbitron',monospace;font-size:.7rem;color:#00ff88;min-height:1.2em;}
+.tut-note{font-family:'Rajdhani',sans-serif;font-size:.85rem;color:#88aaff;text-align:center;max-width:min(380px,90vw);display:none;}
+.tut-row{flex-wrap:wrap;justify-content:center;}
 /* ══ RESPONSIVE ══ */
 /* Screens: bigger tap targets on small devices */
 @media(max-width:520px){
@@ -1180,8 +1188,9 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
     <button class="btn grn"  onclick="setMode('online')" data-i18n="mode_online">🌐 Online</button>
   </div>
   <div class="row" style="margin-top:4px">
-    <button class="btn sm" onclick="startDemo()" style="border-color:#ff2244;color:#ff2244"><span data-i18n="demo_btn">🎮 Demo</span> <span class="demo-badge" data-i18n="demo_badge">3 partidas</span></button>
+    <button class="btn sm" onclick="startTutorial()" style="border-color:#88aaff;color:#88aaff" data-i18n="tut_btn">🎓 Tutorial</button>
   </div>
+  
 </div>
 
 <!-- ── 1P ── -->
@@ -1436,6 +1445,26 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
   </div>
 </div>
 
+<!-- ── TUTORIAL ── -->
+<div id="sTutorial" class="screen hidden">
+  <div class="trn-header" style="color:#88aaff;font-size:.8rem;letter-spacing:.2em" data-i18n="tut_title">🎓 TUTORIAL</div>
+  <div class="tut-num" id="tutNum"></div>
+  <div class="tut-phase" id="tutPhase"></div>
+  <canvas id="tutCanvas" class="tut-canvas" width="340" height="200"></canvas>
+  <div class="tut-h" id="tutTitle"></div>
+  <div class="tut-p" id="tutText"></div>
+  <div class="tut-hint" id="tutHint"></div>
+  <div class="tut-msg" id="tutMsg"></div>
+  <div class="tut-note" id="tutNote"></div>
+  <div class="tut-dots" id="tutDots"></div>
+  <div class="tut-row">
+    <button class="btn sm" id="tutPrev" onclick="tutPrev()" data-i18n="tut_prev">‹ Anterior</button>
+    <button class="btn sm" id="tutPause" onclick="tutTogglePause()" style="border-color:#88aaff;color:#88aaff" data-i18n="tut_pause_btn">⏸ Pausa</button>
+    <button class="btn sm" id="tutNext" onclick="tutNext()" style="border-color:#88aaff;color:#88aaff" data-i18n="tut_next">Siguiente ›</button>
+  </div>
+  <button class="btn sm" id="tutSkip" onclick="tutSkip()" style="border-color:#555;color:#aaa" data-i18n="tut_skip">Saltar tutorial</button>
+</div>
+
 <!-- ── SHOP ── -->
 <div id="sShop" class="screen hidden">
   <button class="back" onclick="goTo('sMenu')" data-i18n="back">← Volver</button>
@@ -1587,7 +1616,7 @@ table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',
 // ── Account & currency globals (must be before Firebase callbacks) ─────────
 var currentUser = null;
 var playerData = { coins:0, gems:0, unlockedSkins:['skin_default'], selectedSkin1:'skin_default', selectedSkin2:'skin_default', isPremium:false };
-var demoActive = false, demoMatchesLeft = 0;
+
 var accTabMode = 'login';
 var shopTabCurrent = 'all';
 
@@ -2866,7 +2895,7 @@ function adjustColor(hex,amt){
 // ═══════════════════════════════════════════════════════════════
 //  MISIONES: diarias (3 al día), semanales (2 a la semana) y especiales (una vez)
 //  La recompensa se muestra antes de completarla y se entrega al completarla.
-//  No cuentan en la Demo ni en partidas locales de 2 jugadores.
+//  No cuentan en partidas locales de 2 jugadores.
 // ═══════════════════════════════════════════════════════════════
 const MISSION_DEFS = {
   d_play2:  {type:'daily',  metric:'matches',       goal:2,  diff:1, reward:{coins:30}},
@@ -2943,7 +2972,7 @@ function ensureMissions(){
   return m;
 }
 function applyMissions(metric, v, isMax){
-  if(demoActive) return;
+  if(window.noProgress) return;
   const m=ensureMissions(); let changed=false; const doneNow=[];
   ['daily','weekly','special'].forEach(type=>{
     const g=m[type];
@@ -3135,13 +3164,7 @@ function bugQueueSave(a){ try{ localStorage.setItem(BUG_KEY, JSON.stringify(a.sl
 function bugPayload(r, uid){
   let msg='['+(r.category||'other')+'] '+String(r.text||'');
   if(r.tech) msg+='\n\n--- datos técnicos ---\n'+JSON.stringify(r.tech);
-
-  return {
-    uid: uid,
-    username: (r.username || (currentUser && playerData.displayName) || 'Jugador').slice(0,30),
-    message: msg.slice(0,2000),
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
+  return {uid:uid, message:msg.slice(0,2000), createdAt:firebase.firestore.FieldValue.serverTimestamp()};
 }
 async function flushBugQueue(){
   if(!(FB_OK && currentUser)) return;
@@ -3366,6 +3389,244 @@ function drawPowerups(){
   });
 }
 
+// ── TUTORIAL INTERACTIVO ─────────────────────────────────────────────────────
+// Cada paso: 1) ejemplo animado que se repite 2-3 veces (las paletas se mueven según el texto)
+//            2) tu turno: lo completas tú jugando (con W/S, flechas, dedo, o el botón de pausa)
+const TUT_STEPS=[
+  {id:'move',  title:'tut_s1_t', text:'tut_s1_x', hint:'tut_hint1', reps:2, P:4000},
+  {id:'hit',   title:'tut_s2_t', text:'tut_s2_x', hint:'tut_hint2', reps:3, P:3000},
+  {id:'goal',  title:'tut_s3_t', text:'tut_s3_x', hint:'tut_hint3', reps:3, P:3400},
+  {id:'score', title:'tut_s4_t', text:'tut_s4_x', hint:'tut_hint4', reps:2, P:4200},
+  {id:'pause', title:'tut_s5_t', text:'tut_s5_x', hint:'tut_hint5', reps:2, P:4000}
+];
+const TUT={mandatory:false, onFinish:null, note:'', idx:0, phase:'example', t0:0, okUntil:0, raf:0, cx:null, last:0, lastCyc:-1, keys:{up:false,down:false}, ptr:false, p:null};
+const TUT_W=340, TUT_H=200;
+function tutLerp(a,b,e){ return a+(b-a)*e; }
+function tutClamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+function tutField(cx){
+  cx.fillStyle='#0a0d18'; cx.fillRect(0,0,TUT_W,TUT_H);
+  cx.setLineDash([6,8]); cx.strokeStyle='#334'; cx.lineWidth=2;
+  cx.beginPath(); cx.moveTo(TUT_W/2,0); cx.lineTo(TUT_W/2,TUT_H); cx.stroke(); cx.setLineDash([]);
+}
+function tutPaddle(cx,xn,yn,col){
+  const pw=10, ph=TUT_H*0.24;
+  cx.fillStyle=col; cx.shadowColor=col; cx.shadowBlur=10;
+  cx.fillRect(xn*TUT_W-pw/2, yn*TUT_H-ph/2, pw, ph); cx.shadowBlur=0;
+}
+function tutBall(cx,xn,yn){
+  cx.fillStyle='#ffffff'; cx.shadowColor='#ffffff'; cx.shadowBlur=12;
+  cx.beginPath(); cx.arc(xn*TUT_W, yn*TUT_H, 6, 0, Math.PI*2); cx.fill(); cx.shadowBlur=0;
+}
+function tutLabel(cx,text,xn,yn,col,size){
+  cx.font='bold '+(size||14)+'px Orbitron, monospace'; cx.fillStyle=col||'#fff';
+  cx.textAlign='center'; cx.textBaseline='middle'; cx.fillText(text, xn*TUT_W, yn*TUT_H);
+}
+// Joystick en pantalla: un aro y un dedo que sigue a tu pala (así se entiende qué es)
+function tutJoy(cx,yn){
+  const x=0.78*TUT_W, y0=0.5*TUT_H, R=22;
+  cx.strokeStyle='#88aaff'; cx.lineWidth=2; cx.beginPath(); cx.arc(x,y0,R,0,Math.PI*2); cx.stroke();
+  const ky=tutClamp(y0+(yn-0.5)*2*R, y0-R, y0+R);
+  cx.fillStyle='#88aaff'; cx.shadowColor='#88aaff'; cx.shadowBlur=8;
+  cx.beginPath(); cx.arc(x,ky,7,0,Math.PI*2); cx.fill(); cx.shadowBlur=0;
+}
+// ── Ejemplos: las paletas se mueven según lo que dice el paso ──
+function tutExample(id,u,P){
+  const cx=TUT.cx, ph=u/P; tutField(cx);
+  if(id==='move'){
+    const y=0.5+0.32*Math.sin(ph*Math.PI*2);
+    tutPaddle(cx,0.06,y,'#ff2244'); tutPaddle(cx,0.94,0.5,'#2266ff');
+    tutJoy(cx,y);
+    tutLabel(cx,'W / ↑',0.3,0.1,'#00ff88',10); tutLabel(cx,'S / ↓',0.3,0.9,'#00ff88',10);
+  } else if(id==='hit'){
+    let bx,by,py=0.72,flash=false;
+    if(u<1800){ const e=u/1800; bx=tutLerp(0.86,0.13,e); by=tutLerp(0.28,0.62,e); py=tutLerp(0.8,0.62,e); }
+    else { const e=Math.min(1,(u-1800)/1200); bx=tutLerp(0.13,0.86,e); by=tutLerp(0.62,0.2,e); py=0.62; flash=u<2100; }
+    tutPaddle(cx,0.06,py,'#ff2244'); tutPaddle(cx,0.94,0.5,'#2266ff'); tutBall(cx,bx,by);
+    if(flash) tutLabel(cx,t('tut_hit'),0.2,0.12,'#ffe44d',13);
+  } else if(id==='goal'){
+    const ry = u<800 ? tutLerp(0.5,0.85,u/800) : 0.85;
+    tutPaddle(cx,0.06,0.5,'#ff2244'); tutPaddle(cx,0.94,ry,'#2266ff');
+    if(u>=900 && u<2400){ const e=(u-900)/1500; const bx=tutLerp(0.5,1.02,e), by=tutLerp(0.5,0.3,e); if(bx<=1) tutBall(cx,bx,by); }
+    if(u>=2400 && u<3300) tutLabel(cx,t('tut_goal'),0.5,0.5,'#ffe44d',26);
+  } else if(id==='score'){
+    const a=Math.min(7,Math.floor(ph*8));
+    tutPaddle(cx,0.06,0.5+0.3*Math.sin(ph*Math.PI*4),'#ff2244'); tutPaddle(cx,0.94,0.5+0.3*Math.cos(ph*Math.PI*3),'#2266ff');
+    tutLabel(cx,String(a),0.36,0.3,'#ff2244',40); tutLabel(cx,'–',0.5,0.3,'#fff',28); tutLabel(cx,'0',0.64,0.3,'#2266ff',40);
+    tutLabel(cx,t('tut_pts'),0.5,0.7,'#ffe44d',11);
+    for(let k=0;k<7;k++){ cx.fillStyle=k<a?'#ffe44d':'#334'; cx.beginPath(); cx.arc((0.2+k*0.1)*TUT_W,0.86*TUT_H,5,0,Math.PI*2); cx.fill(); }
+  } else if(id==='pause'){
+    const frozen = u>=1800 && u<2700;
+    const q = frozen ? 1800/P : ph;                 // al pausar, las paletas se paran
+    tutPaddle(cx,0.06,0.5+0.32*Math.sin(q*Math.PI*2),'#ff2244');
+    tutPaddle(cx,0.94,0.5+0.3*Math.cos(q*Math.PI*2),'#2266ff');
+    if(frozen){
+      cx.fillStyle='rgba(0,0,0,.45)'; cx.fillRect(0,0,TUT_W,TUT_H);
+      cx.fillStyle='#88aaff'; cx.fillRect(TUT_W/2-14,TUT_H*0.3,8,24); cx.fillRect(TUT_W/2+6,TUT_H*0.3,8,24);
+      tutLabel(cx,'P',0.5,0.8,'#fff',18); tutLabel(cx,t('tut_key_p'),0.5,0.9,'#88aaff',10);
+    }
+  }
+}
+// ── Tu turno: el juego del paso (coordenadas de 0 a 1) ──
+function tutServe(id,dir){
+  const p=TUT.p, s=0.0075;
+  if(id==='hit'){ p.bx=0.6; p.vx=-s; }
+  else { p.bx = dir>0 ? 0.12 : 0.88; p.vx = dir*s; }
+  p.by=0.35+Math.random()*0.3; p.vy=(Math.random()-0.5)*0.004;
+  if(id==='score') p.aiErr=(Math.random()-0.5)*0.22;   // error de cálculo de la IA (fácil)
+}
+function tutInitPlay(id){
+  TUT.p={me:0.5, ai:(id==='goal'?0.85:0.5), bx:0.5, by:0.5, vx:0, vy:0, hits:0, mePts:0, aiPts:0, cov:[false,false,false], goal:false, paused:false, presses:0, aiErr:0};
+  if(id!=='move') tutServe(id,1);
+}
+function tutUpdate(id,f){
+  const p=TUT.p, reach=0.13;
+  if(TUT.keys.up) p.me=tutClamp(p.me-0.012*f,0.12,0.88);
+  if(TUT.keys.down) p.me=tutClamp(p.me+0.012*f,0.12,0.88);
+  if(id==='move'){ [0.2,0.5,0.8].forEach((ty,i)=>{ if(!p.cov[i] && Math.abs(p.me-ty)<0.1) p.cov[i]=true; }); return; }
+  if(p.paused) return;
+  p.bx+=p.vx*f; p.by+=p.vy*f;
+  if(p.by<0.05){ p.by=0.05; p.vy=Math.abs(p.vy); }
+  if(p.by>0.95){ p.by=0.95; p.vy=-Math.abs(p.vy); }
+  // Modo fácil (solo en este paso): la IA va más despacio, se equivoca un poco al calcular y no llega a los extremos
+  if(id==='score') p.ai=tutClamp(p.ai+tutClamp((p.by+p.aiErr)-p.ai,-0.0035*f,0.0035*f),0.25,0.75);
+  if(id==='hit' && p.bx>0.96){ p.bx=0.96; p.vx=-Math.abs(p.vx); }
+  if((id==='goal'||id==='score') && p.bx>0.9 && p.vx>0 && Math.abs(p.by-p.ai)<reach){ p.bx=0.9; p.vx=-Math.abs(p.vx); }
+  if(p.bx<=0.08 && p.vx<0 && Math.abs(p.by-p.me)<reach){ p.bx=0.08; p.vx=Math.abs(p.vx); p.vy=(p.by-p.me)*0.02; if(id==='hit') p.hits++; }
+  if(id==='goal'){ if(p.bx<0) tutServe(id,1); if(p.bx>1) p.goal=true; }
+  if(id==='score'){
+    if(p.bx<0){ p.aiPts++; if(p.aiPts>=3){ p.aiPts=0; p.mePts=0; } tutServe(id,1); }
+    if(p.bx>1){ p.mePts++; tutServe(id,-1); }
+  }
+  if(id==='hit' && p.bx<0) tutServe(id,-1);
+  if(id==='pause'){ if(p.bx<0) tutServe(id,1); if(p.bx>1) tutServe(id,-1); }
+}
+function tutCheck(id){
+  const p=TUT.p;
+  if(id==='move') return p.cov.every(Boolean);
+  if(id==='hit') return p.hits>=3;
+  if(id==='goal') return p.goal;
+  if(id==='score') return p.mePts>=2;
+  if(id==='pause') return p.presses>=2;
+  return false;
+}
+function tutDrawPlay(id){
+  const cx=TUT.cx, p=TUT.p; tutField(cx);
+  if(id==='move'){
+    p.cov.forEach((c,i)=>{ const ty=[0.2,0.5,0.8][i];
+      cx.strokeStyle=c?'#00ff88':'#88ffbb'; cx.lineWidth=3; cx.beginPath(); cx.arc(0.22*TUT_W, ty*TUT_H, 11, 0, Math.PI*2); cx.stroke();
+      if(c){ cx.fillStyle='#00ff88'; cx.beginPath(); cx.arc(0.22*TUT_W, ty*TUT_H, 5, 0, Math.PI*2); cx.fill(); } });
+    tutLabel(cx,tf('tut_targets_c',{n:p.cov.filter(Boolean).length}),0.5,0.1,'#ffe44d',11);
+  } else {
+    tutBall(cx,p.bx,p.by);
+    if(id==='goal'||id==='score') tutPaddle(cx,0.94,p.ai,'#2266ff');
+    if(id==='hit') tutLabel(cx,tf('tut_hits',{n:p.hits}),0.5,0.1,'#ffe44d',11);
+    if(id==='score') tutLabel(cx,tf('tut_pts_c',{a:p.mePts,b:p.aiPts}),0.5,0.1,'#ffe44d',11);
+  }
+  tutPaddle(cx,0.06,p.me,'#ff2244');
+  tutJoy(cx,p.me);
+  if(id==='pause' && p.paused){ cx.fillStyle='rgba(0,0,0,.45)'; cx.fillRect(0,0,TUT_W,TUT_H); tutLabel(cx,'⏸',0.5,0.5,'#88aaff',40); }
+}
+function tutPhaseUI(n){
+  const el=document.getElementById('tutPhase'), st=TUT_STEPS[TUT.idx];
+  if(TUT.phase==='example') el.textContent=tf('tut_rep',{n:n||1,t:st.reps});
+  else if(TUT.phase==='play'){ el.textContent=t('tut_turn'); document.getElementById('tutHint').textContent=t(st.hint); }
+  else el.textContent=t('tut_ok');
+}
+function tutMsgSet(s){ document.getElementById('tutMsg').textContent=s; }
+function tutShowText(){
+  const st=TUT_STEPS[TUT.idx], last=TUT.idx===TUT_STEPS.length-1;
+  document.getElementById('tutNum').textContent=tf('tut_stepnum',{n:TUT.idx+1,t:TUT_STEPS.length});
+  document.getElementById('tutTitle').textContent=t(st.title);
+  document.getElementById('tutText').textContent=t(st.text);
+  document.getElementById('tutHint').textContent='';
+  tutMsgSet('');
+  const dots=document.getElementById('tutDots'); dots.innerHTML='';
+  TUT_STEPS.forEach((_,k)=>{ const d=document.createElement('span'); d.className='tut-dot'+(k===TUT.idx?' on':''); dots.appendChild(d); });
+  document.getElementById('tutPrev').disabled = TUT.idx===0;
+  const nx=document.getElementById('tutNext');
+  if(!TUT.mandatory && last){ nx.textContent=t('tut_play'); nx.onclick=tutPlay; }
+  else { nx.textContent=t('tut_next'); nx.onclick=tutNext; }
+}
+function tutStartExample(){
+  TUT.phase='example'; TUT.t0=performance.now(); TUT.lastCyc=-1; TUT.keys.up=false; TUT.keys.down=false;
+  tutShowText(); tutPhaseUI(1);
+}
+function tutNextStep(){
+  TUT.idx++;
+  if(TUT.idx>=TUT_STEPS.length){ tutFinish(); return; }
+  tutStartExample();
+}
+function tutFinish(){
+  TUT.phase='end'; tutStop();
+  if(TUT.onFinish){ TUT.onFinish(); }
+  else { document.getElementById('tutPhase').textContent=''; tutMsgSet(t('tut_end')); }
+}
+function tutFrame(now){
+  const sc=document.getElementById('sTutorial');
+  if(!sc || sc.classList.contains('hidden') || !TUT.cx){ TUT.raf=0; return; }
+  const dt=TUT.last?Math.min(50,now-TUT.last):16.67; TUT.last=now; const f=dt/16.67;
+  const st=TUT_STEPS[TUT.idx];
+  if(TUT.phase==='example'){
+    const el=now-TUT.t0, cyc=Math.floor(el/st.P);
+    if(cyc>=st.reps){ TUT.phase='play'; TUT.t0=now; tutInitPlay(st.id); tutPhaseUI(); }
+    else { if(cyc!==TUT.lastCyc){ TUT.lastCyc=cyc; tutPhaseUI(cyc+1); } tutExample(st.id, el%st.P, st.P); }
+  }
+  if(TUT.phase==='play'){
+    tutUpdate(st.id,f); tutDrawPlay(st.id);
+    if(tutCheck(st.id)){ TUT.phase='ok'; TUT.okUntil=now+1400; tutPhaseUI(); tutMsgSet(t('tut_ok')); }
+  } else if(TUT.phase==='ok'){
+    tutDrawPlay(st.id);
+    if(now>=TUT.okUntil){ tutNextStep(); }
+  }
+  TUT.raf = (TUT.phase==='end') ? 0 : requestAnimationFrame(tutFrame);
+}
+function tutStop(){ cancelAnimationFrame(TUT.raf); TUT.raf=0; }
+function tutTogglePause(){
+  if(TUT.phase!=='play' || !TUT.p) return;
+  TUT.p.paused=!TUT.p.paused;
+  if(TUT_STEPS[TUT.idx].id==='pause') TUT.p.presses++;      // pausar y seguir = 2 pulsaciones
+  document.getElementById('tutPause').textContent = TUT.p.paused ? t('tut_resume_btn') : t('tut_pause_btn');
+}
+function tutBindPointer(){
+  const cv=document.getElementById('tutCanvas'); if(cv._bound) return; cv._bound=true;
+  cv.style.touchAction='none';
+  const setY=(e)=>{ if(TUT.phase!=='play' || !TUT.p) return; const r=cv.getBoundingClientRect(); TUT.p.me=tutClamp((e.clientY-r.top)/r.height,0.12,0.88); };
+  cv.addEventListener('pointerdown', e=>{ TUT.ptr=true; setY(e); e.preventDefault(); });
+  cv.addEventListener('pointermove', e=>{ if(TUT.ptr) setY(e); });
+  const up=()=>{ TUT.ptr=false; };
+  cv.addEventListener('pointerup', up); cv.addEventListener('pointerleave', up); cv.addEventListener('pointercancel', up);
+}
+function startTutorial(opts){
+  opts=opts||{}; TUT.mandatory=!!opts.mandatory; TUT.onFinish=opts.onFinish||null; TUT.note=opts.note||'';
+  TUT.idx=0; TUT.p=null; TUT.last=0;
+  goTo('sTutorial');
+  TUT.cx=document.getElementById('tutCanvas').getContext('2d');
+  tutBindPointer();
+  ['tutPrev','tutNext','tutSkip'].forEach(id=>{ document.getElementById(id).style.display = TUT.mandatory ? 'none' : ''; });
+  const note=document.getElementById('tutNote'); note.textContent = TUT.note; note.style.display = TUT.note ? '' : 'none';
+  document.getElementById('tutPause').textContent = t('tut_pause_btn');
+  tutStop(); tutStartExample();
+  TUT.raf=requestAnimationFrame(tutFrame);
+}
+function tutNext(){ if(TUT.mandatory) return; if(TUT.idx<TUT_STEPS.length-1){ TUT.idx++; tutStartExample(); } }
+function tutPrev(){ if(TUT.mandatory) return; if(TUT.idx>0){ TUT.idx--; tutStartExample(); } }
+function tutSkip(){ if(TUT.mandatory) return; tutStop(); goTo('sMenu'); }
+function tutPlay(){ tutStop(); TUT.phase='end'; goTo('s1P'); go1P(); }
+document.addEventListener('keydown', e=>{
+  const s=document.getElementById('sTutorial'); if(!s || s.classList.contains('hidden')) return;
+  const k=e.key;
+  if(k==='ArrowUp'||k==='w'||k==='W'){ TUT.keys.up=true; e.preventDefault(); }
+  else if(k==='ArrowDown'||k==='s'||k==='S'){ TUT.keys.down=true; e.preventDefault(); }
+  else if(k==='p'||k==='P') tutTogglePause();
+  else if(k==='Escape' && !TUT.mandatory) tutSkip();
+  else if(k==='ArrowRight' && !TUT.mandatory) tutNext();
+  else if(k==='ArrowLeft' && !TUT.mandatory) tutPrev();
+});
+document.addEventListener('keyup', e=>{
+  const k=e.key;
+  if(k==='ArrowUp'||k==='w'||k==='W') TUT.keys.up=false;
+  if(k==='ArrowDown'||k==='s'||k==='S') TUT.keys.down=false;
+});
 function drawBall(){
   drawPowerups();
   const br=Math.max(4,BR());
@@ -3728,6 +3989,7 @@ function goal(scorer){
 
 function endMatch(winner){
   if(_matchEnded) return; _matchEnded=true; missionsOnMatchEnd(winner); statsOnMatchEnd(winner);
+  if(typeof window.onMatchFinished==="function") window.onMatchFinished(winner);
   gameRunning=false;stopMusic();cancelAnimationFrame(animId);
   updateWatchBtn();
   if(mode==='online'&&netRole==='host')netSend({t:'end',w:winner});
@@ -3771,8 +4033,6 @@ function endMatch(winner){
   // Award coins/gems (async, doesn't block UI)
   const humanWon = humanWonThisMatch(winner);
   if(typeof awardMatchReward==='function') awardMatchReward(humanWon, mode==='tourn');
-  // Demo: count match
-  if(typeof demoMatchPlayed==='function' && demoActive) demoMatchPlayed();
   // Clear reward label initially
   const rw=document.getElementById('wReward');
   if(rw) rw.style.display='none';
@@ -6191,7 +6451,7 @@ const FB_OK = !!(window.ACCOUNTS_ENABLED && window.firebase && window.auth && wi
 // ── Textos de todo lo nuevo, en los 7 idiomas ────────────────────────────────
 const LANGS_EXTRA = {
 es:{
-  shop_btn:"🛒 Tienda", demo_btn:"🎮 Demo", demo_badge:"3 partidas", acc_btn:"👤 Mi Cuenta",
+  shop_btn:"🛒 Tienda", acc_btn:"👤 Mi Cuenta",
   acc_title:"👤 MI CUENTA", acc_login:"Iniciar sesión", acc_register:"Registrarse",
   acc_email_ph:"Email", acc_pass_ph:"Contraseña", acc_user_ph:"Nombre de usuario",
   acc_go_shop:"🛒 Ir a la Tienda", acc_logout:"Cerrar sesión", acc_free:"FREE", acc_premium:"⭐ PREMIUM",
@@ -6207,16 +6467,12 @@ es:{
   shop_lack_title:"Saldo insuficiente", shop_lack_need:"Necesitas: {a}", shop_lack_have:"Tienes: {a}",
   shop_buy_q:"¿Comprar {n}?", shop_buy:"Comprar", shop_cancel:"Cancelar", ok:"OK",
   rw_win:"🎉 ¡Victoria!", rw_tourn:"🏆 Victoria en Torneo",
-  demo_left_one:"DEMO — {n} partida restante", demo_left_many:"DEMO — {n} partidas restantes",
-  demo_exit:"✖ Salir de la Demo", demo_done_t:"¡Demo completada!",
-  demo_done_d:"Has jugado las 3 partidas de prueba. ¡Sigue jugando para conseguir CoinClothes y Exclusives!",
-  demo_keep:"Seguir jugando", demo_menu:"Ir al menú", demo_create:"Crear cuenta",
   skin_sport:"Deportivo", skin_ninja:"Ninja", skin_soccer:"Futbolista", skin_robot:"Robot", skin_retro:"Retro",
   skin_ocean:"Océano", skin_lava:"Lava", skin_electric:"Eléctrica", skin_ghost:"Fantasma", skin_dragon:"Dragón",
   skin_cosmic:"Cósmico", skin_aurora:"Aurora", skin_legendary:"Leyenda"
 },
 en:{
-  shop_btn:"🛒 Shop", demo_btn:"🎮 Demo", demo_badge:"3 matches", acc_btn:"👤 My Account",
+  shop_btn:"🛒 Shop", acc_btn:"👤 My Account",
   acc_title:"👤 MY ACCOUNT", acc_login:"Log in", acc_register:"Sign up",
   acc_email_ph:"Email", acc_pass_ph:"Password", acc_user_ph:"Username",
   acc_go_shop:"🛒 Go to the Shop", acc_logout:"Log out", acc_free:"FREE", acc_premium:"⭐ PREMIUM",
@@ -6232,16 +6488,12 @@ en:{
   shop_lack_title:"Not enough balance", shop_lack_need:"You need: {a}", shop_lack_have:"You have: {a}",
   shop_buy_q:"Buy {n}?", shop_buy:"Buy", shop_cancel:"Cancel", ok:"OK",
   rw_win:"🎉 Victory!", rw_tourn:"🏆 Tournament victory",
-  demo_left_one:"DEMO — {n} match left", demo_left_many:"DEMO — {n} matches left",
-  demo_exit:"✖ Exit Demo", demo_done_t:"Demo complete!",
-  demo_done_d:"You have played the 3 trial matches. Keep playing to earn CoinClothes and Exclusives!",
-  demo_keep:"Keep playing", demo_menu:"Go to menu", demo_create:"Create account",
   skin_sport:"Sporty", skin_ninja:"Ninja", skin_soccer:"Footballer", skin_robot:"Robot", skin_retro:"Retro",
   skin_ocean:"Ocean", skin_lava:"Lava", skin_electric:"Electric", skin_ghost:"Ghost", skin_dragon:"Dragon",
   skin_cosmic:"Cosmic", skin_aurora:"Aurora", skin_legendary:"Legend"
 },
 pt:{
-  shop_btn:"🛒 Loja", demo_btn:"🎮 Demo", demo_badge:"3 partidas", acc_btn:"👤 Minha Conta",
+  shop_btn:"🛒 Loja", acc_btn:"👤 Minha Conta",
   acc_title:"👤 MINHA CONTA", acc_login:"Entrar", acc_register:"Cadastrar-se",
   acc_email_ph:"E-mail", acc_pass_ph:"Senha", acc_user_ph:"Nome de usuário",
   acc_go_shop:"🛒 Ir para a Loja", acc_logout:"Sair", acc_free:"FREE", acc_premium:"⭐ PREMIUM",
@@ -6257,16 +6509,12 @@ pt:{
   shop_lack_title:"Saldo insuficiente", shop_lack_need:"Você precisa: {a}", shop_lack_have:"Você tem: {a}",
   shop_buy_q:"Comprar {n}?", shop_buy:"Comprar", shop_cancel:"Cancelar", ok:"OK",
   rw_win:"🎉 Vitória!", rw_tourn:"🏆 Vitória no Torneio",
-  demo_left_one:"DEMO — {n} partida restante", demo_left_many:"DEMO — {n} partidas restantes",
-  demo_exit:"✖ Sair da Demo", demo_done_t:"Demo concluída!",
-  demo_done_d:"Você jogou as 3 partidas de teste. Continue jogando para ganhar CoinClothes e Exclusives!",
-  demo_keep:"Continuar jogando", demo_menu:"Ir ao menu", demo_create:"Criar conta",
   skin_sport:"Esportiva", skin_ninja:"Ninja", skin_soccer:"Futebolista", skin_robot:"Robô", skin_retro:"Retrô",
   skin_ocean:"Oceano", skin_lava:"Lava", skin_electric:"Elétrica", skin_ghost:"Fantasma", skin_dragon:"Dragão",
   skin_cosmic:"Cósmica", skin_aurora:"Aurora", skin_legendary:"Lenda"
 },
 de:{
-  shop_btn:"🛒 Shop", demo_btn:"🎮 Demo", demo_badge:"3 Spiele", acc_btn:"👤 Mein Konto",
+  shop_btn:"🛒 Shop", acc_btn:"👤 Mein Konto",
   acc_title:"👤 MEIN KONTO", acc_login:"Anmelden", acc_register:"Registrieren",
   acc_email_ph:"E-Mail", acc_pass_ph:"Passwort", acc_user_ph:"Benutzername",
   acc_go_shop:"🛒 Zum Shop", acc_logout:"Abmelden", acc_free:"FREE", acc_premium:"⭐ PREMIUM",
@@ -6282,16 +6530,12 @@ de:{
   shop_lack_title:"Nicht genug Guthaben", shop_lack_need:"Du brauchst: {a}", shop_lack_have:"Du hast: {a}",
   shop_buy_q:"{n} kaufen?", shop_buy:"Kaufen", shop_cancel:"Abbrechen", ok:"OK",
   rw_win:"🎉 Sieg!", rw_tourn:"🏆 Turniersieg",
-  demo_left_one:"DEMO — noch {n} Spiel", demo_left_many:"DEMO — noch {n} Spiele",
-  demo_exit:"✖ Demo beenden", demo_done_t:"Demo abgeschlossen!",
-  demo_done_d:"Du hast die 3 Testspiele gespielt. Spiele weiter, um CoinClothes und Exclusives zu sammeln!",
-  demo_keep:"Weiterspielen", demo_menu:"Zum Menü", demo_create:"Konto erstellen",
   skin_sport:"Sportlich", skin_ninja:"Ninja", skin_soccer:"Fußballer", skin_robot:"Roboter", skin_retro:"Retro",
   skin_ocean:"Ozean", skin_lava:"Lava", skin_electric:"Elektrisch", skin_ghost:"Geist", skin_dragon:"Drache",
   skin_cosmic:"Kosmisch", skin_aurora:"Aurora", skin_legendary:"Legende"
 },
 fr:{
-  shop_btn:"🛒 Boutique", demo_btn:"🎮 Démo", demo_badge:"3 matchs", acc_btn:"👤 Mon Compte",
+  shop_btn:"🛒 Boutique", acc_btn:"👤 Mon Compte",
   acc_title:"👤 MON COMPTE", acc_login:"Se connecter", acc_register:"S'inscrire",
   acc_email_ph:"E-mail", acc_pass_ph:"Mot de passe", acc_user_ph:"Nom d'utilisateur",
   acc_go_shop:"🛒 Aller à la Boutique", acc_logout:"Se déconnecter", acc_free:"FREE", acc_premium:"⭐ PREMIUM",
@@ -6307,16 +6551,12 @@ fr:{
   shop_lack_title:"Solde insuffisant", shop_lack_need:"Il vous faut : {a}", shop_lack_have:"Vous avez : {a}",
   shop_buy_q:"Acheter {n} ?", shop_buy:"Acheter", shop_cancel:"Annuler", ok:"OK",
   rw_win:"🎉 Victoire !", rw_tourn:"🏆 Victoire en Tournoi",
-  demo_left_one:"DÉMO — {n} match restant", demo_left_many:"DÉMO — {n} matchs restants",
-  demo_exit:"✖ Quitter la Démo", demo_done_t:"Démo terminée !",
-  demo_done_d:"Vous avez joué les 3 matchs d'essai. Continuez à jouer pour gagner des CoinClothes et des Exclusives !",
-  demo_keep:"Continuer à jouer", demo_menu:"Aller au menu", demo_create:"Créer un compte",
   skin_sport:"Sportif", skin_ninja:"Ninja", skin_soccer:"Footballeur", skin_robot:"Robot", skin_retro:"Rétro",
   skin_ocean:"Océan", skin_lava:"Lave", skin_electric:"Électrique", skin_ghost:"Fantôme", skin_dragon:"Dragon",
   skin_cosmic:"Cosmique", skin_aurora:"Aurore", skin_legendary:"Légende"
 },
 ja:{
-  shop_btn:"🛒 ショップ", demo_btn:"🎮 デモ", demo_badge:"3試合", acc_btn:"👤 マイアカウント",
+  shop_btn:"🛒 ショップ", acc_btn:"👤 マイアカウント",
   acc_title:"👤 マイアカウント", acc_login:"ログイン", acc_register:"新規登録",
   acc_email_ph:"メールアドレス", acc_pass_ph:"パスワード", acc_user_ph:"ユーザー名",
   acc_go_shop:"🛒 ショップへ", acc_logout:"ログアウト", acc_free:"FREE", acc_premium:"⭐ PREMIUM",
@@ -6332,16 +6572,12 @@ ja:{
   shop_lack_title:"残高が足りません", shop_lack_need:"必要: {a}", shop_lack_have:"所持: {a}",
   shop_buy_q:"{n}を購入しますか？", shop_buy:"購入", shop_cancel:"キャンセル", ok:"OK",
   rw_win:"🎉 勝利！", rw_tourn:"🏆 トーナメント勝利",
-  demo_left_one:"デモ — 残り{n}試合", demo_left_many:"デモ — 残り{n}試合",
-  demo_exit:"✖ デモを終了", demo_done_t:"デモ完了！",
-  demo_done_d:"3試合のお試しプレイが終わりました。遊び続けて CoinClothes と Exclusives を集めよう！",
-  demo_keep:"プレイを続ける", demo_menu:"メニューへ", demo_create:"アカウント作成",
   skin_sport:"スポーツ", skin_ninja:"忍者", skin_soccer:"サッカー選手", skin_robot:"ロボット", skin_retro:"レトロ",
   skin_ocean:"海", skin_lava:"溶岩", skin_electric:"電撃", skin_ghost:"ゴースト", skin_dragon:"ドラゴン",
   skin_cosmic:"コズミック", skin_aurora:"オーロラ", skin_legendary:"伝説"
 },
 zh:{
-  shop_btn:"🛒 商店", demo_btn:"🎮 试玩", demo_badge:"3场比赛", acc_btn:"👤 我的账号",
+  shop_btn:"🛒 商店", acc_btn:"👤 我的账号",
   acc_title:"👤 我的账号", acc_login:"登录", acc_register:"注册",
   acc_email_ph:"邮箱", acc_pass_ph:"密码", acc_user_ph:"用户名",
   acc_go_shop:"🛒 前往商店", acc_logout:"退出登录", acc_free:"FREE", acc_premium:"⭐ PREMIUM",
@@ -6357,10 +6593,6 @@ zh:{
   shop_lack_title:"余额不足", shop_lack_need:"需要：{a}", shop_lack_have:"拥有：{a}",
   shop_buy_q:"购买 {n}？", shop_buy:"购买", shop_cancel:"取消", ok:"确定",
   rw_win:"🎉 胜利！", rw_tourn:"🏆 锦标赛胜利",
-  demo_left_one:"试玩 — 还剩 {n} 场", demo_left_many:"试玩 — 还剩 {n} 场",
-  demo_exit:"✖ 退出试玩", demo_done_t:"试玩结束！",
-  demo_done_d:"你已完成3场试玩比赛。继续游戏来赚取 CoinClothes 和 Exclusives 吧！",
-  demo_keep:"继续游戏", demo_menu:"返回菜单", demo_create:"创建账号",
   skin_sport:"运动", skin_ninja:"忍者", skin_soccer:"足球运动员", skin_robot:"机器人", skin_retro:"复古",
   skin_ocean:"海洋", skin_lava:"熔岩", skin_electric:"闪电", skin_ghost:"幽灵", skin_dragon:"巨龙",
   skin_cosmic:"宇宙", skin_aurora:"极光", skin_legendary:"传奇"
@@ -6594,6 +6826,26 @@ ja:{ skin_vip:"VIP", shop_vip_only:"👑 VIP", vip_only_title:"VIPアカウン�
 zh:{ skin_vip:"VIP", shop_vip_only:"👑 VIP", vip_only_title:"VIP账号", vip_only_body:"此皮肤仅限VIP账号。请在“我的账号”中开通VIP。", vip_buy:"💎 开通VIP", vip_badge:"👑 VIP", vip_login:"请先登录再开通VIP", vip_already:"你已经是VIP账号", vip_not_ready:"VIP付款尚未配置", vip_wait:"请在打开的页面完成付款。付款确认后，VIP账号将自动开通。" }
 };
 Object.keys(LANGS_EXTRA9).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA9[l]); });
+const LANGS_EXTRA10 = {
+es:{ tut_btn:"🎓 Tutorial", tut_title:"🎓 TUTORIAL", tut_prev:"‹ Anterior", tut_next:"Siguiente ›", tut_play:"▶ ¡Jugar!", tut_skip:"Saltar tutorial", tut_stepnum:"Paso {n} de {t}", tut_s1_t:"Mueve tu pala", tut_s1_x:"Sube y baja con W y S, o con las flechas. En el móvil, usa el joystick.", tut_s2_t:"Golpea la pelota", tut_s2_x:"Si la pelota llega a tu pala, tócala y saldrá hacia el rival.", tut_s3_t:"Marca un gol", tut_s3_x:"Si la pelota pasa la pala del rival, ¡es gol para ti!", tut_s4_t:"Gana la partida", tut_s4_x:"Gana quien llega antes a 7 puntos.", tut_s5_t:"Pausa cuando quieras", tut_s5_x:"Pulsa P para pausar y seguir cuando quieras. ¡Ya estás listo!", tut_joy:"JOYSTICK", tut_pts:"PUNTOS PARA GANAR", tut_key_p:"PAUSA", tut_hit:"¡TOCA!", tut_goal:"¡GOL!" },
+en:{ tut_btn:"🎓 Tutorial", tut_title:"🎓 TUTORIAL", tut_prev:"‹ Back", tut_next:"Next ›", tut_play:"▶ Play!", tut_skip:"Skip tutorial", tut_stepnum:"Step {n} of {t}", tut_s1_t:"Move your paddle", tut_s1_x:"Move up and down with W and S, or the arrow keys. On mobile, use the joystick.", tut_s2_t:"Hit the ball", tut_s2_x:"If the ball reaches your paddle, hit it and it will go back to your opponent.", tut_s3_t:"Score a goal", tut_s3_x:"If the ball gets past your opponent's paddle, it's a goal for you!", tut_s4_t:"Win the match", tut_s4_x:"The first to reach 7 points wins.", tut_s5_t:"Pause whenever you want", tut_s5_x:"Press P to pause and resume whenever you like. You're ready!", tut_joy:"JOYSTICK", tut_pts:"POINTS TO WIN", tut_key_p:"PAUSE", tut_hit:"HIT!", tut_goal:"GOAL!" },
+pt:{ tut_btn:"🎓 Tutorial", tut_title:"🎓 TUTORIAL", tut_prev:"‹ Anterior", tut_next:"Próximo ›", tut_play:"▶ Jogar!", tut_skip:"Pular tutorial", tut_stepnum:"Passo {n} de {t}", tut_s1_t:"Mova sua raquete", tut_s1_x:"Suba e desça com W e S, ou com as setas. No celular, use o joystick.", tut_s2_t:"Rebata a bola", tut_s2_x:"Se a bola chegar à sua raquete, rebata e ela vai para o rival.", tut_s3_t:"Marque um gol", tut_s3_x:"Se a bola passar pela raquete do rival, é gol para você!", tut_s4_t:"Vença a partida", tut_s4_x:"Vence quem chega primeiro a 7 pontos.", tut_s5_t:"Pause quando quiser", tut_s5_x:"Pressione P para pausar e continuar quando quiser. Você está pronto!", tut_joy:"JOYSTICK", tut_pts:"PONTOS PARA VENCER", tut_key_p:"PAUSA", tut_hit:"TOQUE!", tut_goal:"GOL!" },
+de:{ tut_btn:"🎓 Tutorial", tut_title:"🎓 TUTORIAL", tut_prev:"‹ Zurück", tut_next:"Weiter ›", tut_play:"▶ Spielen!", tut_skip:"Tutorial überspringen", tut_stepnum:"Schritt {n} von {t}", tut_s1_t:"Bewege deinen Schläger", tut_s1_x:"Bewege dich mit W und S oder den Pfeiltasten nach oben und unten. Am Handy nutzt du den Joystick.", tut_s2_t:"Triff den Ball", tut_s2_x:"Wenn der Ball deinen Schläger erreicht, triff ihn und er geht zum Gegner.", tut_s3_t:"Erziele ein Tor", tut_s3_x:"Wenn der Ball am Schläger des Gegners vorbeigeht, ist es ein Tor für dich!", tut_s4_t:"Gewinne das Spiel", tut_s4_x:"Wer zuerst 7 Punkte erreicht, gewinnt.", tut_s5_t:"Pausiere, wann du willst", tut_s5_x:"Drücke P zum Pausieren und Weitermachen, wann du willst. Du bist bereit!", tut_joy:"JOYSTICK", tut_pts:"PUNKTE ZUM GEWINNEN", tut_key_p:"PAUSE", tut_hit:"TREFFER!", tut_goal:"TOR!" },
+fr:{ tut_btn:"🎓 Tutoriel", tut_title:"🎓 TUTORIEL", tut_prev:"‹ Précédent", tut_next:"Suivant ›", tut_play:"▶ Jouer !", tut_skip:"Passer le tutoriel", tut_stepnum:"Étape {n} sur {t}", tut_s1_t:"Déplacez votre raquette", tut_s1_x:"Montez et descendez avec W et S, ou les flèches. Sur mobile, utilisez le joystick.", tut_s2_t:"Frappez la balle", tut_s2_x:"Si la balle atteint votre raquette, frappez-la : elle repart vers l'adversaire.", tut_s3_t:"Marquez un but", tut_s3_x:"Si la balle dépasse la raquette adverse, c'est un but pour vous !", tut_s4_t:"Gagnez le match", tut_s4_x:"Le premier à 7 points gagne.", tut_s5_t:"Mettez en pause quand vous voulez", tut_s5_x:"Appuyez sur P pour mettre en pause et reprendre quand vous voulez. Vous êtes prêt !", tut_joy:"JOYSTICK", tut_pts:"POINTS POUR GAGNER", tut_key_p:"PAUSE", tut_hit:"TOUCHE !", tut_goal:"BUT !" },
+ja:{ tut_btn:"🎓 チュートリアル", tut_title:"🎓 チュートリアル", tut_prev:"‹ 戻る", tut_next:"次へ ›", tut_play:"▶ プレイ！", tut_skip:"チュートリアルをスキップ", tut_stepnum:"ステップ {n}/{t}", tut_s1_t:"パドルを動かす", tut_s1_x:"WとSか矢印キーで上下に動かします。スマホではジョイスティックを使います。", tut_s2_t:"ボールを打つ", tut_s2_x:"ボールが来たらパドルで打ち返します。相手の方へ飛んでいきます。", tut_s3_t:"ゴールを決める", tut_s3_x:"ボールが相手のパドルを抜けたら、あなたの得点です！", tut_s4_t:"試合に勝つ", tut_s4_x:"先に7点に達した方の勝ちです。", tut_s5_t:"いつでも一時停止", tut_s5_x:"Pキーで一時停止、もう一度押すと再開します。準備完了です！", tut_joy:"ジョイスティック", tut_pts:"勝利に必要な点数", tut_key_p:"ポーズ", tut_hit:"ヒット！", tut_goal:"ゴール！" },
+zh:{ tut_btn:"🎓 教程", tut_title:"🎓 教程", tut_prev:"‹ 上一步", tut_next:"下一步 ›", tut_play:"▶ 开始！", tut_skip:"跳过教程", tut_stepnum:"第 {n} 步，共 {t} 步", tut_s1_t:"移动你的球拍", tut_s1_x:"用W和S或方向键上下移动。手机上用摇杆。", tut_s2_t:"击打球", tut_s2_x:"球到你的球拍时击打它，它会飞向对手。", tut_s3_t:"进球", tut_s3_x:"球越过对手的球拍，就是你的进球！", tut_s4_t:"赢得比赛", tut_s4_x:"先得到7分的人获胜。", tut_s5_t:"随时暂停", tut_s5_x:"按P暂停，随时继续。你准备好了！", tut_joy:"摇杆", tut_pts:"获胜所需分数", tut_key_p:"暂停", tut_hit:"击中！", tut_goal:"进球！" }
+};
+Object.keys(LANGS_EXTRA10).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA10[l]); });
+const LANGS_EXTRA11 = {
+es:{ tut_rep:"Mira el ejemplo ({n}/{t})", tut_turn:"¡Tu turno!", tut_ok:"¡Muy bien!", tut_hint1:"Arrastra tu pala con el dedo (o usa W y S) hasta cada punto verde.", tut_hint2:"Toca la pelota con tu pala 3 veces.", tut_hint3:"Haz que la pelota pase la pala azul: ¡1 gol!", tut_hint4:"Consigue 2 puntos para practicar (en la partida real son 7).", tut_hint5:"Pulsa P (o el botón ⏸) dos veces: una para pausar y otra para seguir.", tut_hits:"Golpes: {n}/3", tut_pts_c:"Puntos: {a} – {b}", tut_targets_c:"Puntos tocados: {n}/3", tut_pause_btn:"⏸ Pausa", tut_resume_btn:"▶ Seguir", tut_end:"¡Has terminado el tutorial!", tut_s1_x:"Sube y baja con W y S, con las flechas, o arrastrando tu pala con el dedo (joystick)." },
+en:{ tut_rep:"Watch the example ({n}/{t})", tut_turn:"Your turn!", tut_ok:"Well done!", tut_hint1:"Drag your paddle with your finger (or use W and S) to each green dot.", tut_hint2:"Hit the ball with your paddle 3 times.", tut_hint3:"Make the ball get past the blue paddle: 1 goal!", tut_hint4:"Score 2 points to practice (a real match is 7).", tut_hint5:"Press P (or the ⏸ button) twice: once to pause, once to resume.", tut_hits:"Hits: {n}/3", tut_pts_c:"Points: {a} – {b}", tut_targets_c:"Dots touched: {n}/3", tut_pause_btn:"⏸ Pause", tut_resume_btn:"▶ Resume", tut_end:"Tutorial complete!", tut_s1_x:"Move up and down with W and S, the arrow keys, or drag your paddle with your finger (joystick)." },
+pt:{ tut_rep:"Veja o exemplo ({n}/{t})", tut_turn:"Sua vez!", tut_ok:"Muito bem!", tut_hint1:"Arraste sua raquete com o dedo (ou use W e S) até cada ponto verde.", tut_hint2:"Rebata a bola com sua raquete 3 vezes.", tut_hint3:"Faça a bola passar pela raquete azul: 1 gol!", tut_hint4:"Marque 2 pontos para praticar (na partida real são 7).", tut_hint5:"Pressione P (ou o botão ⏸) duas vezes: uma para pausar e outra para continuar.", tut_hits:"Toques: {n}/3", tut_pts_c:"Pontos: {a} – {b}", tut_targets_c:"Pontos tocados: {n}/3", tut_pause_btn:"⏸ Pausar", tut_resume_btn:"▶ Continuar", tut_end:"Tutorial concluído!", tut_s1_x:"Suba e desça com W e S, com as setas, ou arrastando sua raquete com o dedo (joystick)." },
+de:{ tut_rep:"Schau dir das Beispiel an ({n}/{t})", tut_turn:"Du bist dran!", tut_ok:"Sehr gut!", tut_hint1:"Zieh deinen Schläger mit dem Finger (oder nutze W und S) zu jedem grünen Punkt.", tut_hint2:"Triff den Ball 3-mal mit deinem Schläger.", tut_hint3:"Bring den Ball am blauen Schläger vorbei: 1 Tor!", tut_hint4:"Erziele 2 Punkte zum Üben (im echten Spiel sind es 7).", tut_hint5:"Drücke P (oder ⏸) zweimal: einmal zum Pausieren, einmal zum Weitermachen.", tut_hits:"Treffer: {n}/3", tut_pts_c:"Punkte: {a} – {b}", tut_targets_c:"Berührte Punkte: {n}/3", tut_pause_btn:"⏸ Pause", tut_resume_btn:"▶ Weiter", tut_end:"Tutorial abgeschlossen!", tut_s1_x:"Bewege dich mit W und S, mit den Pfeiltasten, oder ziehe deinen Schläger mit dem Finger (Joystick)." },
+fr:{ tut_rep:"Regardez l'exemple ({n}/{t})", tut_turn:"À vous !", tut_ok:"Bravo !", tut_hint1:"Glissez votre raquette du doigt (ou utilisez W et S) jusqu'à chaque point vert.", tut_hint2:"Frappez la balle 3 fois avec votre raquette.", tut_hint3:"Faites passer la balle devant la raquette bleue : 1 but !", tut_hint4:"Marquez 2 points pour vous entraîner (en match réel, c'est 7).", tut_hint5:"Appuyez deux fois sur P (ou ⏸) : une pour pauser, une pour reprendre.", tut_hits:"Touches : {n}/3", tut_pts_c:"Points : {a} – {b}", tut_targets_c:"Points touchés : {n}/3", tut_pause_btn:"⏸ Pause", tut_resume_btn:"▶ Reprendre", tut_end:"Tutoriel terminé !", tut_s1_x:"Montez et descendez avec W et S, avec les flèches, ou en glissant votre raquette du doigt (joystick)." },
+ja:{ tut_rep:"例を見る（{n}/{t}）", tut_turn:"あなたの番！", tut_ok:"よくできました！", tut_hint1:"指でパドルをドラッグ（またはWとS）して、緑の点まで動かそう。", tut_hint2:"パドルでボールを3回打とう。", tut_hint3:"青いパドルを抜けるようにボールを打とう：1ゴール！", tut_hint4:"練習として2点取ろう（実際の試合は7点）。", tut_hint5:"Pキー（または⏸）を2回押そう：一時停止と再開。", tut_hits:"ヒット: {n}/3", tut_pts_c:"得点: {a} – {b}", tut_targets_c:"触れた点: {n}/3", tut_pause_btn:"⏸ ポーズ", tut_resume_btn:"▶ 再開", tut_end:"チュートリアル完了！", tut_s1_x:"WとS、矢印キー、またはパドルを指でドラッグ（ジョイスティック）で上下に動かします。" },
+zh:{ tut_rep:"看示例（{n}/{t}）", tut_turn:"轮到你了！", tut_ok:"很好！", tut_hint1:"用手指拖动球拍（或用W和S）移动到每个绿点。", tut_hint2:"用球拍击球3次。", tut_hint3:"让球越过蓝色球拍：1球！", tut_hint4:"练习：得2分（真实比赛是7分）。", tut_hint5:"按两次P（或⏸）：一次暂停，一次继续。", tut_hits:"击球：{n}/3", tut_pts_c:"得分：{a} – {b}", tut_targets_c:"触到的点：{n}/3", tut_pause_btn:"⏸ 暂停", tut_resume_btn:"▶ 继续", tut_end:"教程完成！", tut_s1_x:"用W和S、方向键上下移动，或用手指拖动球拍（摇杆）。" }
+};
+Object.keys(LANGS_EXTRA11).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA11[l]); });
 const LANGS_EXTRA4 = {
 es:{ pw_big:"Paleta grande", pw_fast:"Paleta rápida", pw_slow:"Paleta lenta", pw_small:"Paleta pequeña", pw_got:"¡{p} consigue {n}!" },
 en:{ pw_big:"Big paddle", pw_fast:"Fast paddle", pw_slow:"Slow paddle", pw_small:"Small paddle", pw_got:"{p} gets {n}!" },
@@ -6805,7 +7057,7 @@ function humanWonThisMatch(winner){
   return winner===1; // 1 jugador y local: J1 es el jugador principal
 }
 function awardMatchReward(isWinner, isTournament){
-  if(!isWinner||demoActive) return;                       // en la Demo no se gana nada
+  if(!isWinner||window.noProgress) return;
   const coins = isTournament ? 0 : Math.floor(Math.random()*15)+10;
   const gems  = isTournament ? Math.floor(Math.random()*3)+2 : 0;
   playerData.coins=(playerData.coins||0)+coins;
@@ -6835,7 +7087,7 @@ function switchAccTab(tab){
 }
 // Estadísticas de la cuenta: partidas, victorias, derrotas, goles y skin más usada
 function statsOnMatchEnd(winner){
-  if(demoActive) return;
+  if(window.noProgress) return;
   const me=mySide(); if(!me) return;
   const s=Object.assign({played:0,wins:0,losses:0,goalsFor:0,goalsAgainst:0}, playerData.stats||{});
   s.played++;
@@ -7101,54 +7353,7 @@ function shopConfirmBuy(s){
      {label:t('shop_cancel')}]);
 }
 
-// ── Demo ─────────────────────────────────────────────────────────────────────
-function demoLeftText(){ return tf(demoMatchesLeft===1?'demo_left_one':'demo_left_many',{n:demoMatchesLeft}); }
-function startDemo(){
-  demoActive=true; demoMatchesLeft=3;
-  showDemoBanner();
-  goTo('sMode');
-}
-function showDemoBanner(){
-  let el=document.getElementById('demoBanner');
-  if(!el){
-    el=document.createElement('div');
-    el.id='demoBanner';
-    el.style.cssText='position:fixed;bottom:56px;left:50%;transform:translateX(-50%);z-index:500;display:flex;align-items:center;gap:10px;font-family:Orbitron,monospace;font-size:.55rem;letter-spacing:.1em;background:rgba(20,0,5,.88);border:1px solid #ff2244;color:#ff2244;padding:5px 6px 5px 14px;border-radius:14px;';
-    const span=document.createElement('span'); span.id='demoBannerTxt';
-    const btn=document.createElement('button');
-    btn.id='demoExitBtn';
-    btn.style.cssText='background:#ff2244;border:none;color:#fff;font-family:inherit;font-size:.5rem;letter-spacing:.08em;padding:6px 10px;border-radius:9px;cursor:pointer;';
-    btn.onclick=exitDemo;
-    el.appendChild(span); el.appendChild(btn);
-    document.body.appendChild(el);
-  }
-  document.getElementById('demoBannerTxt').textContent=demoLeftText();
-  document.getElementById('demoExitBtn').textContent=t('demo_exit');
-  el.style.display='flex';
-}
-function hideDemoBanner(){
-  const el=document.getElementById('demoBanner');
-  if(el) el.style.display='none';
-}
-function exitDemo(){
-  demoActive=false; demoMatchesLeft=0;
-  hideDemoBanner();
-  if(gameRunning) backToMenu(); else goTo('sMenu');
-}
-function demoMatchPlayed(){
-  if(!demoActive) return;
-  demoMatchesLeft--;
-  if(demoMatchesLeft<=0){
-    demoActive=false;
-    hideDemoBanner();
-    setTimeout(()=>{
-      const btns=[{label:t('demo_keep')},{label:t('demo_menu'), onClick:()=>{ if(gameRunning) backToMenu(); else goTo('sMenu'); }}];
-      if(window.ACCOUNTS_ENABLED) btns.push({label:t('demo_create'), onClick:()=>{ if(gameRunning) backToMenu(); goTo('sAccount'); }});
-      uiModal('<div style="color:#ffe44d;font-weight:700;font-size:.85rem">'+t('demo_done_t')+'</div>'+
-              '<div style="color:#aaa;font-size:.68rem;margin-top:10px;line-height:1.6">'+t('demo_done_d')+'</div>', btns);
-    },1200);
-  } else { showDemoBanner(); }
-}
+
 
 // ── Online: cada jugador ve la skin del otro (solo viaja el nombre de la skin) ─
 function sendMySkin(){
@@ -7169,13 +7374,13 @@ function receiveOpponentSkin(k){
 
 // ── Refresco de textos dinámicos al cambiar de idioma ────────────────────────
 function refreshDynamicI18n(){
+  if(window.onLangChange) window.onLangChange();
   refreshMissionsIfOpen();
   refreshAccountBtn();
   buildShopGrid();
   renderAccountScreen();
   const sub=document.getElementById('accSubmit');
   if(sub) sub.textContent=t(accTabMode==='login'?'acc_login':'acc_register');
-  if(demoActive) showDemoBanner();
 }
 
 // ── Arranque del progreso ────────────────────────────────────────────────────
@@ -7201,5 +7406,6 @@ document.addEventListener('touchstart', ()=>{ if(musicOn&&!musIv) startMusic(); 
 
 
 </script>
+<script src="demo.js"></script>
 </body>
 </html>
