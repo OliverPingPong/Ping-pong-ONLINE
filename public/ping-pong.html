@@ -3923,6 +3923,9 @@ function updateGame(){
 function goal(scorer){
   if(goalCd>0)return;
   goalCd=180;
+  // La pelota deja de estar en juego en cuanto entra: parada en el centro, para que el juego
+  // no vuelva a contar el mismo gol cuando termine la espera (eso reiniciaba el cierre del partido)
+  ball.x=W/2; ball.y=H/2; ball.vx=0; ball.vy=0; if(ball.tr) ball.tr=[];
   if(scorer===1)sc1++;else sc2++; missionsOnGoal(scorer);
   updateHUD();
   crowd.forEach(p=>p.cheer=true);
