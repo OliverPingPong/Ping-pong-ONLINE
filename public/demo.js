@@ -1,187 +1,7413 @@
-/* ═══════════════════════════════════════════════════════════════════════════
-   DEMO — archivo aparte (demo.js).
-   Se carga desde ping-pong.html con <script src="demo.js"></script>.
-   Súbelo también a la carpeta public/ junto a ping-pong.html.
-   · 5 partidas.
-   · Empieza SIEMPRE con el tutorial obligatorio, que NO cuenta como partida.
-   · Usa el tutorial del juego (startTutorial) con: mandatory, note y onFinish.
-   · No da monedas, gemas, estadísticas ni misiones (window.noProgress).
-   ═══════════════════════════════════════════════════════════════════════════ */
-(function(){
-  const DEMO_TXT = {
- "es": {
-  "demo_tut_note": "El tutorial no cuenta como partida. La demo tiene 5 partidas.",
-  "demo_btn": "🎮 Demo",
-  "demo_badge": "5 partidas",
-  "demo_left_one": "DEMO — {n} partida restante",
-  "demo_left_many": "DEMO — {n} partidas restantes",
-  "demo_exit": "✖ Salir de la Demo",
-  "demo_done_t": "¡Demo completada!",
-  "demo_done_d": "Has jugado las 5 partidas de prueba. ¡Sigue jugando para conseguir CoinClothes y Exclusives!",
-  "demo_keep": "Seguir jugando",
-  "demo_menu": "Ir al menú",
-  "demo_create": "Crear cuenta"
- },
- "en": {
-  "demo_tut_note": "The tutorial doesn't count as a match. The demo has 5 matches.",
-  "demo_btn": "🎮 Demo",
-  "demo_badge": "5 matches",
-  "demo_left_one": "DEMO — {n} match left",
-  "demo_left_many": "DEMO — {n} matches left",
-  "demo_exit": "✖ Exit Demo",
-  "demo_done_t": "Demo complete!",
-  "demo_done_d": "You have played the 5 trial matches. Keep playing to earn CoinClothes and Exclusives!",
-  "demo_keep": "Keep playing",
-  "demo_menu": "Go to menu",
-  "demo_create": "Create account"
- },
- "pt": {
-  "demo_tut_note": "O tutorial não conta como partida. A demo tem 5 partidas.",
-  "demo_btn": "🎮 Demo",
-  "demo_badge": "5 partidas",
-  "demo_left_one": "DEMO — {n} partida restante",
-  "demo_left_many": "DEMO — {n} partidas restantes",
-  "demo_exit": "✖ Sair da Demo",
-  "demo_done_t": "Demo concluída!",
-  "demo_done_d": "Você jogou as 5 partidas de teste. Continue jogando para ganhar CoinClothes e Exclusives!",
-  "demo_keep": "Continuar jogando",
-  "demo_menu": "Ir ao menu",
-  "demo_create": "Criar conta"
- },
- "de": {
-  "demo_tut_note": "Das Tutorial zählt nicht als Spiel. Die Demo hat 5 Spiele.",
-  "demo_btn": "🎮 Demo",
-  "demo_badge": "5 Spiele",
-  "demo_left_one": "DEMO — noch {n} Spiel",
-  "demo_left_many": "DEMO — noch {n} Spiele",
-  "demo_exit": "✖ Demo beenden",
-  "demo_done_t": "Demo abgeschlossen!",
-  "demo_done_d": "Du hast die 5 Testspiele gespielt. Spiele weiter, um CoinClothes und Exclusives zu sammeln!",
-  "demo_keep": "Weiterspielen",
-  "demo_menu": "Zum Menü",
-  "demo_create": "Konto erstellen"
- },
- "fr": {
-  "demo_tut_note": "Le tutoriel ne compte pas comme match. La démo a 5 matchs.",
-  "demo_btn": "🎮 Démo",
-  "demo_badge": "5 matchs",
-  "demo_left_one": "DÉMO — {n} match restant",
-  "demo_left_many": "DÉMO — {n} matchs restants",
-  "demo_exit": "✖ Quitter la Démo",
-  "demo_done_t": "Démo terminée !",
-  "demo_done_d": "Vous avez joué les 5 matchs d'essai. Continuez à jouer pour gagner des CoinClothes et des Exclusives !",
-  "demo_keep": "Continuer à jouer",
-  "demo_menu": "Aller au menu",
-  "demo_create": "Créer un compte"
- },
- "ja": {
-  "demo_tut_note": "チュートリアルは試合に数えません。デモは5試合です。",
-  "demo_btn": "🎮 デモ",
-  "demo_badge": "5試合",
-  "demo_left_one": "デモ — 残り{n}試合",
-  "demo_left_many": "デモ — 残り{n}試合",
-  "demo_exit": "✖ デモを終了",
-  "demo_done_t": "デモ完了！",
-  "demo_done_d": "5試合のお試しプレイが終わりました。遊び続けて CoinClothes と Exclusives を集めよう！",
-  "demo_keep": "プレイを続ける",
-  "demo_menu": "メニューへ",
-  "demo_create": "アカウント作成"
- },
- "zh": {
-  "demo_tut_note": "教程不计入对局。试玩共5场。",
-  "demo_btn": "🎮 试玩",
-  "demo_badge": "5场比赛",
-  "demo_left_one": "试玩 — 还剩 {n} 场",
-  "demo_left_many": "试玩 — 还剩 {n} 场",
-  "demo_exit": "✖ 退出试玩",
-  "demo_done_t": "试玩结束！",
-  "demo_done_d": "你已完成5场试玩比赛。继续游戏来赚取 CoinClothes 和 Exclusives 吧！",
-  "demo_keep": "继续游戏",
-  "demo_menu": "返回菜单",
-  "demo_create": "创建账号"
- }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>PING-PONG: The Ultimate Duel</title>
+<!-- ═══ CUENTAS (Firebase) ═══
+     Interruptor: déjalo en false hasta tener Firebase listo (Authentication con email/contraseña + reglas de Firestore).
+     Con true se cargan los scripts de Firebase y se activan "Mi Cuenta" y el guardado en la nube. -->
+<script>
+window.ACCOUNTS_ENABLED = true;
+if(window.ACCOUNTS_ENABLED){
+  ['app','auth','firestore'].forEach(function(m){
+    document.write('<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-'+m+'.js"><\/script>');
+  });
+}
+</script>
+<script>
+const firebaseConfig={
+  apiKey:"AIzaSyCHzOM6QG-VY9pBgJk_cMZ4RtCx4X5WcYY",
+  authDomain:"ping-pong-game-4af41.firebaseapp.com",
+  projectId:"ping-pong-game-4af41",
+  storageBucket:"ping-pong-game-4af41.firebasestorage.app",
+  messagingSenderId:"481345118022",
+  appId:"1:481345118022:web:45cf6f90e1de66679fcf47"
 };
-  Object.keys(DEMO_TXT).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], DEMO_TXT[l]); });
-
-  let demoActive=false, demoMatchesLeft=0;
-
-  function setFlags(){ window.noProgress = demoActive; }
-
-  function injectCSS(){
-    const st=document.createElement('style');
-    st.textContent='.demo-badge{background:#ff224422;border:1.5px solid #ff2244;color:#ff2244;font-family:\'Orbitron\',monospace;font-size:.5rem;letter-spacing:.12em;padding:3px 8px;border-radius:8px;display:inline-block;}';
-    document.head.appendChild(st);
+try{
+  if(window.ACCOUNTS_ENABLED && window.firebase){
+    firebase.initializeApp(firebaseConfig);
+    window.auth=firebase.auth();
+    window.db=firebase.firestore();
   }
+}catch(e){ console.warn('Firebase no disponible:',e); }
+</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap');
+:root{
+  --p1:#ff2244;--p2:#2266ff;--bg:#111318;--acc:#ffe44d;
+  --txt:#f0f4ff;--grn:#00cc66;--err:#ff4455;--pur:#aa44ff;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{touch-action:none;overscroll-behavior:none;}
+body{background:var(--bg);color:var(--txt);font-family:'Rajdhani','Noto Sans JP','Noto Sans SC',sans-serif;
+  overflow:hidden;height:100vh;width:100vw;display:flex;align-items:center;
+  justify-content:center;user-select:none;-webkit-user-select:none;}
 
-  function demoLeftText(){ return tf(demoMatchesLeft===1?'demo_left_one':'demo_left_many',{n:demoMatchesLeft}); }
+#sMenu {
+  background-image: url("menu-ping-pongol.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+padding-top: 24vh;
+}
+     .screen{position:absolute;inset:0;display:flex;align-items:center;
+  justify-content:center;flex-direction:column;gap:13px;z-index:100;
+  background:radial-gradient(ellipse at 50% 30%,#1a2040 0%,#0a0c14 70%);
+  touch-action:pan-y;-webkit-overflow-scrolling:touch;}
+.screen.hidden{display:none;}
 
-  function showBanner(){
-    let el=document.getElementById('demoBanner');
-    if(!el){
-      el=document.createElement('div');
-      el.id='demoBanner';
-      el.style.cssText='position:fixed;bottom:56px;left:50%;transform:translateX(-50%);z-index:500;display:flex;align-items:center;gap:10px;font-family:Orbitron,monospace;font-size:.55rem;letter-spacing:.1em;background:rgba(20,0,5,.88);border:1px solid #ff2244;color:#ff2244;padding:5px 6px 5px 14px;border-radius:14px;';
-      const span=document.createElement('span'); span.id='demoBannerTxt';
-      const btn=document.createElement('button'); btn.id='demoExitBtn';
-      btn.style.cssText='background:#ff2244;border:none;color:#fff;font-family:inherit;font-size:.5rem;letter-spacing:.08em;padding:6px 10px;border-radius:9px;cursor:pointer;';
-      btn.onclick=exitDemo;
-      el.appendChild(span); el.appendChild(btn);
-      document.body.appendChild(el);
+.logo{font-family:'Orbitron',monospace;font-size:clamp(2.2rem,7vw,5rem);
+  font-weight:900;letter-spacing:.08em;line-height:1;}
+.logo .p1{color:var(--p1);text-shadow:0 0 28px #ff224488;}
+.logo .vs{color:var(--acc);font-size:.52em;vertical-align:middle;margin:0 10px;}
+.logo .p2{color:var(--p2);text-shadow:0 0 28px #2266ff88;}
+.subtitle{font-family:'Orbitron',monospace;font-size:clamp(.6rem,1.6vw,.85rem);
+  letter-spacing:.28em;color:#888;text-transform:uppercase;margin-top:-6px;}
+
+.btn{background:rgba(6,8,16,.72);border:2px solid var(--acc);color:var(--acc);
+  font-family:'Orbitron',monospace;font-size:clamp(.75rem,2vw,1rem);
+  font-weight:700;letter-spacing:.12em;padding:13px 30px;cursor:pointer;
+  transition:all .2s;text-transform:uppercase;
+  clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
+.btn:hover{background:var(--acc);color:#111;transform:scale(1.04);}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.btn.red{border-color:var(--p1);color:var(--p1);}
+.btn.red:hover{background:var(--p1);color:#fff;}
+.btn.blue{border-color:var(--p2);color:var(--p2);}
+.btn.blue:hover{background:var(--p2);color:#fff;}
+.btn.grn{border-color:var(--grn);color:var(--grn);}
+.btn.grn:hover{background:var(--grn);color:#111;}
+.btn.pur{border-color:var(--pur);color:var(--pur);}
+.btn.pur:hover{background:var(--pur);color:#fff;}
+.btn.sm{font-size:.75rem;padding:9px 19px;}
+
+.sec{font-family:'Orbitron',monospace;font-size:clamp(.55rem,1.4vw,.72rem);
+  letter-spacing:.18em;color:#888;text-transform:uppercase;margin-bottom:1px;}
+input[type=text]{background:rgba(255,255,255,.07);border:1.5px solid #444;
+  border-radius:4px;color:var(--txt);font-family:'Rajdhani',sans-serif;
+  font-size:1rem;font-weight:600;padding:8px 14px;outline:none;width:210px;
+  transition:border-color .2s;text-align:center;}
+input[type=text]:focus{border-color:var(--acc);}
+.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap;justify-content:center;}
+.div{width:100%;max-width:440px;height:1px;
+  background:linear-gradient(to right,transparent,#444,transparent);margin:1px 0;}
+.back{position:absolute;top:14px;left:14px;background:transparent;
+  border:1.5px solid #444;color:#888;font-family:'Orbitron',monospace;
+  font-size:.58rem;letter-spacing:.1em;padding:6px 11px;cursor:pointer;transition:all .2s;}
+.back:hover{border-color:#aaa;color:#ccc;}
+.dbtn{background:transparent;border:2px solid #555;color:#aaa;
+  font-family:'Orbitron',monospace;font-size:.68rem;letter-spacing:.07em;
+  padding:8px 17px;cursor:pointer;transition:all .2s;text-transform:uppercase;}
+.dbtn:hover,.dbtn.on{background:#ffe44d22;border-color:var(--acc);color:var(--acc);}
+.dbtn.on{background:#ffe44d33;}
+.sgrid{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:380px;}
+.sopt{width:34px;height:78px;border:2px solid #444;border-radius:5px;cursor:pointer;
+  transition:all .2s;display:flex;align-items:center;justify-content:center;
+  font-size:.48rem;color:#aaa;font-family:'Orbitron',monospace;text-align:center;}
+.sopt:hover,.sopt.on{border-color:var(--acc);transform:scale(1.1);}
+.sopt.on{box-shadow:0 0 10px #ffe44d44;}
+
+#gameCanvas{display:block;position:absolute;inset:0;width:100%;height:100%;}
+#confCanvas{position:absolute;inset:0;pointer-events:none;z-index:40;width:100%;height:100%;}
+
+/* ══ SCOREBOARD HUD ══ */
+#hud{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  z-index:10;pointer-events:none;
+  display:flex;flex-direction:column;align-items:center;
+}
+#hud.hidden{display:none;}
+
+/* Outer panel — metallic dark */
+.sb-panel{
+  display:flex;align-items:stretch;
+  background:linear-gradient(180deg,#1a1c22 0%,#0d0e12 60%,#1a1c22 100%);
+  border:2px solid #2a2d38;
+  border-top:none;
+  border-radius:0 0 14px 14px;
+  box-shadow:0 8px 40px rgba(0,0,0,.7),inset 0 1px 0 #3a3d4a;
+  overflow:hidden;
+  min-width:min(460px,90vw);
+}
+
+/* Thin accent bar at very top */
+.sb-topbar{
+  height:3px;width:100%;
+  background:linear-gradient(90deg,transparent,var(--acc),transparent);
+  flex-shrink:0;
+}
+
+/* Timer bar above the main panel */
+.sb-timer-bar{
+  width:100%;
+  background:linear-gradient(180deg,#111318,#0a0c12);
+  border-bottom:1px solid #2a2d38;
+  display:flex;align-items:center;justify-content:center;
+  padding:3px 0 2px;
+  gap:8px;
+}
+.sb-timer-val{
+  font-family:'Orbitron',monospace;font-size:clamp(.9rem,2.8vw,1.4rem);
+  font-weight:900;letter-spacing:.18em;
+  color:#e8b800;
+  text-shadow:0 0 12px #ffd70088;
+}
+.sb-mode-lbl{
+  font-family:'Orbitron',monospace;font-size:clamp(.38rem,.9vw,.52rem);
+  letter-spacing:.18em;color:#555;text-transform:uppercase;
+}
+
+/* Player side */
+.sb-side{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:6px 16px;gap:1px;flex:1;
+}
+.sb-name{
+  font-family:'Orbitron',monospace;font-size:clamp(.5rem,1.5vw,.72rem);
+  font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;
+}
+.sb-score{
+  font-family:'Orbitron',monospace;font-weight:900;line-height:1;
+  font-size:clamp(2.2rem,6vw,3.8rem);
+  /* LED-style: slightly dim "ghost" segments */
+  text-shadow:0 0 20px currentColor;
+  letter-spacing:-.02em;
+}
+.sb-side.left .sb-name,.sb-side.left .sb-score{ color:var(--p1); }
+.sb-side.right .sb-name,.sb-side.right .sb-score{ color:var(--p2); }
+
+/* Center divider */
+.sb-center{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:6px 12px;gap:3px;
+  border-left:1px solid #2a2d38;
+  border-right:1px solid #2a2d38;
+}
+.sb-sep{
+  font-family:'Orbitron',monospace;font-size:clamp(1.8rem,4.5vw,3rem);
+  font-weight:900;color:#333;line-height:1;
+}
+.sb-sub{
+  font-family:'Orbitron',monospace;font-size:clamp(.32rem,.75vw,.46rem);
+  letter-spacing:.16em;color:#444;text-transform:uppercase;text-align:center;
+}
+.sb-pause-lbl{
+  font-family:'Orbitron',monospace;font-size:clamp(.4rem,1vw,.56rem);
+  color:var(--acc);letter-spacing:.14em;animation:bl 1s step-end infinite;
+}
+@keyframes bl{50%{opacity:0;}}
+.sb-match{
+  font-family:'Orbitron',monospace;font-size:clamp(.32rem,.75vw,.44rem);
+  letter-spacing:.1em;color:var(--pur);text-transform:uppercase;text-align:center;
+}
+
+#overlay{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:13px;
+  z-index:50;pointer-events:none;opacity:0;transition:opacity .3s;}
+#overlay.show{opacity:1;pointer-events:all;}
+.otxt{font-family:'Orbitron',monospace;font-size:clamp(1.8rem,7vw,4.5rem);
+  font-weight:900;letter-spacing:.1em;text-align:center;
+  animation:pop .3s cubic-bezier(.175,.885,.32,1.275);}
+.osub{font-family:'Orbitron',monospace;font-size:clamp(.58rem,1.6vw,.85rem);
+  letter-spacing:.15em;color:#aaa;text-align:center;}
+@keyframes pop{from{transform:scale(.4);opacity:0;}to{transform:scale(1);opacity:1;}}
+#pbtn{display:flex;gap:11px;flex-wrap:wrap;justify-content:center;}
+
+#wins{display:none;position:absolute;inset:0;z-index:150;flex-direction:column;
+  align-items:center;justify-content:center;gap:15px;
+  background:radial-gradient(ellipse at 50% 40%,#1a2040ee 0%,#07080fee 70%);}
+#wins.show{display:flex;}
+.wt{font-family:'Orbitron',monospace;font-size:clamp(1.3rem,4.5vw,3rem);
+  font-weight:900;letter-spacing:.11em;text-align:center;}
+.ws{font-family:'Rajdhani',sans-serif;font-size:clamp(.9rem,2.8vw,1.3rem);color:#aaa;letter-spacing:.07em;}
+
+#hint{position:absolute;bottom:11px;left:50%;transform:translateX(-50%);
+  font-family:'Orbitron',monospace;font-size:clamp(.38rem,1vw,.54rem);
+  letter-spacing:.13em;color:#555;text-align:center;z-index:10;
+  pointer-events:none;white-space:nowrap;}
+#mBtn{position:absolute;bottom:11px;right:13px;z-index:200;
+  background:rgba(0,0,0,.6);border:1.5px solid #555;color:#aaa;
+  font-size:1.1rem;width:34px;height:34px;border-radius:50%;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+#mBtn:hover{border-color:var(--acc);color:var(--acc);}
+
+/* ══ ONLINE ══ */
+.ocard{background:rgba(255,255,255,.04);border:1.5px solid #333;border-radius:9px;
+  padding:16px 22px;display:flex;flex-direction:column;align-items:center;gap:10px;
+  width:min(320px,90vw);}
+.ocard h3{font-family:'Orbitron',monospace;font-size:.7rem;letter-spacing:.14em;color:var(--acc);text-transform:uppercase;}
+.code{font-family:'Orbitron',monospace;font-size:clamp(1.4rem,3.5vw,2rem);font-weight:900;
+  letter-spacing:.2em;color:var(--acc);background:rgba(255,228,77,.06);
+  border:2px solid #ffe44d33;border-radius:7px;padding:8px 18px;cursor:pointer;transition:all .2s;user-select:all;}
+.code:hover{background:rgba(255,228,77,.11);}
+.code.cp{color:var(--grn);border-color:var(--grn);}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#555;margin-right:5px;transition:background .3s;}
+.dot.co{background:var(--acc);animation:pu 1s ease-in-out infinite;}
+.dot.ok{background:var(--grn);}.dot.er{background:var(--err);}
+@keyframes pu{0%,100%{opacity:1;}50%{opacity:.25;}}
+.stxt{font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:600;letter-spacing:.06em;color:#aaa;display:flex;align-items:center;}
+.tabs{display:flex;border:1.5px solid #444;border-radius:5px;overflow:hidden;}
+.tab{background:transparent;border:none;color:#888;font-family:'Orbitron',monospace;
+  font-size:.6rem;letter-spacing:.07em;padding:8px 14px;cursor:pointer;transition:all .2s;text-transform:uppercase;flex:1;}
+.tab.on{background:var(--acc);color:#111;}
+.spin{width:32px;height:32px;border:3px solid #333;border-top-color:var(--acc);border-radius:50%;animation:sp .8s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+.tip{font-family:'Rajdhani',sans-serif;font-size:.72rem;color:#555;text-align:center;max-width:270px;line-height:1.4;}
+.onote{font-family:'Rajdhani',sans-serif;font-size:.7rem;color:#444;text-align:center;max-width:300px;line-height:1.5;
+  background:rgba(255,200,0,.05);border:1px solid #332;border-radius:6px;padding:8px 12px;}
+
+/* ══ TOUCH JOYSTICK ══ */
+.joy-wrap{
+  position:absolute;bottom:0;z-index:60;pointer-events:all;
+  display:none; /* shown only on touch devices via JS */
+  flex-direction:column;align-items:center;gap:0;
+  padding-bottom:env(safe-area-inset-bottom,8px);
+}
+.joy-wrap.left{left:0;padding-left:8px;}
+.joy-wrap.right{right:0;padding-right:8px;}
+.joy-zone{
+  width:130px;height:130px;border-radius:50%;
+  background:rgba(255,255,255,.05);
+  border:2px solid rgba(255,255,255,.15);
+  position:relative;touch-action:none;
+  display:flex;align-items:center;justify-content:center;
+}
+.joy-knob{
+  width:52px;height:52px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.7),rgba(255,255,255,.25));
+  border:2px solid rgba(255,255,255,.5);
+  position:absolute;pointer-events:none;
+  /* NO transition — zero lag, instant follow */
+  box-shadow:0 3px 16px rgba(0,0,0,.5);
+  will-change:transform;
+}
+.joy-label{
+  font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:.12em;
+  color:rgba(255,255,255,.3);margin-top:4px;text-transform:uppercase;
+}
+/* Up/Down digital pad (alternative for portrait phones) */
+.dpad-wrap{
+  position:absolute;bottom:0;z-index:60;pointer-events:all;
+  display:none;flex-direction:column;align-items:center;gap:3px;
+  padding-bottom:env(safe-area-inset-bottom,8px);
+}
+.dpad-wrap.left{left:8px;}
+.dpad-wrap.right{right:8px;}
+.dpad-btn{
+  width:52px;height:52px;border-radius:12px;
+  background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.18);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;color:rgba(255,255,255,.55);
+  touch-action:none;cursor:pointer;
+  transition:background .1s, transform .1s;
+  -webkit-tap-highlight-color:transparent;
+}
+.dpad-btn:active,.dpad-btn.pressed{
+  background:rgba(255,255,255,.22);transform:scale(.93);
+  border-color:rgba(255,255,255,.45);color:#fff;
+}
+/* Pause button for touch */
+#touchPause{
+  position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  z-index:61;pointer-events:all;display:none;
+  background:rgba(0,0,0,.55);border:1.5px solid #555;color:#aaa;
+  font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.1em;
+  padding:7px 16px;border-radius:20px;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+/* Coloured tint per player side */
+.joy-wrap.left .joy-zone{border-color:rgba(255,34,68,.35);}
+.joy-wrap.right .joy-zone{border-color:rgba(34,102,255,.35);}
+.joy-wrap.left .joy-knob{background:radial-gradient(circle at 35% 35%,#ff6688,#ff2244aa);}
+.joy-wrap.right .joy-knob{background:radial-gradient(circle at 35% 35%,#6699ff,#2266ffaa);}
+
+/* ══ ACCOUNT & SHOP ══ */
+
+#currencyBar{
+  position:absolute;
+  top:14px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:201;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  background:rgba(8,10,20,.82);
+  border:1px solid rgba(255,220,100,.65);
+  border-radius:22px;
+  padding:8px 18px;
+  box-shadow:0 0 12px rgba(255,210,70,.22),
+             0 0 18px rgba(150,80,255,.16);
+  pointer-events:none;
+  max-width:calc(100% - 24px);
+}
+#currencyBar.show{display:flex;}
+
+.cur-item{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-family:'Orbitron',monospace;
+  font-size:.85rem;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.cur-coin{
+  color:#ffe44d;
+  text-shadow:0 0 5px #ffe44d,0 0 12px #ffb700;
+}
+
+.cur-gem{
+  color:#d69aff;
+  text-shadow:0 0 5px #c77dff,0 0 12px #8b35ff;
+}
+.accountBtn{
+  position:absolute;top:10px;right:14px;z-index:5;
+  background:rgba(0,0,0,.5);border:1px solid #444;color:#aaa;
+  font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:.08em;
+  padding:6px 12px;border-radius:16px;cursor:pointer;
+  transition:border-color .2s,color .2s;
+}
+.accountBtn:hover{border-color:var(--acc);color:var(--acc);}
+.accountBtn.logged{border-color:#00cc66;color:#00cc66;}
+
+/* Fondo de la pantalla Mi Cuenta */
+#sAccount {
+  background-image:
+    linear-gradient(
+      rgba(3, 8, 25, 0.48),
+      rgba(3, 8, 25, 0.68)
+    ),
+    url("mi-cuenta-pongol.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Fondo de selección de modo */
+#sMode {
+  background-image:
+    linear-gradient(
+      rgba(4, 5, 22, 0.12),
+      rgba(4, 5, 22, 0.22)
+    ),
+    url("modo-ping-pongol.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+     
+/* Fondo común de configuración de los modos */
+#s1P,
+#s2P,
+#sTournSetup,
+#sOnline {
+  background-image:
+    linear-gradient(
+      rgba(3, 5, 20, 0.38),
+      rgba(3, 5, 20, 0.48)
+    ),
+    url("fondos-modos-pingpongol.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+/* Account screen */
+.acc-form{display:flex;flex-direction:column;gap:10px;width:min(320px,90vw);}
+.acc-form input{
+  background:#1a1d26;border:1.5px solid #333;border-radius:8px;
+  color:#fff;font-family:'Rajdhani',sans-serif;font-size:.95rem;
+  padding:10px 14px;outline:none;transition:border-color .2s;
+}
+.acc-form input:focus{border-color:var(--acc);}
+.acc-tabs{display:flex;gap:6px;margin-bottom:4px;}
+.acc-tab{flex:1;padding:8px;font-family:'Orbitron',monospace;font-size:.55rem;
+  letter-spacing:.1em;cursor:pointer;border-radius:8px;
+  background:rgba(255,255,255,.05);border:1.5px solid #333;color:#777;transition:.2s;}
+.acc-tab.on{background:var(--acc);border-color:var(--acc);color:#111;}
+.acc-info{text-align:center;font-family:'Rajdhani',sans-serif;font-size:.85rem;color:#aaa;line-height:1.5;}
+.acc-info strong{color:#fff;display:block;font-size:1.1rem;margin-bottom:4px;}
+.acc-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.6rem;
+  font-family:'Orbitron',monospace;background:#aa44ff22;border:1px solid #aa44ff;color:#aa44ff;}
+.acc-badge.premium{background:#ffe44d22;border-color:#ffe44d;color:#ffe44d;}
+.acc-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:6px;}
+.acc-stat{background:rgba(255,255,255,.04);border:1px solid #2a2a3a;border-radius:8px;
+  padding:10px;text-align:center;}
+.acc-stat-val{font-family:'Orbitron',monospace;font-size:1.2rem;font-weight:900;}
+.acc-stat-lbl{font-size:.65rem;color:#666;font-family:'Rajdhani',sans-serif;margin-top:2px;}
+
+
+/* Fondo de selección de skins */
+#sSkins {
+  background-image:
+    linear-gradient(
+      rgba(3, 5, 20, 0.22),
+      rgba(3, 5, 20, 0.38)
+    ),
+    url("seleccion-skin-ping-pongol.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+/* Shop */
+
+/* Fondo de la Tienda */
+#sShop {
+  background-image:
+    linear-gradient(
+      rgba(3, 5, 20, 0.28),
+      rgba(3, 5, 20, 0.42)
+    ),
+    url("tienda-ping-pongol.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+#sShop .shop-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
+  gap:10px;width:min(600px,96vw);max-height:60vh;overflow-y:auto;padding:4px;
+}
+.shop-card{
+  background:linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+  border:1.5px solid #2a2d38;border-radius:12px;padding:10px 8px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;
+  transition:border-color .2s,transform .15s;position:relative;
+}
+.shop-card:hover:not(.locked-owned):not(.selected-card){transform:translateY(-2px);border-color:#555;}
+.shop-card.unlocked{border-color:#00cc6655;}
+.shop-card.selected-card{border-color:var(--acc);box-shadow:0 0 12px #ffe44d44;}
+.shop-card.locked-owned{opacity:.55;cursor:not-allowed;}
+.shop-preview{width:36px;height:80px;border-radius:8px;flex-shrink:0;}
+.shop-name{font-family:'Orbitron',monospace;font-size:.42rem;letter-spacing:.06em;
+  color:#ccd;text-align:center;line-height:1.3;}
+.shop-price{font-family:'Orbitron',monospace;font-size:.5rem;font-weight:700;}
+.shop-price.coin{color:#ffe44d;} .shop-price.gem{color:#aa44ff;} .shop-price.free{color:#00cc66;}
+.shop-lock{position:absolute;top:5px;right:5px;font-size:.65rem;opacity:.6;}
+.shop-check{position:absolute;top:5px;right:5px;font-size:.65rem;color:#00cc66;}
+.shop-tabs{display:flex;gap:6px;margin-bottom:8px;}
+.shop-tab{padding:7px 14px;font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:.1em;
+  cursor:pointer;border-radius:8px;background:rgba(255,255,255,.05);
+  border:1.5px solid #333;color:#777;transition:.2s;}
+.shop-tab.on{background:var(--acc);border-color:var(--acc);color:#111;font-weight:700;}
+.reward-pop{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:rgba(5,5,15,.92);border:2px solid var(--acc);border-radius:16px;
+  padding:28px 36px;text-align:center;z-index:9999;font-family:'Orbitron',monospace;
+  animation:popIn .35s cubic-bezier(.18,.89,.32,1.28);
+}
+@keyframes popIn{from{transform:translate(-50%,-50%) scale(.7);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.reward-title{font-size:1rem;font-weight:900;color:var(--acc);margin-bottom:8px;}
+.reward-amt{font-size:1.6rem;font-weight:900;margin:6px 0;}
+
+.shop-card.locked{opacity:.88;}
+.shop-card.locked .shop-preview{filter:grayscale(.55) brightness(.8);}
+#watchExitBtn{display:none;position:fixed;top:10px;left:10px;z-index:600;background:rgba(20,10,35,.88);border:1.5px solid #aa44ff;color:#fff;
+  font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:.08em;padding:8px 13px;border-radius:14px;cursor:pointer;}
+#watchExitBtn:hover{background:#aa44ff;}
+.pts-input{width:64px;background:#1a1d26;border:1.5px solid #333;border-radius:8px;color:#fff;font-family:'Orbitron',monospace;font-size:.7rem;padding:8px 6px;text-align:center;outline:none;}
+.pts-input:focus{border-color:var(--acc);}
+.pts-input::placeholder{color:#556;}
+.sb-golden{margin-top:2px;font-family:'Orbitron',monospace;font-size:clamp(.38rem,.9vw,.55rem);letter-spacing:.12em;color:#ffe44d;text-shadow:0 0 8px #ffd70088;text-align:center;animation:bl 1.1s step-end infinite;}
+.acc-link{background:none;border:none;color:#88aaff;font-size:.78rem;cursor:pointer;text-decoration:underline;font-family:'Rajdhani',sans-serif;padding:2px;}
+.shop-bulk{display:flex;gap:8px;margin-bottom:8px;}
+.shop-bulk-btn{padding:7px 14px;font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:.08em;cursor:pointer;border-radius:8px;background:rgba(255,228,77,.08);border:1.5px solid #ffe44d88;color:#ffe44d;transition:.2s;}
+.shop-bulk-btn:hover:not(:disabled){background:#ffe44d;color:#111;}
+.shop-bulk-btn:disabled{opacity:.35;cursor:not-allowed;}
+.shop-sell{margin-top:4px;padding:3px 8px;font-family:'Orbitron',monospace;font-size:.42rem;border-radius:7px;cursor:pointer;background:rgba(255,68,85,.12);border:1px solid #ff4455aa;color:#ff8899;}
+.shop-sell:hover{background:#ff4455;color:#fff;}
+.mis-tabs{display:flex;gap:6px;width:min(560px,94vw);}
+.mis-tab{flex:1;padding:8px 6px;font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:.08em;cursor:pointer;border-radius:8px;background:rgba(255,255,255,.05);border:1.5px solid #333;color:#777;transition:.2s;}
+.mis-tab.on{background:#88ffcc;border-color:#88ffcc;color:#111;font-weight:700;}
+.mis-reset{font-family:'Rajdhani',sans-serif;font-size:.8rem;color:#889;width:min(560px,94vw);text-align:right;}
+.mis-list{display:flex;flex-direction:column;gap:9px;width:min(560px,94vw);max-height:58vh;overflow-y:auto;padding:2px;}
+.mis-card{background:linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1.5px solid #2a2d38;border-radius:12px;padding:11px 14px;display:flex;flex-direction:column;gap:7px;}
+.mis-card.done{border-color:#00cc6688;}
+.mis-top{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.mis-title{font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;color:#eef;}
+.mis-diff{font-size:.75rem;color:#ffe44d;letter-spacing:.1em;white-space:nowrap;}
+.mis-bar{height:7px;background:#1b1e27;border-radius:4px;overflow:hidden;}
+.mis-bar>div{height:100%;background:linear-gradient(90deg,#88ffcc,#44aaff);transition:width .3s;}
+.mis-row{display:flex;justify-content:space-between;font-family:'Orbitron',monospace;font-size:.55rem;color:#aab;}
+.mis-status{color:#00cc66;}
+.mis-rew{font-family:'Rajdhani',sans-serif;font-size:.82rem;color:#ccd;}
+.mis-rew-l{color:#778;}
+.mis-note{font-family:'Rajdhani',sans-serif;font-size:.74rem;color:#ffb347;}
+.promo-title{font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:.14em;color:#88ffcc;margin:4px 0 2px;}
+.promo-box{display:flex;gap:8px;width:min(560px,94vw);align-items:center;}
+.promo-in{flex:1;min-width:0;background:#1a1d26;border:1.5px solid #333;border-radius:8px;color:#fff;font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:.1em;padding:9px 10px;outline:none;text-transform:uppercase;}
+.promo-in:focus{border-color:#88ffcc;}
+.promo-in::placeholder{color:#556;text-transform:none;letter-spacing:0;font-family:'Rajdhani',sans-serif;font-size:.85rem;}
+.promo-msg{font-family:'Rajdhani',sans-serif;font-size:.85rem;min-height:1.2em;width:min(560px,94vw);text-align:center;}
+.bug-form{display:flex;flex-direction:column;gap:10px;width:min(480px,92vw);}
+.bug-lbl{font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:.12em;color:#aab;}
+.bug-in{width:100%;box-sizing:border-box;background:#1a1d26;border:1.5px solid #333;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:.95rem;padding:9px 11px;outline:none;}
+.bug-in:focus{border-color:#ff8899;}
+.bug-chk{display:flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-size:.9rem;color:#ccd;cursor:pointer;}
+.bug-msg{font-family:'Rajdhani',sans-serif;font-size:.9rem;min-height:1.2em;text-align:center;}
+/* Fondos de las pantallas nuevas (mismas imágenes que el resto) */
+#sMissions {
+  background-image:
+    linear-gradient(
+      rgba(3, 5, 20, 0.25),
+      rgba(3, 5, 20, 0.40)
+    ),
+    url("fondo-misiones.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+#sBug {
+  background-image: url("fondo-reportar-bugs.png");
+background-size: cover;
+background-position: center;
+background-repeat: no-repeat;
+background-attachment: fixed;
+}
+.acc-section{font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:.16em;color:#88ffcc;width:100%;text-align:left;margin-top:4px;}
+.acc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;}
+.acc-grid .acc-stat-val{font-size:1rem;}
+.acc-fav{display:flex;align-items:center;gap:12px;width:100%;background:rgba(255,255,255,.04);border:1px solid #2a2a3a;border-radius:10px;padding:10px 12px;box-sizing:border-box;}
+.acc-fav-swatch{width:38px;height:38px;border-radius:9px;flex-shrink:0;border:1px solid #444;background:#222;}
+.acc-fav-info{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.acc-fav-name{font-family:'Orbitron',monospace;font-size:.75rem;color:#fff;letter-spacing:.06em;}
+.acc-badge.vip{color:#ffd700;}
+
+.tut-canvas{width:min(340px,86vw);height:auto;border:2px solid #334;border-radius:12px;background:#0a0d18;}
+.tut-num{font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:.14em;color:#88aaff;}
+.tut-h{font-family:'Orbitron',monospace;font-size:.75rem;color:#fff;text-align:center;letter-spacing:.06em;}
+.tut-p{font-family:'Rajdhani',sans-serif;font-size:.95rem;color:#ccd;text-align:center;max-width:min(360px,88vw);line-height:1.4;min-height:2.8em;}
+.tut-dots{display:flex;gap:8px;}
+.tut-dot{width:9px;height:9px;border-radius:50%;background:#333;display:inline-block;}
+.tut-dot.on{background:#88aaff;box-shadow:0 0 8px #88aaff;}
+.tut-row{display:flex;gap:10px;}
+.tut-canvas{width:min(400px,92vw);height:auto;border:2px solid #334;border-radius:12px;background:#0a0d18;}
+.tut-phase{font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.12em;color:#ffe44d;}
+.tut-hint{font-family:'Rajdhani',sans-serif;font-size:1rem;color:#fff;text-align:center;max-width:min(380px,90vw);min-height:1.4em;}
+.tut-msg{font-family:'Orbitron',monospace;font-size:.7rem;color:#00ff88;min-height:1.2em;}
+.tut-note{font-family:'Rajdhani',sans-serif;font-size:.85rem;color:#88aaff;text-align:center;max-width:min(380px,90vw);display:none;}
+.tut-row{flex-wrap:wrap;justify-content:center;}
+/* ══ RESPONSIVE ══ */
+/* Screens: bigger tap targets on small devices */
+@media(max-width:520px){
+  .btn{padding:14px 22px;font-size:clamp(.8rem,3.8vw,1rem);}
+  .btn.sm{padding:12px 18px;}
+  .dbtn{padding:10px 14px;font-size:.7rem;}
+  input[type=text]{width:min(190px,80vw);font-size:.95rem;}
+  .trn-players-grid{grid-template-columns:1fr;}
+  .sgrid{gap:6px;}
+  .sopt{width:30px;height:68px;}
+  .back{top:10px;left:10px;}
+  #hint{display:none;} /* replaced by touch controls */
+}
+@media(max-width:380px){
+  .row{gap:6px;}
+  .btn{padding:11px 12px;}
+}
+/* Landscape phone: compress screens */
+@media(max-height:500px) and (orientation:landscape){
+  .screen{gap:8px;justify-content:flex-start;padding-top:44px;}
+  .logo{font-size:clamp(1.2rem,5vw,2rem);}
+  .div{margin:0;}
+  .trn-players-grid{max-height:42vh;}
+  .standings-wrap{max-height:42vh;}
+}
+
+.trn-diff-row{display:flex;gap:3px;flex-shrink:0;}
+.trn-diff-btn{
+  background:transparent;border:1.5px solid #444;color:#666;
+  font-family:'Orbitron',monospace;font-size:.52rem;font-weight:700;
+  padding:3px 5px;border-radius:3px;cursor:pointer;transition:all .15s;
+  letter-spacing:.04em;min-width:22px;text-align:center;
+}
+.trn-diff-btn:hover{border-color:#888;color:#aaa;}
+.trn-diff-btn.tdd-on{background:#ffe44d33;border-color:var(--acc);color:var(--acc);}
+
+/* ══ TOURNAMENT STYLES ══ */
+#sTournSetup{overflow-y:auto;}
+.trn-header{font-family:'Orbitron',monospace;font-size:clamp(1rem,3vw,1.6rem);
+  font-weight:900;letter-spacing:.14em;color:var(--pur);text-shadow:0 0 20px #aa44ff66;}
+.trn-players-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  width:min(520px,95vw);max-height:52vh;overflow-y:auto;
+  padding:4px;}
+.trn-player-row{display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.04);border:1px solid #333;border-radius:7px;padding:8px 10px;}
+.trn-player-row input{width:100%;background:transparent;border:none;
+  color:var(--txt);font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:600;
+  outline:none;min-width:0;}
+.trn-player-row input::placeholder{color:#555;}
+.trn-cpu-badge{font-family:'Orbitron',monospace;font-size:.5rem;letter-spacing:.08em;
+  padding:3px 6px;border-radius:3px;cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;}
+.trn-cpu-badge.is-cpu{background:#ff224422;border:1px solid var(--p1);color:var(--p1);}
+.trn-cpu-badge.is-human{background:#2266ff22;border:1px solid var(--p2);color:var(--p2);}
+.trn-num{font-family:'Orbitron',monospace;font-size:.6rem;color:#555;font-weight:700;
+  width:18px;flex-shrink:0;text-align:center;}
+
+/* STANDINGS TABLE */
+#sTournStandings{overflow-y:auto;}
+.trn-title{font-family:'Orbitron',monospace;font-size:clamp(.8rem,2.5vw,1.3rem);
+  font-weight:900;letter-spacing:.14em;color:var(--pur);}
+.trn-subtitle{font-family:'Orbitron',monospace;font-size:clamp(.5rem,1.3vw,.68rem);
+  letter-spacing:.16em;color:#888;text-transform:uppercase;}
+
+.standings-wrap{width:min(640px,96vw);max-height:52vh;overflow-y:auto;}
+table.standings{width:100%;border-collapse:collapse;font-family:'Rajdhani',sans-serif;}
+table.standings th{font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:.14em;
+  color:#888;text-transform:uppercase;padding:6px 8px;border-bottom:1px solid #333;
+  text-align:center;white-space:nowrap;}
+table.standings th:first-child{text-align:left;}
+table.standings td{padding:7px 8px;text-align:center;font-size:.9rem;font-weight:600;
+  border-bottom:1px solid #222;}
+table.standings td:first-child{text-align:left;}
+table.standings tr.me td{background:rgba(255,228,77,.06);}
+table.standings tr.top1 td:nth-child(2){color:var(--acc);font-family:'Orbitron',monospace;}
+.rank-badge{display:inline-block;font-family:'Orbitron',monospace;font-size:.6rem;
+  width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;margin-right:5px;}
+.rank-badge.r1{background:var(--acc);color:#111;}
+.rank-badge.r2{background:#c0c0c0;color:#111;}
+.rank-badge.r3{background:#cd7f32;color:#fff;}
+.rank-badge.rn{background:#333;color:#888;}
+
+/* NEXT MATCH CARD */
+.next-match-card{
+  background:rgba(170,68,255,.08);border:1.5px solid #aa44ff44;
+  border-radius:10px;padding:14px 22px;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  width:min(500px,94vw);}
+.nm-vs{font-family:'Orbitron',monospace;font-size:clamp(1rem,3vw,1.8rem);
+  font-weight:900;letter-spacing:.1em;display:flex;align-items:center;gap:14px;}
+.nm-p1{color:var(--p1)}.nm-p2{color:var(--p2)}
+.nm-vsword{color:var(--pur);font-size:.6em;}
+.nm-info{font-family:'Rajdhani',sans-serif;font-size:.82rem;color:#888;letter-spacing:.06em;}
+.nm-progress{font-family:'Orbitron',monospace;font-size:.58rem;color:var(--pur);letter-spacing:.12em;}
+
+/* FINAL PODIUM */
+.podium{display:flex;align-items:flex-end;gap:10px;justify-content:center;}
+.pod-col{display:flex;flex-direction:column;align-items:center;gap:5px;}
+.pod-name{font-family:'Orbitron',monospace;font-size:clamp(.5rem,1.5vw,.72rem);
+  font-weight:700;letter-spacing:.08em;text-align:center;max-width:90px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pod-score{font-family:'Rajdhani',sans-serif;font-size:.75rem;color:#888;}
+.pod-block{display:flex;align-items:center;justify-content:center;
+  font-family:'Orbitron',monospace;font-size:1.4rem;border-radius:6px 6px 0 0;}
+.pod-1{width:80px;height:90px;background:linear-gradient(to bottom,#ffe44d44,#ffe44d22);border:2px solid var(--acc);}
+.pod-2{width:68px;height:70px;background:linear-gradient(to bottom,#c0c0c044,#c0c0c022);border:2px solid #c0c0c0;}
+.pod-3{width:58px;height:55px;background:linear-gradient(to bottom,#cd7f3244,#cd7f3222);border:2px solid #cd7f32;}
+/* ══ CHAT / EMOJI SYSTEM ══ */
+#chatBtn{
+  position:absolute;bottom:11px;left:13px;z-index:200;
+  background:rgba(0,0,0,.6);border:1.5px solid #555;color:#aaa;
+  font-size:1.15rem;width:34px;height:34px;border-radius:50%;
+  cursor:pointer;display:none;align-items:center;justify-content:center;
+  transition:all .2s;-webkit-tap-highlight-color:transparent;
+}
+#chatBtn:hover{border-color:var(--acc);color:var(--acc);}
+
+#chatPanel{
+  position:absolute;bottom:54px;left:13px;z-index:300;
+  background:rgba(10,12,20,.97);border:1.5px solid #333;
+  border-radius:12px;width:min(320px,92vw);
+  display:none;flex-direction:column;gap:0;
+  overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.6);
+}
+#chatPanel.open{display:flex;}
+
+#chatLog{
+  max-height:180px;overflow-y:auto;padding:10px 12px;
+  display:flex;flex-direction:column;gap:6px;
+  scrollbar-width:thin;scrollbar-color:#333 transparent;
+}
+.chat-msg{
+  display:flex;flex-direction:column;gap:1px;
+  animation:msgPop .2s cubic-bezier(.175,.885,.32,1.275);
+}
+@keyframes msgPop{from{transform:scale(.85);opacity:0;}to{transform:scale(1);opacity:1;}}
+.chat-bubble{
+  display:inline-block;max-width:82%;padding:6px 10px;
+  border-radius:10px;font-family:'Rajdhani',sans-serif;
+  font-size:.88rem;font-weight:600;line-height:1.3;word-break:break-word;
+}
+.chat-bubble.me{
+  background:rgba(255,228,77,.15);border:1px solid #ffe44d44;
+  color:var(--acc);border-radius:10px 10px 3px 10px;align-self:flex-end;
+}
+.chat-bubble.them{
+  background:rgba(255,255,255,.07);border:1px solid #ffffff22;
+  color:#ddd;border-radius:10px 10px 10px 3px;align-self:flex-start;
+}
+.chat-sender{font-family:'Orbitron',monospace;font-size:.45rem;letter-spacing:.12em;color:#666;margin-bottom:1px;}
+.chat-sender.me-lbl{text-align:right;}
+
+/* Emoji quick-send row */
+#emojiRow{
+  display:flex;gap:2px;padding:6px 10px;
+  border-top:1px solid #222;flex-wrap:wrap;
+}
+.emj{
+  background:transparent;border:none;font-size:1.3rem;cursor:pointer;
+  padding:3px 5px;border-radius:6px;transition:background .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.emj:hover{background:rgba(255,255,255,.1);}
+
+/* Preset phrases */
+#presetRow{
+  display:flex;flex-direction:column;gap:3px;padding:6px 10px;
+  border-top:1px solid #222;max-height:120px;overflow-y:auto;
+}
+.preset-btn{
+  background:transparent;border:1px solid #333;color:#999;
+  font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:600;
+  padding:5px 10px;border-radius:6px;cursor:pointer;text-align:left;
+  transition:all .15s;-webkit-tap-highlight-color:transparent;
+}
+.preset-btn:hover{border-color:#666;color:#ccc;background:rgba(255,255,255,.05);}
+
+/* Custom message input */
+#chatInputRow{
+  display:flex;gap:6px;padding:8px 10px;border-top:1px solid #222;
+}
+#chatInput{
+  flex:1;background:rgba(255,255,255,.06);border:1.5px solid #444;
+  border-radius:7px;color:var(--txt);font-family:'Rajdhani',sans-serif;
+  font-size:.88rem;font-weight:600;padding:6px 10px;outline:none;
+  transition:border-color .2s;min-width:0;
+}
+#chatInput:focus{border-color:var(--acc);}
+#chatSend{
+  background:var(--acc);border:none;color:#111;
+  font-family:'Orbitron',monospace;font-size:.6rem;font-weight:700;
+  letter-spacing:.08em;padding:6px 12px;border-radius:7px;
+  cursor:pointer;white-space:nowrap;transition:all .15s;
+}
+#chatSend:hover{background:#ffd700;}
+
+/* Floating emoji reaction (flies across screen) */
+.fly-emoji{
+  position:fixed;font-size:2.2rem;pointer-events:none;z-index:500;
+  animation:flyAcross 1.6s ease-out forwards;
+}
+@keyframes flyAcross{
+  0%  {transform:translateY(0) scale(1);opacity:1;}
+  60% {transform:translateY(-60px) scale(1.3);opacity:1;}
+  100%{transform:translateY(-120px) scale(.6);opacity:0;}
+}
+/* Bubble that floats above the opponent paddle during play */
+.speech-bubble{
+  position:absolute;background:rgba(10,12,20,.92);
+  border:1.5px solid #444;border-radius:10px 10px 10px 3px;
+  padding:5px 10px;font-family:'Rajdhani',sans-serif;font-size:.82rem;
+  font-weight:600;color:#ddd;pointer-events:none;z-index:70;
+  white-space:nowrap;max-width:200px;
+  animation:bubbleFade 3s ease-out forwards;
+}
+@keyframes bubbleFade{
+  0%{opacity:0;transform:translateY(4px) scale(.9);}
+  15%{opacity:1;transform:translateY(0) scale(1);}
+  75%{opacity:1;}
+  100%{opacity:0;}
+}
+
+/* ══ SETTINGS SCREEN ══ */
+#sSettings{
+  overflow-y:auto;
+  justify-content:flex-start!important;
+  padding:56px 12px 20px;
+  gap:0;
+  background-image:
+    linear-gradient(
+      rgba(3, 5, 20, 0.30),
+      rgba(3, 5, 20, 0.42)
+    ),
+    url("ajustes-ping-pongol.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+#settingsInner{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(270px,1fr));
+  gap:12px;
+  width:min(680px,98vw);
+}
+.set-group{
+  background:linear-gradient(135deg,rgba(255,255,255,.05) 0%,rgba(255,255,255,.02) 100%);
+  border:1px solid rgba(255,228,77,.15);
+  border-radius:14px;
+  padding:14px 16px;
+  display:flex;flex-direction:column;gap:11px;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+}
+.set-group-title{
+  font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:.22em;
+  color:var(--acc);text-transform:uppercase;
+  border-bottom:1px solid rgba(255,228,77,.12);
+  padding-bottom:8px;margin-bottom:2px;
+}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.set-label{
+  font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:600;
+  color:#dde;flex:1;min-width:0;line-height:1.3;
+}
+.set-label span{font-size:.68rem;color:#556;display:block;margin-top:2px;}
+
+/* Slider */
+.set-slider{
+  -webkit-appearance:none;appearance:none;
+  width:110px;height:4px;border-radius:2px;
+  background:linear-gradient(to right,var(--acc) var(--pct,50%),#333 var(--pct,50%));
+  outline:none;cursor:pointer;flex-shrink:0;
+}
+.set-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--acc);border:2px solid #111;cursor:pointer;
+  box-shadow:0 0 6px #ffe44d88;
+}
+.set-slider::-moz-range-thumb{
+  width:16px;height:16px;border-radius:50%;
+  background:var(--acc);border:2px solid #111;cursor:pointer;
+}
+.set-val{
+  font-family:'Orbitron',monospace;font-size:.6rem;color:#888;
+  width:32px;text-align:right;flex-shrink:0;
+}
+
+/* Toggle switch */
+.toggle-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;flex-shrink:0;}
+.toggle{
+  position:relative;width:42px;height:22px;
+  background:#333;border-radius:11px;
+  transition:background .2s;flex-shrink:0;
+}
+.toggle.on{background:var(--acc);}
+.toggle::after{
+  content:'';position:absolute;top:3px;left:3px;
+  width:16px;height:16px;border-radius:50%;
+  background:#111;transition:transform .2s;
+}
+.toggle.on::after{transform:translateX(20px);}
+.toggle-lbl{font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.1em;color:#888;}
+.toggle.on+.toggle-lbl{color:var(--acc);}
+
+/* ══ CINEMATIC VICTORY — PING-PONG ══ */
+#wins {
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 45%, #202b55 0%, #090b16 68%);
+}
+
+#wins::before {
+  content: "";
+  position: absolute;
+  inset: -35%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    conic-gradient(
+      from 0deg at 50% 50%,
+      transparent 0deg,
+      #ffe44d18 35deg,
+      transparent 75deg,
+      #2266ff20 125deg,
+      transparent 175deg,
+      #ff224420 230deg,
+      transparent 285deg,
+      #ffe44d18 325deg,
+      transparent 360deg
+    );
+  animation: victoryLights 12s linear infinite;
+}
+
+#wins.show {
+  animation: victoryCameraIn 0.8s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+#wins > * {
+  position: relative;
+  z-index: 1;
+}
+
+#wins.show .wt {
+  animation: victoryTitleIn 1s cubic-bezier(.16, 1, .3, 1) both;
+  text-shadow:
+    0 0 10px currentColor,
+    0 0 28px currentColor,
+    0 0 60px #ffe44d66;
+}
+
+#wins.show .ws {
+  animation: victorySubtitleIn 0.7s ease-out 0.25s both;
+}
+
+#wins.show #wReward {
+  animation: victorySubtitleIn 0.7s ease-out 0.4s both;
+}
+
+#wins.show #wBtns {
+  animation: victoryButtonsIn 0.7s cubic-bezier(.16, 1, .3, 1) 0.35s both;
+}
+
+@keyframes victoryLights {
+  from { transform: rotate(0deg) scale(1.05); }
+  to   { transform: rotate(360deg) scale(1.05); }
+}
+
+@keyframes victoryCameraIn {
+  0%   { opacity: 0; transform: scale(1.08); }
+  70%  { opacity: 1; transform: scale(.995); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes victoryTitleIn {
+  0% {
+    opacity: 0;
+    transform: scale(.45) translateY(35px);
+    filter: blur(10px);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(1.08) translateY(-3px);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes victorySubtitleIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes victoryButtonsIn {
+  from { opacity: 0; transform: translateY(24px) scale(.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #wins::before,
+  #wins.show,
+  #wins.show .wt,
+  #wins.show .ws,
+  #wins.show #wReward,
+  #wins.show #wBtns {
+    animation: none;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ── MENU ── -->
+<div id="sMenu" class="screen">
+  <!-- Barra de monedas y botón de cuenta: solo existen dentro del menú (y de ajustes) -->
+  <div id="currencyBar">
+    <div class="cur-item cur-coin">🪙 <span id="curCoins">0</span></div>
+    <div style="width:1px;height:14px;background:#333"></div>
+    <div class="cur-item cur-gem">💎 <span id="curGems">0</span></div>
+  </div>
+  <button class="accountBtn" onclick="goTo('sAccount')">👤 Mi Cuenta</button>
+  <div style="height:6px"></div>
+  <button class="btn" onclick="goTo('sMode')" data-i18n="play">▶ Jugar</button>
+  
+<div class="menu-options-row">
+  <button class="btn sm" onclick="goTo('sSkins')" data-i18n="skins">🎨 Skins</button>
+  <button class="btn sm" onclick="goTo('sSettings')" data-i18n="settings">⚙️ Ajustes</button>
+  <button class="btn sm" onclick="goTo('sShop')" style="border-color:#ffe44d;color:#ffe44d" data-i18n="shop_btn">🛒 Tienda</button>
+</div>
+
+<div class="menu-options-row">
+  <button class="btn sm" onclick="goTo('sMissions')" style="border-color:#88ffcc;color:#88ffcc" data-i18n="mis_btn">🎯 Misiones</button>
+  <button class="btn sm" onclick="goTo('sBug')" data-i18n="bug_btn" style="border-color:#ff6688;color:#ff8899;width:auto;padding:5px 12px;font-size:.55rem">🐞 Reportar un bug</button>
+</div>
+
+</div>
+
+<!-- ── SETTINGS ── -->
+<div id="sSettings" class="screen hidden">
+  <button class="accountBtn" onclick="goTo('sAccount')">👤 Mi Cuenta</button>
+  <button class="back" onclick="goTo('sMenu')" data-i18n="back">← Volver</button>
+  <div class="trn-header" style="color:var(--acc);font-size:.78rem;letter-spacing:.22em;flex-shrink:0;margin-bottom:4px" data-i18n="settings_title">⚙️ AJUSTES</div>
+
+  <div id="settingsInner">
+
+    <!-- 🌐 Idioma -->
+    <div class="set-group">
+      <div class="set-group-title">🌐 <span data-i18n="language">Idioma / Language</span></div>
+      <div id="langBtnGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:4px">
+        <button id="lang_es" class="btn sm lang-btn on" onclick="setLang('es')" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 6px;font-size:.6rem;line-height:1.2">
+          <span>🇪🇸 Español</span><span style="font-size:.48rem;opacity:.6;letter-spacing:.08em">ESP</span>
+        </button>
+        <button id="lang_en" class="btn sm lang-btn" onclick="setLang('en')" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 6px;font-size:.6rem;line-height:1.2">
+          <span>🇬🇧 English</span><span style="font-size:.48rem;opacity:.6;letter-spacing:.08em">EN</span>
+        </button>
+        <button id="lang_pt" class="btn sm lang-btn" onclick="setLang('pt')" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 6px;font-size:.6rem;line-height:1.2">
+          <span>🇧🇷 Português</span><span style="font-size:.48rem;opacity:.6;letter-spacing:.08em">PT</span>
+        </button>
+        <button id="lang_de" class="btn sm lang-btn" onclick="setLang('de')" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 6px;font-size:.6rem;line-height:1.2">
+          <span>🇩🇪 Deutsch</span><span style="font-size:.48rem;opacity:.6;letter-spacing:.08em">DE</span>
+        </button>
+        <button id="lang_fr" class="btn sm lang-btn" onclick="setLang('fr')" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 6px;font-size:.6rem;line-height:1.2">
+          <span>🇫🇷 Français</span><span style="font-size:.48rem;opacity:.6;letter-spacing:.08em">FR</span>
+        </button>
+        <button id="lang_ja" class="btn sm lang-btn" onclick="setLang('ja')" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 6px;font-size:.6rem;line-height:1.2">
+          <span>🇯🇵 日本語</span><span style="font-size:.48rem;opacity:.6;letter-spacing:.08em">Nihongo</span>
+        </button>
+        <button id="lang_zh" class="btn sm lang-btn" onclick="setLang('zh')" style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 6px;font-size:.6rem;line-height:1.2;grid-column:span 2">
+          <span>🇨🇳 中文</span><span style="font-size:.48rem;opacity:.6;letter-spacing:.08em">Zhōngwén (Mandarin)</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 🔊 Audio -->
+    <div class="set-group">
+      <div class="set-group-title" data-i18n-section="audio">🔊 Audio</div>
+      <div class="set-row">
+        <div class="set-label" data-i18n="music_vol">Volumen música</div>
+        <input type="range" class="set-slider" id="slMusic" min="0" max="100" value="70" oninput="setMusicVol(this.value)">
+        <div class="set-val" id="valMusic">70</div>
+      </div>
+      <div class="set-row">
+        <div class="set-label"><span data-i18n="snd_ball">Sonidos de pelota</span><span data-i18n="snd_ball_sub">Ping, Pong y rebotes</span></div>
+        <div class="toggle-wrap" onclick="toggleSetting('sndBall')"><div class="toggle on" id="togSndBall"></div><span class="toggle-lbl" id="lblSndBall">ON</span></div>
+      </div>
+      <div class="set-row">
+        <div class="set-label"><span data-i18n="snd_goal">Celebración de gol</span><span data-i18n="snd_goal_sub">Gritos del público</span></div>
+        <div class="toggle-wrap" onclick="toggleSetting('sndGoal')"><div class="toggle on" id="togSndGoal"></div><span class="toggle-lbl" id="lblSndGoal">ON</span></div>
+      </div>
+      <div class="set-row">
+        <div class="set-label"><span data-i18n="snd_fanfare">Fanfarria de torneo</span></div>
+        <div class="toggle-wrap" onclick="toggleSetting('sndFanfare')"><div class="toggle on" id="togSndFanfare"></div><span class="toggle-lbl" id="lblSndFanfare">ON</span></div>
+      </div>
+    </div>
+
+    <!-- 🌟 Visual -->
+    <div class="set-group">
+      <div class="set-group-title" data-i18n-section="visual">🌟 Visual</div>
+      <div class="set-row">
+        <div class="set-label"><span data-i18n="brightness">Brillo de la pantalla</span><span data-i18n="bright_sub">Aplica un filtro sobre el campo</span></div>
+        <input type="range" class="set-slider" id="slBright" min="50" max="150" value="100" oninput="setBrightness(this.value)">
+        <div class="set-val" id="valBright">100</div>
+      </div>
+      <div class="set-row">
+        <div class="set-label"><span data-i18n="particles">Partículas y efectos</span></div>
+        <div class="toggle-wrap" onclick="toggleSetting('particles')"><div class="toggle on" id="togParticles"></div><span class="toggle-lbl" id="lblParticles">ON</span></div>
+      </div>
+    </div>
+
+    <!-- ⏱️ Temporizador -->
+    <div class="set-group">
+      <div class="set-group-title" data-i18n-section="timer">⏱️ Temporizador</div>
+      <div class="set-row">
+        <div class="set-label"><span data-i18n="timer_on">Activar temporizador</span><span data-i18n="timer_sub">Cuenta atrás por partido</span></div>
+        <div class="toggle-wrap" onclick="toggleSetting('timerOn')"><div class="toggle" id="togTimerOn"></div><span class="toggle-lbl" id="lblTimerOn">OFF</span></div>
+      </div>
+      <div class="set-row" id="timerDurationRow" style="opacity:.4;pointer-events:none">
+        <div class="set-label" data-i18n="timer_dur">Duración<span id="timerValLabel" data-i18n="timer_none">Sin límite</span></div>
+        <input type="range" class="set-slider" id="slTimer" min="1" max="10" value="3" oninput="setTimerDuration(this.value)">
+        <div class="set-val" id="valTimer">3 min</div>
+      </div>
+    </div>
+
+    <!-- 💬 Chat e IA -->
+    <div class="set-group">
+      <div class="set-group-title" data-i18n-section="chat_ai">💬 Chat e IA</div>
+      <div class="set-row">
+        <div class="set-label"><span data-i18n="ai_chat">Chat con la IA</span><span data-i18n="ai_chat_sub">La IA te responde durante la partida</span></div>
+        <div class="toggle-wrap" onclick="toggleSetting('aiChat')"><div class="toggle on" id="togAiChat"></div><span class="toggle-lbl" id="lblAiChat">ON</span></div>
+      </div>
+      <div class="set-row">
+        <div class="set-label"><span data-i18n="ai_vs_ai">IAs hablan entre sí</span><span data-i18n="ai_vs_ai_sub">En torneo, cuando 2 IAs se enfrentan</span></div>
+        <div class="toggle-wrap" onclick="toggleSetting('aiVsAiChat')"><div class="toggle" id="togAiVsAiChat"></div><span class="toggle-lbl" id="lblAiVsAiChat">OFF</span></div>
+      </div>
+    </div>
+
+    <!-- 🎵 Música personalizada -->
+    <div class="set-group">
+      <div class="set-group-title" data-i18n-section="custom_music">🎵 Música personalizada</div>
+      <div style="font-size:.7rem;color:#556;line-height:1.45">
+        <span data-i18n="upload_desc">Sube un MP3 para cada pantalla.</span>
+      </div>
+      <div class="set-row" style="gap:6px">
+        <span style="font-size:.75rem;color:#99a;min-width:60px" data-i18n="menu_main">🏠 Menú</span>
+        <label class="btn sm" style="cursor:pointer;flex:1;text-align:center;font-size:.56rem;padding:5px 8px">
+          <span id="customMusicLbl_menu" data-i18n="upload_menu">📂 Subir música</span>
+          <input type="file" accept="audio/*" style="display:none" onchange="loadCustomMusic('menu',this)">
+        </label>
+        <button class="btn sm" style="font-size:.6rem;padding:5px 9px;opacity:.7" onclick="clearCustomMusic('menu')">✕</button>
+      </div>
+      <div class="set-row" style="gap:6px">
+        <span style="font-size:.75rem;color:#99a;min-width:60px">⚙️ <span data-i18n="settings">Ajustes</span></span>
+        <label class="btn sm" style="cursor:pointer;flex:1;text-align:center;font-size:.56rem;padding:5px 8px">
+          <span id="customMusicLbl_settings" data-i18n="upload_settings">📂 Subir música</span>
+          <input type="file" accept="audio/*" style="display:none" onchange="loadCustomMusic('settings',this)">
+        </label>
+        <button class="btn sm" style="font-size:.6rem;padding:5px 9px;opacity:.7" onclick="clearCustomMusic('settings')">✕</button>
+      </div>
+      <div class="set-row" style="gap:6px">
+        <span style="font-size:.75rem;color:#99a;min-width:60px">🏓 <span data-i18n="game_lbl">Partida</span></span>
+        <label class="btn sm" style="cursor:pointer;flex:1;text-align:center;font-size:.56rem;padding:5px 8px">
+          <span id="customMusicLbl_game" data-i18n="upload_game">📂 Subir música</span>
+          <input type="file" accept="audio/*" style="display:none" onchange="loadCustomMusic('game',this)">
+        </label>
+        <button class="btn sm" style="font-size:.6rem;padding:5px 9px;opacity:.7" onclick="clearCustomMusic('game')">✕</button>
+      </div>
+    </div>
+
+  </div><!-- end settingsInner -->
+
+  <button class="btn sm" style="margin-top:12px;flex-shrink:0;min-width:160px" onclick="goTo('sMenu')" data-i18n="save_back">✔ Guardar y volver</button>
+</div>
+
+<!-- ── MODE ── -->
+<div id="sMode" class="screen hidden">
+  <button class="back" onclick="goTo('sMenu')" data-i18n="back">← Volver</button>
+  <div class="logo" style="font-size:clamp(1.4rem,3.8vw,2.4rem)">
+    <span class="p1">PING</span><span class="vs">VS</span><span class="p2">PONG</span>
+  </div>
+  <div class="sec" data-i18n="choose_mode">Elige modo</div>
+  <div class="row">
+    <button class="btn red"  onclick="setMode('single')" data-i18n="mode_1p">👤 1 Jugador</button>
+    <button class="btn blue" onclick="setMode('multi')" data-i18n="mode_local">👥 Local</button>
+    <button class="btn pur"  onclick="setMode('tourn')" data-i18n="mode_tourn">🏆 Torneo</button>
+  </div>
+  <div class="row" style="margin-top:4px">
+    <button class="btn grn"  onclick="setMode('online')" data-i18n="mode_online">🌐 Online</button>
+  </div>
+  <div class="row" style="margin-top:4px">
+    <button class="btn sm" onclick="startTutorial()" style="border-color:#88aaff;color:#88aaff" data-i18n="tut_btn">🎓 Tutorial</button>
+  </div>
+  
+</div>
+
+<!-- ── 1P ── -->
+<div id="s1P" class="screen hidden">
+  <button class="back" onclick="goTo('sMode')" data-i18n="back">← Volver</button>
+  <div class="sec" data-i18n="your_name_lbl">Tu nombre</div>
+  <input type="text" id="n1P" placeholder="Tu nombre" data-i18n-ph="your_name" maxlength="14">
+  <div class="div"></div>
+  <div class="sec" data-i18n="ai_diff">Dificultad IA</div>
+  <div class="row">
+    <button class="dbtn on" id="dE" onclick="setDiff('easy')" data-i18n="easy">Fácil</button>
+    <button class="dbtn"    id="dM" onclick="setDiff('medium')" data-i18n="medium">Medio</button>
+    <button class="dbtn"    id="dH" onclick="setDiff('hard')" data-i18n="hard">Difícil</button>
+  </div>
+  <div class="div"></div>
+  <div class="sec" data-i18n="pts_to_win">Puntos para ganar</div>
+  <div class="row">
+    <button class="dbtn" id="p1" onclick="setPts(1)">1 🥇</button>
+    <button class="dbtn"    id="p5"  onclick="setPts(5)">5</button>
+    <button class="dbtn on" id="p7"  onclick="setPts(7)">7</button>
+    <button class="dbtn"    id="p10" onclick="setPts(10)">10</button>
+  <input type="number" class="pts-input" min="1" max="99" inputmode="numeric" placeholder="Otro" data-i18n-ph="pts_custom" oninput="setCustomPts(this)"></div>
+  <button class="btn" style="margin-top:7px" onclick="go1P()" data-i18n="play">▶ Jugar</button>
+</div>
+
+<!-- ── LOCAL 2P ── -->
+<div id="s2P" class="screen hidden">
+  <button class="back" onclick="goTo('sMode')" data-i18n="back">← Volver</button>
+  <div class="sec" style="color:var(--p1)" data-i18n="j1_hint">J1 — Ping (W / S)</div>
+  <input type="text" id="n2P1" placeholder="Jugador 1" data-i18n-ph="player1" maxlength="14">
+  <div class="sec" style="color:var(--p2)" data-i18n="j2_hint">J2 — Pong (↑ / ↓)</div>
+  <input type="text" id="n2P2" placeholder="Jugador 2" data-i18n-ph="player2" maxlength="14">
+  <div class="div"></div>
+  <div class="sec" data-i18n="pts_to_win">Puntos para ganar</div>
+  <div class="row">
+    <button class="dbtn" id="p1b" onclick="setPts(1)">1 🥇</button>
+    <button class="dbtn"    id="p5b"  onclick="setPts(5)">5</button>
+    <button class="dbtn on" id="p7b"  onclick="setPts(7)">7</button>
+    <button class="dbtn"    id="p10b" onclick="setPts(10)">10</button>
+  <input type="number" class="pts-input" min="1" max="99" inputmode="numeric" placeholder="Otro" data-i18n-ph="pts_custom" oninput="setCustomPts(this)"></div>
+  <button class="btn" style="margin-top:7px" onclick="go2P()" data-i18n="play">▶ Jugar</button>
+</div>
+
+<!-- ══ TOURNAMENT SETUP ══ -->
+<div id="sTournSetup" class="screen hidden">
+  <button class="back" onclick="goTo('sMode')" data-i18n="back">← Volver</button>
+  <div class="trn-header" data-i18n="tourn_title">🏆 TORNEO — LIGA</div>
+  <div class="sec" data-i18n="tourn_setup_hint">Configura los 8 participantes · Clic en CPU/HUM para cambiar</div>
+  <div class="trn-players-grid" id="trnPlayersGrid"></div>
+  <div class="div"></div>
+  <div class="sec" data-i18n="pts_per_match">Puntos por partido</div>
+  <div class="row">
+    <button class="dbtn" id="tp1" onclick="setPts(1)">1 🥇</button>
+    <button class="dbtn"    id="tp5"  onclick="setPts(5)">5</button>
+    <button class="dbtn on" id="tp7"  onclick="setPts(7)">7</button>
+    <button class="dbtn"    id="tp10" onclick="setPts(10)">10</button>
+  <input type="number" class="pts-input" min="1" max="99" inputmode="numeric" placeholder="Otro" data-i18n-ph="pts_custom" oninput="setCustomPts(this)"></div>
+  <div class="tip" style="color:#556" data-i18n="diff_tip">F=Fácil · M=Medio · D=Difícil — ajusta la dificultad de cada CPU individualmente</div>
+  <button class="btn pur" style="margin-top:6px" onclick="startTournament()" data-i18n="start_tourn">🏆 Iniciar Torneo</button>
+</div>
+
+<!-- ══ TOURNAMENT STANDINGS ══ -->
+<div id="sTournStandings" class="screen hidden">
+  <div class="trn-title" data-i18n="standings">🏆 CLASIFICACIÓN</div>
+  <div class="trn-subtitle" id="trnProgress">Jornada 1 de 28</div>
+  <div class="standings-wrap">
+    <table class="standings" id="trnTable">
+      <thead><tr>
+        <th style="text-align:left" data-i18n="th_player_tourn">Jugador</th>
+        <th data-i18n="th_pj">PJ</th><th data-i18n="th_w">G</th><th data-i18n="th_l">P</th>
+        <th>GF</th><th>GC</th><th>DG</th>
+        <th data-i18n="th_pts">Pts</th>
+      </tr></thead>
+      <tbody id="trnTbody"></tbody>
+    </table>
+  </div>
+  <div class="next-match-card" id="nextMatchCard">
+    <div class="nm-progress" id="nmProgress" data-i18n="next_match_lbl">SIGUIENTE PARTIDO</div>
+    <div class="nm-vs">
+      <span class="nm-p1" id="nmP1">—</span>
+      <span class="nm-vsword">VS</span>
+      <span class="nm-p2" id="nmP2">—</span>
+    </div>
+    <div class="nm-info" id="nmInfo"></div>
+  </div>
+  <div class="row">
+    <button class="btn pur" onclick="playNextMatch()" data-i18n="play_match">▶ Jugar partido</button>
+    <button class="btn sm"  onclick="confirmAbortTournament()" data-i18n="abandon">✖ Abandonar</button>
+  </div>
+</div>
+
+<!-- ══ TOURNAMENT FINAL ══ -->
+<div id="sTournFinal" class="screen hidden">
+  <div class="trn-title" data-i18n="tourn_end">🏆 FIN DEL TORNEO</div>
+  <div class="trn-subtitle" data-i18n="final_standings">Clasificación final</div>
+  <div class="podium" id="trnPodium"></div>
+  <div class="standings-wrap" style="max-height:34vh;margin-top:4px">
+    <table class="standings" id="trnFinalTable">
+      <thead><tr>
+        <th style="text-align:left" data-i18n="th_player_tourn">Jugador</th>
+        <th data-i18n="th_pj">PJ</th><th data-i18n="th_w">G</th><th data-i18n="th_l">P</th>
+        <th>GF</th><th>GC</th><th>DG</th>
+        <th data-i18n="th_pts">Pts</th>
+      </tr></thead>
+      <tbody id="trnFinalTbody"></tbody>
+    </table>
+  </div>
+  <div class="row" style="margin-top:4px">
+    <button class="btn pur"  onclick="newTournament()" data-i18n="new_tourn">🔄 Nuevo torneo</button>
+    <button class="btn sm"   onclick="backToMenu()" data-i18n="menu_btn">🏠 Menú</button>
+  </div>
+</div>
+
+<!-- ── ONLINE ── -->
+<div id="sOnline" class="screen hidden">
+  <button class="back" onclick="leaveOnline()" data-i18n="back">← Volver</button>
+  <div class="logo" style="font-size:clamp(1.1rem,3vw,1.9rem)">
+    <span class="p1">PING</span><span class="vs">VS</span><span class="p2">PONG</span>
+  </div>
+  <div class="sec" data-i18n="online_name">Tu nombre online</div>
+  <input type="text" id="nOnline" placeholder="Tu nombre" data-i18n-ph="your_name" maxlength="14">
+  <div class="onote" data-i18n="requires_internet">⚠️ Requiere internet · Mejor en HTTPS (GitHub Pages, Netlify…)</div>
+  <div class="tabs">
+    <button class="tab on" id="tC" onclick="showTabAndEnsureRoom('C')" data-i18n="tab_create">🔑 Crear</button>
+    <button class="tab"    id="tJ" onclick="showTab('J')" data-i18n="tab_join">🚪 Unirse</button>
+    <button class="tab"    id="tM" onclick="showTab('M')" data-i18n="tab_random">🎲 Aleatorio</button>
+  </div>
+  <div id="pC" class="ocard">
+    <h3 data-i18n="create_room">Crear sala privada</h3>
+    <div class="stxt"><span class="dot" id="dC"></span><span id="lC" data-i18n="lbl_create_tap">Pulsa para crear sala</span></div>
+    <div class="code" id="codeBox" onclick="copyCode()">——————</div>
+    <div class="tip" data-i18n="share_code">Comparte este código. Clic para copiar.</div>
+    <div class="stxt" id="waitLbl" style="color:#555" data-i18n="waiting_opp">Esperando oponente…</div>
+  </div>
+  <div id="pJ" class="ocard hidden">
+    <h3 data-i18n="join_room">Unirse a sala</h3>
+    <input type="text" id="joinCode" placeholder="Código (6 letras)" data-i18n-ph="join_lbl" maxlength="6"
+      style="letter-spacing:.18em;text-transform:uppercase"
+      oninput="this.value=this.value.toUpperCase()">
+    <div class="stxt"><span class="dot" id="dJ"></span><span id="lJ" data-i18n="dot_enter_code">Introduce el código</span></div>
+    <button class="btn grn" id="joinBtn" onclick="doJoin()" data-i18n="connect_btn">Conectar →</button>
+  </div>
+  <div id="pM" class="ocard hidden">
+    <h3 data-i18n="tab_random_title">Partida aleatoria</h3>
+    <div class="stxt"><span class="dot" id="dM2"></span><span id="lM" data-i18n="dot_ready">Listo</span></div>
+    <div id="mmSpin" class="spin" style="display:none"></div>
+    <div class="tip" data-i18n="mm_tip">Busca automáticamente a otro jugador.</div>
+    <button class="btn grn" id="mmGo"     onclick="startMM()" data-i18n="mm_search">🎲 Buscar</button>
+    <button class="btn sm"  id="mmCancel" onclick="cancelMM()" style="display:none" data-i18n="cancel">✖ Cancelar</button>
+  </div>
+  <div class="tip" style="color:#333" data-i18n="ws_server">WebSocket · Servidor propio en Render</div>
+</div>
+
+<!-- ── SKINS ── -->
+<div id="sSkins" class="screen hidden">
+  <button class="back" onclick="goTo('sMenu')" data-i18n="back">← Volver</button>
+  <div class="sec" data-i18n="choose_skin">Elige estilo</div>
+  <div class="sgrid" id="skinGrid"></div>
+  <div class="tip" data-i18n="skin_tip">Predeterminado: rojo vs azul</div>
+  <button class="btn sm" onclick="goTo('sMenu')" data-i18n="confirm">✔ Confirmar</button>
+</div>
+
+<!-- ── ACCOUNT ── -->
+<div id="sAccount" class="screen hidden">
+  <button class="back" onclick="goTo('sMenu')" data-i18n="back">← Volver</button>
+  <div class="trn-header" style="color:var(--acc);font-size:.8rem;letter-spacing:.2em" data-i18n="acc_title">👤 MI CUENTA</div>
+
+  <div id="accUnavailable" style="display:none;max-width:300px;text-align:center;font-family:Rajdhani,sans-serif;font-size:.95rem;color:#ffb347;line-height:1.5;padding:12px;border:1px solid #ffb34755;border-radius:10px"></div>
+
+  <!-- Not logged in -->
+  <div id="accGuest">
+    <div class="acc-tabs">
+      <button class="acc-tab on" id="tabLogin" onclick="switchAccTab('login')" data-i18n="acc_login">Iniciar sesión</button>
+      <button class="acc-tab" id="tabReg" onclick="switchAccTab('register')" data-i18n="acc_register">Registrarse</button>
+    </div>
+    <div class="acc-form">
+      <input id="accEmail" type="email" placeholder="Email" data-i18n-ph="acc_email_ph" autocomplete="email">
+      <input id="accPass" type="password" placeholder="Contraseña" data-i18n-ph="acc_pass_ph" autocomplete="current-password">
+      <input id="accUser" type="text" placeholder="Nombre de usuario" data-i18n-ph="acc_user_ph" maxlength="16" style="display:none">
+      <button class="btn" id="accSubmit" onclick="accSubmit()">Iniciar sesión</button>
+      <div id="accErr" style="font-size:.7rem;color:var(--err);text-align:center;min-height:1em"></div>
+    </div>
+  </div>
+
+  <!-- Logged in -->
+  <div id="accLogged" style="display:none;flex-direction:column;align-items:center;gap:12px;width:min(320px,90vw)">
+    <div class="acc-info">
+      <strong id="accUsername">—</strong>
+      <span id="accPremiumBadge" class="acc-badge premium" style="display:none" data-i18n="acc_premium">⭐ PREMIUM</span>
+      <span id="accNormalBadge" class="acc-badge" data-i18n="acc_free">FREE</span>
+    </div>
+    <div class="acc-stats">
+      <div class="acc-stat"><div class="acc-stat-val cur-coin" id="accCoins">0</div><div class="acc-stat-lbl">🪙 CoinClothes</div></div>
+      <div class="acc-stat"><div class="acc-stat-val cur-gem" id="accGems">0</div><div class="acc-stat-lbl">💎 Exclusives</div></div>
+    </div>
+    <div class="acc-section" data-i18n="acc_stats_title">📊 ESTADÍSTICAS</div>
+    <div class="acc-grid">
+      <div class="acc-stat"><div class="acc-stat-val" id="accPlayed">0</div><div class="acc-stat-lbl" data-i18n="acc_played">Partidas</div></div>
+      <div class="acc-stat"><div class="acc-stat-val" id="accWins">0</div><div class="acc-stat-lbl" data-i18n="acc_wins">Victorias</div></div>
+      <div class="acc-stat"><div class="acc-stat-val" id="accLosses">0</div><div class="acc-stat-lbl" data-i18n="acc_losses">Derrotas</div></div>
+      <div class="acc-stat"><div class="acc-stat-val" id="accRate">0%</div><div class="acc-stat-lbl" data-i18n="acc_rate">% victorias</div></div>
+      <div class="acc-stat"><div class="acc-stat-val" id="accGoalsFor">0</div><div class="acc-stat-lbl" data-i18n="acc_goals_for">Goles marcados</div></div>
+      <div class="acc-stat"><div class="acc-stat-val" id="accGoalsAgainst">0</div><div class="acc-stat-lbl" data-i18n="acc_goals_against">Goles encajados</div></div>
+    </div>
+    <div class="acc-fav">
+      <div class="acc-fav-swatch" id="accFavSwatch"></div>
+      <div class="acc-fav-info">
+        <div class="acc-stat-lbl" data-i18n="acc_fav">Skin favorita</div>
+        <div class="acc-fav-name" id="accFavName">—</div>
+        <div class="acc-stat-lbl" id="accFavCount"></div>
+      </div>
+    </div>
+    <div id="accVipBadge" class="acc-badge" style="display:none;border-color:#ffd700;color:#ffd700" data-i18n="vip_badge">👑 VIP</div>
+    <button class="btn sm" id="accVipBtn" onclick="buyVipAccount()" style="border-color:#ffd700;color:#ffd700;width:100%" data-i18n="vip_buy">💎 Hacerme VIP</button>
+    <button class="btn sm" onclick="accLogout()" style="border-color:var(--err);color:var(--err);width:100%" data-i18n="acc_logout">Cerrar sesión</button>
+  </div>
+</div>
+
+<!-- ── MISIONES ── -->
+<div id="sMissions" class="screen hidden">
+  <button class="back" onclick="goTo('sMenu')" data-i18n="back">← Volver</button>
+  <div class="trn-header" style="color:#88ffcc;font-size:.8rem;letter-spacing:.2em" data-i18n="mis_title">🎯 MISIONES</div>
+  <div class="mis-tabs">
+    <button class="mis-tab on" data-tab="daily" onclick="setMissionTab('daily')" data-i18n="mis_tab_d">Diarias</button>
+    <button class="mis-tab" data-tab="weekly" onclick="setMissionTab('weekly')" data-i18n="mis_tab_w">Semanales</button>
+    <button class="mis-tab" data-tab="special" onclick="setMissionTab('special')" data-i18n="mis_tab_s">Especiales</button>
+  </div>
+  <div class="mis-reset" id="misReset"></div>
+  <div class="mis-list" id="missionList"></div>
+</div>
+
+<!-- ── REPORTAR BUG ── -->
+<div id="sBug" class="screen hidden">
+  <button class="back" onclick="goTo('sMenu')" data-i18n="back">← Volver</button>
+  <div class="trn-header" style="color:#ff8899;font-size:.8rem;letter-spacing:.2em" data-i18n="bug_title">🐞 REPORTAR BUG</div>
+  <div class="bug-form">
+    <label class="bug-lbl" for="bugCat" data-i18n="bug_cat">Categoría</label>
+    <select id="bugCat" class="bug-in">
+      <option value="match" data-i18n="bug_cat_match">Partida</option>
+      <option value="controls" data-i18n="bug_cat_controls">Controles</option>
+      <option value="graphics" data-i18n="bug_cat_graphics">Gráficos</option>
+      <option value="online" data-i18n="bug_cat_online">Online</option>
+      <option value="account" data-i18n="bug_cat_account">Cuenta y tienda</option>
+      <option value="other" data-i18n="bug_cat_other">Otro</option>
+    </select>
+    <textarea id="bugText" class="bug-in" rows="6" maxlength="2000" data-i18n-ph="bug_text_ph" placeholder="Describe qué pasó y cómo reproducirlo"></textarea>
+    <label class="bug-chk"><input type="checkbox" id="bugTech" checked> <span data-i18n="bug_tech">Adjuntar datos técnicos</span></label>
+    <button class="btn" onclick="sendBugReport()" data-i18n="bug_send">Enviar reporte</button>
+    <div id="bugMsg" class="bug-msg"></div>
+    <button class="btn sm" onclick="copyBugQueue()" data-i18n="bug_copy">📋 Copiar reportes guardados</button>
+    <textarea id="bugDump" class="bug-in" rows="6" readonly style="display:none"></textarea>
+  </div>
+</div>
+
+<!-- ── TUTORIAL ── -->
+<div id="sTutorial" class="screen hidden">
+  <div class="trn-header" style="color:#88aaff;font-size:.8rem;letter-spacing:.2em" data-i18n="tut_title">🎓 TUTORIAL</div>
+  <div class="tut-num" id="tutNum"></div>
+  <div class="tut-phase" id="tutPhase"></div>
+  <canvas id="tutCanvas" class="tut-canvas" width="340" height="200"></canvas>
+  <div class="tut-h" id="tutTitle"></div>
+  <div class="tut-p" id="tutText"></div>
+  <div class="tut-hint" id="tutHint"></div>
+  <div class="tut-msg" id="tutMsg"></div>
+  <div class="tut-note" id="tutNote"></div>
+  <div class="tut-dots" id="tutDots"></div>
+  <div class="tut-row">
+    <button class="btn sm" id="tutPrev" onclick="tutPrev()" data-i18n="tut_prev">‹ Anterior</button>
+    <button class="btn sm" id="tutPause" onclick="tutTogglePause()" style="border-color:#88aaff;color:#88aaff" data-i18n="tut_pause_btn">⏸ Pausa</button>
+    <button class="btn sm" id="tutNext" onclick="tutNext()" style="border-color:#88aaff;color:#88aaff" data-i18n="tut_next">Siguiente ›</button>
+  </div>
+  <button class="btn sm" id="tutSkip" onclick="tutSkip()" style="border-color:#555;color:#aaa" data-i18n="tut_skip">Saltar tutorial</button>
+</div>
+
+<!-- ── SHOP ── -->
+<div id="sShop" class="screen hidden">
+  <button class="back" onclick="goTo('sMenu')" data-i18n="back">← Volver</button>
+  <div class="trn-header" style="color:#ffe44d;font-size:.8rem;letter-spacing:.2em" data-i18n="shop_title">🛒 TIENDA DE SKINS</div>
+  <div style="font-family:'Orbitron',monospace;font-size:.58rem;display:flex;gap:12px;margin-bottom:4px">
+    <span class="cur-coin">🪙 <span id="shopCoins">0</span></span>
+    <span class="cur-gem">💎 <span id="shopGems">0</span></span>
+  </div>
+  <div class="promo-title" data-i18n="promo_title">Códigos promocionales</div>
+  <div class="promo-box">
+    <input id="promoInput" class="promo-in" type="text" maxlength="24" autocomplete="off" autocapitalize="characters" spellcheck="false" data-i18n-ph="promo_ph" placeholder="Escribe tu código">
+    <button class="btn sm" onclick="promoRedeemUI()" data-i18n="promo_btn">Canjear</button>
+  </div>
+  <div id="promoMsg" class="promo-msg"></div>
+  <div class="shop-tabs">
+    <button class="shop-tab on" onclick="switchShopTab('all')" data-i18n="shop_all">Todas</button>
+    <button class="shop-tab" onclick="switchShopTab('free')" data-i18n="shop_free">Gratis</button>
+    <button class="shop-tab" onclick="switchShopTab('coin')" data-i18n="shop_coins">🪙 Monedas</button>
+    <button class="shop-tab" onclick="switchShopTab('gem')" data-i18n="shop_gems">💎 Gemas</button>
+  </div>
+  <div class="shop-bulk">
+    <button class="shop-bulk-btn" id="bulkUp" onclick="bulkBuy('one')"><span data-i18n="shop_bulk_one">▲ Una más</span></button>
+    <button class="shop-bulk-btn" id="bulkDown" onclick="bulkBuy('max')"><span data-i18n="shop_bulk_max">▼ Máximo</span> <span id="bulkMaxN"></span></button>
+  </div>
+  <div class="shop-grid" id="shopGrid"></div>
+</div>
+
+<!-- CANVAS -->
+<canvas id="gameCanvas"></canvas>
+<canvas id="confCanvas"></canvas>
+
+<!-- HUD -->
+<div id="hud" class="hidden">
+  <div class="sb-topbar"></div>
+  <!-- Timer bar (only visible when timer is on) -->
+  <div class="sb-timer-bar" id="sbTimerBar" style="display:none">
+    <span class="sb-mode-lbl" id="hMode">1P</span>
+    <span class="sb-timer-val" id="hTimer">⏱ 3:00</span>
+  </div>
+  <!-- Main scoreboard panel -->
+  <div class="sb-panel">
+    <!-- Left: J1 -->
+    <div class="sb-side left">
+      <div class="sb-name" id="hN1">PING</div>
+      <div class="sb-score" id="hS1">0</div>
+    </div>
+    <!-- Center -->
+    <div class="sb-center">
+      <div class="sb-sep">:</div>
+      <div class="sb-golden" id="hGolden" style="display:none"></div>
+      <div class="sb-sub" id="hModeSub">1P</div>
+      <div class="sb-pause-lbl" id="hPause" style="display:none">PAUSA</div>
+      <div class="sb-match" id="hMatch" style="display:none"></div>
+    </div>
+    <!-- Right: J2 -->
+    <div class="sb-side right">
+      <div class="sb-name" id="hN2">PONG</div>
+      <div class="sb-score" id="hS2">0</div>
+    </div>
+  </div>
+</div>
+
+<!-- OVERLAY -->
+<div id="overlay">
+  <div class="otxt" id="oTxt"></div>
+  <div class="osub" id="oSub"></div>
+  <div id="pbtn" style="display:none">
+    <button class="btn" onclick="resumeGame()" data-i18n="resume">▶ Reanudar</button>
+    <button class="btn sm" onclick="backToMenu()" data-i18n="menu_btn">🏠 Menú</button>
+  </div>
+</div>
+
+<!-- WIN (match end) -->
+<div id="wins">
+  <div class="wt" id="wTitle">¡VICTORIA!</div>
+  <div class="ws" id="wSub"></div>
+  <div id="wReward" style="display:none;font-family:'Orbitron',monospace;font-size:.7rem;margin:6px 0;color:#ffe44d;text-align:center"></div>
+  <div class="row" id="wBtns">
+    <button class="btn"    id="rBtn"  onclick="restartGame()" data-i18n="rematch">↩ Revancha</button>
+    <button class="btn sm" id="nxBtn" onclick="nextMatchOrMenu()" style="display:none" data-i18n="next_match">▶ Siguiente partido</button>
+    <button class="btn sm" onclick="backToMenu()" data-i18n="menu_btn">🏠 Menú</button>
+  </div>
+</div>
+
+<div id="hint"></div>
+<button id="mBtn" onclick="toggleMusic()">🎵</button>
+
+<!-- Chat button (shown during game) -->
+<button id="chatBtn" onclick="toggleChat()" title="Chat">💬</button>
+
+<!-- Chat panel -->
+<div id="chatPanel">
+  <div id="chatLog"></div>
+  <div id="emojiRow">
+    <button class="emj" onclick="sendMsg('😂')">😂</button>
+    <button class="emj" onclick="sendMsg('😎')">😎</button>
+    <button class="emj" onclick="sendMsg('🔥')">🔥</button>
+    <button class="emj" onclick="sendMsg('👏')">👏</button>
+    <button class="emj" onclick="sendMsg('😤')">😤</button>
+    <button class="emj" onclick="sendMsg('🤝')">🤝</button>
+    <button class="emj" onclick="sendMsg('💪')">💪</button>
+    <button class="emj" onclick="sendMsg('😭')">😭</button>
+    <button class="emj" onclick="sendMsg('🥵')">🥵</button>
+    <button class="emj" onclick="sendMsg('🎉')">🎉</button>
+    <button class="emj" onclick="sendMsg('😴')">😴</button>
+    <button class="emj" onclick="sendMsg('👀')">👀</button>
+  </div>
+  <div id="presetRow">
+    <button class="preset-btn" onclick="sendMsg('¡Hola!')">¡Hola!</button>
+    <button class="preset-btn" onclick="sendMsg('¡Buena partida!')">¡Buena partida!</button>
+    <button class="preset-btn" onclick="sendMsg('¿Quieres una revancha?')">¿Quieres una revancha?</button>
+    <button class="preset-btn" onclick="sendMsg('¡Buena suerte!')">¡Buena suerte!</button>
+    <button class="preset-btn" onclick="sendMsg('¡Hasta pronto!')">¡Hasta pronto!</button>
+    <button class="preset-btn" onclick="sendMsg('¡Qué golazo!')">¡Qué golazo!</button>
+    <button class="preset-btn" onclick="sendMsg('¡Suerte, la vas a necesitar!')">¡Suerte, la vas a necesitar!</button>
+  </div>
+  <div id="chatInputRow">
+    <input id="chatInput" type="text" placeholder="Escribe algo…" maxlength="80"
+      onkeydown="if(event.key==='Enter')sendChatInput()">
+    <button id="chatSend" onclick="sendChatInput()">Enviar</button>
+  </div>
+</div>
+
+<!-- Touch pause button (mobile only) -->
+<button id="touchPause" onclick="togglePause()">⏸ PAUSA</button>
+<button id="watchExitBtn" onclick="exitWatchedMatch()" data-i18n="watch_exit">⏭ Volver al torneo</button>
+
+<!-- Left joystick (J1 / host) -->
+<div class="joy-wrap left" id="joyLeft">
+  <div class="joy-zone" id="jzL">
+    <div class="joy-knob" id="jkL"></div>
+  </div>
+  <div class="joy-label" id="jLbl1">J1</div>
+</div>
+
+<!-- Right joystick (J2 / guest) -->
+<div class="joy-wrap right" id="joyRight">
+  <div class="joy-zone" id="jzR">
+    <div class="joy-knob" id="jkR"></div>
+  </div>
+  <div class="joy-label" id="jLbl2">J2</div>
+</div>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════
+//  GLOBALS
+// ═══════════════════════════════════════════
+// ── Account & currency globals (must be before Firebase callbacks) ─────────
+var currentUser = null;
+var playerData = { coins:0, gems:0, unlockedSkins:['skin_default'], selectedSkin1:'skin_default', selectedSkin2:'skin_default', isPremium:false };
+
+var accTabMode = 'login';
+var shopTabCurrent = 'all';
+
+// ── 21 Skins (declared here so Firebase callbacks can access them) ──────────
+var ALL_SKINS=[
+  {k:'skin_default', l:'Base',      price:0,  currency:'free', a:'#ff2244',b:'#2266ff', ga:'#ff224488',gb:'#2266ff88', shape:'rect',  fx:'none'},
+  {k:'skin_fire',    l:'Fuego',     price:0,  currency:'free', a:'#ff6600',b:'#ff0022', ga:'#ff660099',gb:'#ff002299', shape:'flame', fx:'fire'},
+  {k:'skin_neon',    l:'Neón',      price:0,  currency:'free', a:'#00ffcc',b:'#ff00ff', ga:'#00ffccaa',gb:'#ff00ffaa', shape:'thin',  fx:'neon'},
+  {k:'skin_gold',    l:'Oro',       price:0,  currency:'free', a:'#ffd700',b:'#c0c0c0', ga:'#ffd70066',gb:'#c0c0c066', shape:'rect',  fx:'metal'},
+  {k:'skin_nature',  l:'Natural',   price:0,  currency:'free', a:'#55cc44',b:'#995533', ga:'#55cc4466',gb:'#99553366', shape:'rect',  fx:'wood'},
+  {k:'skin_ice',     l:'Hielo',     price:0,  currency:'free', a:'#88ddff',b:'#ddeeff', ga:'#88ddff88',gb:'#ddeeff88', shape:'thin',  fx:'ice'},
+  {k:'skin_dark',    l:'Oscura',    price:0,  currency:'free', a:'#bb44ff',b:'#ff6600', ga:'#bb44ffaa',gb:'#ff6600aa', shape:'rect',  fx:'dark'},
+  {k:'skin_pastel',  l:'Pastel',    price:0,  currency:'free', a:'#ff99bb',b:'#99bbff', ga:'#ff99bb66',gb:'#99bbff66', shape:'pill',  fx:'soft'},
+  {k:'skin_sport',   l:'Deportivo', price:80,  currency:'coin', a:'#ff4400',b:'#0044ff', ga:'#ff440088',gb:'#0044ff88', shape:'rect',  fx:'sport'},
+  {k:'skin_ninja',   l:'Ninja',     price:110, currency:'coin', a:'#111111',b:'#cc0000', ga:'#11111199',gb:'#cc000099', shape:'thin',  fx:'ninja'},
+  {k:'skin_soccer',  l:'Futbolista',price:130, currency:'coin', a:'#22cc22',b:'#ffffff', ga:'#22cc2299',gb:'#ffffff99', shape:'rect',  fx:'soccer'},
+  {k:'skin_robot',   l:'Robot',     price:120, currency:'coin', a:'#aaccff',b:'#ffcc00', ga:'#aaccff88',gb:'#ffcc0088', shape:'rect',  fx:'robot'},
+  {k:'skin_retro',   l:'Retro',     price:90,  currency:'coin', a:'#00ff44',b:'#ff6600', ga:'#00ff4488',gb:'#ff660088', shape:'rect',  fx:'retro'},
+  {k:'skin_ocean',   l:'Océano',    price:100, currency:'coin', a:'#0066ff',b:'#00ccff', ga:'#0066ff88',gb:'#00ccff88', shape:'pill',  fx:'ocean'},
+  {k:'skin_lava',    l:'Lava',      price:115, currency:'coin', a:'#ff2200',b:'#ff8800', ga:'#ff220099',gb:'#ff880099', shape:'flame', fx:'lava'},
+  {k:'skin_electric',l:'Eléctrica', price:95,  currency:'coin', a:'#ffff00',b:'#00ffff', ga:'#ffff0099',gb:'#00ffff99', shape:'thin',  fx:'electric'},
+  {k:'skin_ghost',   l:'Fantasma',  price:3,   currency:'gem',  a:'#eeeeff',b:'#aaaacc', ga:'#eeeeff55',gb:'#aaaacc55', shape:'pill',  fx:'ghost'},
+  {k:'skin_dragon',  l:'Dragón',    price:5,   currency:'gem',  a:'#ff4400',b:'#ffd700', ga:'#ff440099',gb:'#ffd70099', shape:'flame', fx:'dragon'},
+  {k:'skin_cosmic',  l:'Cósmico',   price:4,   currency:'gem',  a:'#8800ff',b:'#ff0088', ga:'#8800ffaa',gb:'#ff0088aa', shape:'rect',  fx:'cosmic'},
+  {k:'skin_aurora',  l:'Aurora',    price:6,   currency:'gem',  a:'#00ff88',b:'#ff00cc', ga:'#00ff88aa',gb:'#ff00ccaa', shape:'thin',  fx:'aurora'},
+  {k:'skin_legendary',l:'Leyenda',  price:8,   currency:'gem',  a:'#ffd700',b:'#ff4400', ga:'#ffd700cc',gb:'#ff4400cc', shape:'rect',  fx:'legendary'},
+  {k:'skin_hacker',  l:'Anonymous', price:0,   currency:'premium', a:'#040704',b:'#040704', ga:'#00ff66aa',gb:'#00ff66aa', shape:'rect',  fx:'hacker'},
+  {k:'skin_vip',     l:'VIP',       price:0,   currency:'vip',     a:'#7fe7ff',b:'#3aa8ff', ga:'#bff4ffcc',gb:'#3aa8ffcc', shape:'rect',  fx:'diamond'},
+];
+let mode='single', diff='easy', winPts=7;
+let p1Name='PING', p2Name='PONG';
+let musicOn=true, gameRunning=false, paused=false, animId=null;
+
+// online
+let netRole=null, peer=null, conn=null, myCode=null, pingTimer=null, mmActive=false;
+const MM='ppvp2025-mm-s';
+
+const SKINS = ALL_SKINS; // alias: única fuente de verdad (21 skins)
+let skin=0; // legacy (used for ball color)
+let skin1=0, skin2=0; // per-player skins
+const AI_NAMES=['Kenji','Minho','Wei','Luca','Igor','Sven','Arjun','Omar','Thiago','Javier'];
+
+// ═══════════════════════════════════════════
+//  TOURNAMENT STATE
+// ═══════════════════════════════════════════
+// Each player: {name, isCpu, pts, wins, losses, gf, gc}
+let trnPlayers=[];
+// All 28 fixtures (round-robin of 8): [{i,j,played,s1,s2}]
+let trnFixtures=[];
+let trnMatchIdx=0;    // current fixture index
+let trnActive=false;
+let trnHumanIdx=-1;   // index of the first human player (for "you" highlighting)
+
+function trnInit(){
+  trnPlayers=[];
+  for(let i=0;i<8;i++){
+    trnPlayers.push({
+      name: i===0 ? (playerData.displayName||'') : AI_NAMES[i-1],
+      isCpu: i!==0,
+      diff: 'medium',   // per-player AI difficulty
+      pts:0,wins:0,losses:0,gf:0,gc:0
+    });
+  }
+}
+
+function trnBuildFixtures(){
+  trnFixtures=[];
+  // Round-robin: every pair once
+  for(let i=0;i<8;i++)
+    for(let j=i+1;j<8;j++)
+      trnFixtures.push({i,j,played:false,s1:0,s2:0});
+  // Shuffle for variety
+  for(let k=trnFixtures.length-1;k>0;k--){
+    const r=Math.floor(Math.random()*(k+1));
+    [trnFixtures[k],trnFixtures[r]]=[trnFixtures[r],trnFixtures[k]];
+  }
+  trnMatchIdx=0;
+}
+
+function trnGetStandings(){
+  return [...trnPlayers]
+    .map((p,i)=>({...p,idx:i}))
+    .sort((a,b)=>{
+      if(b.pts!==a.pts) return b.pts-a.pts;
+      const dA=a.gf-a.gc, dB=b.gf-b.gc;
+      if(dB!==dA) return dB-dA;
+      return b.gf-a.gf;
+    });
+}
+
+function trnRecordResult(fixtureIdx, s1, s2){
+  const fx=trnFixtures[fixtureIdx];
+  fx.played=true; fx.s1=s1; fx.s2=s2;
+  const pA=trnPlayers[fx.i], pB=trnPlayers[fx.j];
+  pA.gf+=s1; pA.gc+=s2;
+  pB.gf+=s2; pB.gc+=s1;
+  if(s1>s2){ pA.pts+=3; pA.wins++; pB.losses++; }
+  else if(s2>s1){ pB.pts+=3; pB.wins++; pA.losses++; }
+  else{ pA.pts+=1; pB.pts+=1; }
+}
+
+function trnRenderStandings(bodyId){
+  const rows=trnGetStandings();
+  const tbody=document.getElementById(bodyId);
+  tbody.innerHTML='';
+  rows.forEach((p,rank)=>{
+    const tr=document.createElement('tr');
+    const isMe=!p.isCpu && p.idx===trnHumanIdx;
+    if(isMe) tr.className='me';
+    const badges=['r1','r2','r3'];
+    const bc=rank<3?badges[rank]:'rn';
+    const medal=rank===0?'🥇':rank===1?'🥈':rank===2?'🥉':rank+1;
+    const dg=p.gf-p.gc;
+    tr.innerHTML=`
+      <td><span class="rank-badge ${bc}">${medal}</span>${p.name||'—'}</td>
+      <td>${p.wins+p.losses+(p.pts%3===1&&p.wins+p.losses>0?0:0)}</td>
+      <td>${p.wins}</td><td>${p.losses}</td>
+      <td>${p.gf}</td><td>${p.gc}</td>
+      <td style="color:${dg>0?'#00cc66':dg<0?'#ff4455':'#888'}">${dg>0?'+':''}${dg}</td>
+      <td style="font-family:'Orbitron',monospace;color:var(--acc);font-weight:900">${p.pts}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function trnUpdateProgress(){
+  const done=trnFixtures.filter(f=>f.played).length;
+  const total=trnFixtures.length;
+  document.getElementById('trnProgress').textContent=`Jornada ${done} de ${total}`;
+}
+
+function trnShowNextMatchInfo(){
+  const next=trnFixtures.find(f=>!f.played);
+  if(!next){ trnFinish(); return; }
+  const pi=trnPlayers[next.i], pj=trnPlayers[next.j];
+  document.getElementById('nmP1').textContent=pi.name;
+  document.getElementById('nmP2').textContent=pj.name;
+  const labelA=pi.isCpu?`CPU (${pi.diff==='easy'?'Fácil':pi.diff==='medium'?'Medio':'Difícil'})`:'Humano';
+  const labelB=pj.isCpu?`CPU (${pj.diff==='easy'?'Fácil':pj.diff==='medium'?'Medio':'Difícil'})`:'Humano';
+  document.getElementById('nmInfo').textContent=`${labelA} vs ${labelB}`;
+  const done=trnFixtures.filter(f=>f.played).length;
+  document.getElementById('nmProgress').textContent=`Partido ${done+1} de ${trnFixtures.length}`;
+}
+
+function trnFinish(){
+  if(trnPlayers.some(pl=>!pl.isCpu)) missionsAdd('tourn_end',1);
+  // Hide standings, show final
+  trnRenderStandings('trnFinalTbody');
+  buildPodium();
+  goTo('sTournFinal');
+  // Big confetti
+  for(let i=0;i<8;i++) setTimeout(()=>spawnConfs(Math.random()*W,H*.3),i*250);
+}
+
+function buildPodium(){
+  const top=trnGetStandings().slice(0,3);
+  const pod=document.getElementById('trnPodium');
+  const order=[1,0,2]; // silver, gold, bronze
+  const classes=['pod-2','pod-1','pod-3'];
+  const labels=['🥈','🥇','🥉'];
+  pod.innerHTML='';
+  order.forEach((ri,ci)=>{
+    const p=top[ri];
+    if(!p) return;
+    const col=document.createElement('div');
+    col.className='pod-col';
+    col.innerHTML=`
+      <div class="pod-name" style="color:${ri===0?'var(--acc)':ri===1?'#c0c0c0':'#cd7f32'}">${p.name}</div>
+      <div class="pod-score">${p.pts} pts</div>
+      <div class="pod-block ${classes[ci]}">${labels[ci]}</div>
+    `;
+    pod.appendChild(col);
+  });
+}
+
+// WebSocket mode — no PeerJS needed
+
+// ═══════════════════════════════════════════
+//  SETTINGS
+// ═══════════════════════════════════════════
+const CFG = {
+  musicVol:    70,
+  brightness:  100,
+  sndBall:     true,
+  sndGoal:     true,
+  sndFanfare:  true,
+  particles:   true,
+  aiChat:      true,
+  aiVsAiChat:  false,
+  timerOn:     false,
+  timerMins:   3,
+};
+
+// Brightness filter overlay (applied via canvas globalAlpha complement)
+let brightnessFilter = null; // <div> overlay
+
+function applyBrightness(val){
+  val=parseInt(val);
+  CFG.brightness=val;
+  document.getElementById('valBright').textContent=val;
+  updateSliderFill('slBright', val, 50, 150);
+  // CSS filter on canvases
+  const pct=(val/100).toFixed(2);
+  document.getElementById('gameCanvas').style.filter=`brightness(${pct})`;
+  document.getElementById('confCanvas').style.filter=`brightness(${pct})`;
+}
+function setBrightness(val){ applyBrightness(val); }
+
+function setMusicVol(val){
+  val=parseInt(val);
+  CFG.musicVol=val;
+  document.getElementById('valMusic').textContent=val;
+  updateSliderFill('slMusic', val, 0, 100);
+  // Update custom audio volume live if playing
+  if(customAudioEl) customAudioEl.volume=Math.max(0,Math.min(1,val/100));
+  // Restart built-in music with new volume
+  if(musicOn && !customAudioEl){ stopMusic(); startMusic(); }
+}
+
+function updateSliderFill(id, val, min, max){
+  const el=document.getElementById(id);
+  if(!el) return;
+  const pct=((val-min)/(max-min)*100).toFixed(1)+'%';
+  el.style.setProperty('--pct', pct);
+}
+
+function toggleSetting(key){
+  CFG[key]=!CFG[key];
+  const capKey=key.charAt(0).toUpperCase()+key.slice(1);
+  const tog=document.getElementById('tog'+capKey);
+  const lbl=document.getElementById('lbl'+capKey);
+  if(tog) tog.classList.toggle('on', CFG[key]);
+  if(lbl) lbl.textContent=CFG[key]?'ON':'OFF';
+  // Special: enable/disable timer duration row
+  if(key==='timerOn'){
+    const row=document.getElementById('timerDurationRow');
+    if(row){ row.style.opacity=CFG.timerOn?'1':'0.4'; row.style.pointerEvents=CFG.timerOn?'all':'none'; }
+  }
+}
+
+function setTimerDuration(val){
+  CFG.timerMins=parseInt(val);
+  document.getElementById('valTimer').textContent=CFG.timerMins+' min';
+  document.getElementById('timerValLabel').textContent=CFG.timerMins+' minutos por partido';
+  updateSliderFill('slTimer', val, 1, 10);
+}
+
+function initSettingsUI(){
+  updateSliderFill('slMusic',  CFG.musicVol,   0,   100);
+  updateSliderFill('slBright', CFG.brightness, 50,  150);
+  updateSliderFill('slTimer',  CFG.timerMins,  1,   10);
+  document.getElementById('slMusic').value  = CFG.musicVol;
+  document.getElementById('slBright').value = CFG.brightness;
+  document.getElementById('slTimer').value  = CFG.timerMins;
+  document.getElementById('valTimer').textContent = CFG.timerMins+' min';
+  void ['sndBall','sndGoal','sndFanfare','particles','aiChat','aiVsAiChat','timerOn'].forEach(key=>{
+    const capKey=key.charAt(0).toUpperCase()+key.slice(1);
+    const tog=document.getElementById('tog'+capKey);
+    const lbl=document.getElementById('lbl'+capKey);
+    if(tog) tog.classList.toggle('on', CFG[key]);
+    if(lbl) lbl.textContent=CFG[key]?'ON':'OFF';
+  });
+  const row=document.getElementById('timerDurationRow');
+  if(row){ row.style.opacity=CFG.timerOn?'1':'0.4'; row.style.pointerEvents=CFG.timerOn?'all':'none'; }
+}
+
+// ═══════════════════════════════════════════
+//  AUDIO (with CFG gates)
+// ═══════════════════════════════════════════
+const AC=new(window.AudioContext||window.webkitAudioContext)();
+['click','keydown'].forEach(e=>document.addEventListener(e,()=>AC.state==='suspended'&&AC.resume()));
+function tone(f,t,d,v=0.4){
+  try{
+    const o=AC.createOscillator(),g=AC.createGain();
+    o.type=t;o.frequency.value=f;
+    g.gain.setValueAtTime(v,AC.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);
+    o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+d);
+  }catch(e){}
+}
+
+// ── Impact boom: low thud + distortion burst ──────────────────────────────
+function sndImpact(){
+  try{
+    // Deep thud
+    const o=AC.createOscillator(), g=AC.createGain();
+    o.type='sine'; o.frequency.setValueAtTime(80,AC.currentTime);
+    o.frequency.exponentialRampToValueAtTime(30,AC.currentTime+.18);
+    g.gain.setValueAtTime(.9,AC.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.22);
+    o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+.25);
+    // Sharp crack
+    const o2=AC.createOscillator(), g2=AC.createGain();
+    o2.type='sawtooth'; o2.frequency.value=220;
+    g2.gain.setValueAtTime(.6,AC.currentTime);
+    g2.gain.exponentialRampToValueAtTime(.001,AC.currentTime+.08);
+    o2.connect(g2);g2.connect(AC.destination);o2.start();o2.stop(AC.currentTime+.1);
+  }catch(e){}
+}
+
+function sndHit(w){
+  if(!CFG.sndBall) return;
+  const f=w==='ping'?900:560;
+  tone(f,'sawtooth',.18,.5);tone(f*1.5,'sine',.1,.2);tone(f*.5,'square',.12,.15);
+}
+function sndGoal(){
+  if(!CFG.sndGoal) return;
+  sndImpact(); // boom on goal
+  setTimeout(()=>{
+    for(let i=0;i<6;i++)setTimeout(()=>tone(200+Math.random()*300,'sine',.4,.12),i*80);
+    setTimeout(()=>[500,400,500,350].forEach((f,i)=>setTimeout(()=>tone(f,'sine',.2,.2),i*180)),500);
+  },80);
+}
+function sndWall(){
+  if(!CFG.sndBall) return;
+  tone(270+Math.random()*200,'square',.07,.1);
+}
+function sndFanfare(){
+  if(!CFG.sndFanfare) return;
+  [523,659,784,1047].forEach((f,i)=>setTimeout(()=>{tone(f,'sine',.4,.3);tone(f*.5,'triangle',.4,.15);},i*160));
+}
+
+// ── Screen shake ──────────────────────────────────────────────────────────
+function screenShake(intensity=12, duration=400){
+  const canvas=document.getElementById('gameCanvas');
+  const conf=document.getElementById('confCanvas');
+  const start=Date.now();
+  function shake(){
+    const elapsed=Date.now()-start;
+    if(elapsed>=duration){ canvas.style.transform=''; conf.style.transform=''; return; }
+    const decay=1-elapsed/duration;
+    const dx=(Math.random()-.5)*intensity*decay;
+    const dy=(Math.random()-.5)*intensity*decay;
+    canvas.style.transform=`translate(${dx}px,${dy}px)`;
+    conf.style.transform=`translate(${dx}px,${dy}px)`;
+    requestAnimationFrame(shake);
+  }
+  requestAnimationFrame(shake);
+}
+
+// ── Vibration ─────────────────────────────────────────────────────────────
+function vibrate(pattern){
+  if(navigator.vibrate) navigator.vibrate(pattern);
+}
+
+// ── Music system ────────────────────────────────────────────────────────────
+let musIv=null;
+let currentMusicCtx='menu';
+
+// Custom audio elements (from uploaded files)
+const customAudio = { menu: null, settings: null, game: null };
+let customAudioEl = null; // currently playing HTML audio element
+
+// ── Built-in melodies ────────────────────────────────────────────────────────
+// Menu: upbeat table-tennis feel — brighter notes, faster
+const MENU_NOTES = [392,440,523,587,523,440,392,349,392,440,523,440,392,349,330,349];
+// Settings: calm melodic — slow, warm sine wave
+const SETT_NOTES = [262,294,330,349,330,294,262,247,262,294,330,294,262,247,220,247]; // low octave, more audible on sine
+// Game: energetic arpegio (original feel)
+const GAME_NOTES = [261,330,392,523,392,330,261,196,220,261,330,392];
+
+// Volume multipliers per context (normalized so all feel similar)
+const CTX_VOL  = { menu:0.08, settings:0.28, game:0.10 };  // settings much louder
+const CTX_WAVE = { menu:'square', settings:'sine', game:'triangle' };
+const CTX_SPD  = { menu:260, settings:480, game:320 };  // settings slower = longer sustain
+const CTX_DUR  = { menu:.22, settings:.55, game:.26 };  // settings notes ring longer
+
+function _getNotes(){ return currentMusicCtx==='menu'?MENU_NOTES:currentMusicCtx==='settings'?SETT_NOTES:GAME_NOTES; }
+
+function startMusic(){
+  if(!musicOn) return;
+  stopMusic();
+  // If user has uploaded a custom track for this context, play that
+  const customSrc = customAudio[currentMusicCtx];
+  if(customSrc){
+    customAudioEl = new Audio(customSrc);
+    customAudioEl.loop=true;
+    customAudioEl.volume=Math.max(0,Math.min(1,CFG.musicVol/100));
+    customAudioEl.play().catch(()=>{});
+    return;
+  }
+  // Built-in synthesized music
+  const ns=_getNotes(); let ni=0;
+  const vol=(CFG.musicVol/100)*CTX_VOL[currentMusicCtx];
+  const wave=CTX_WAVE[currentMusicCtx];
+  const speed=CTX_SPD[currentMusicCtx];
+  const dur=CTX_DUR[currentMusicCtx];
+  musIv=setInterval(()=>{
+    if(!musicOn) return;
+    try{
+      const o=AC.createOscillator(),g=AC.createGain();
+      o.type=wave; o.frequency.value=ns[ni++%ns.length];
+      g.gain.setValueAtTime(vol,AC.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+dur);
+      o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+dur+.02);
+    }catch(e){}
+  },speed);
+}
+
+function stopMusic(){
+  if(musIv){clearInterval(musIv);musIv=null;}
+  if(customAudioEl){customAudioEl.pause();customAudioEl=null;}
+}
+
+function toggleMusic(){
+  musicOn=!musicOn;
+  document.getElementById('mBtn').textContent=musicOn?'🎵':'🔇';
+  if(musicOn)startMusic();else stopMusic();
+}
+
+function setMusicContext(ctx){
+  const changed = currentMusicCtx!==ctx;
+  currentMusicCtx=ctx;
+  // Resume AudioContext (browser may have suspended it)
+  if(AC.state==='suspended') AC.resume().then(()=>{ if(musicOn) startMusic(); });
+  if(changed && musicOn){ stopMusic(); startMusic(); }
+  else if(musicOn && !musIv && !customAudioEl){ startMusic(); }
+}
+
+// Called when user uploads a custom MP3 for a context
+function loadCustomMusic(ctx, inputEl){
+  const file = inputEl.files[0];
+  if(!file) return;
+  // Revoke previous URL
+  if(customAudio[ctx]) URL.revokeObjectURL(customAudio[ctx]);
+  const url=URL.createObjectURL(file);
+  customAudio[ctx]=url;
+  // Update the text span (not the label itself, to preserve the input inside)
+  const span=document.getElementById('customMusicLbl_'+ctx);
+  if(span) span.textContent='🎵 '+file.name.slice(0,24);
+  // Resume AudioContext if suspended
+  if(AC.state==='suspended') AC.resume();
+  // Restart music for this context
+  if(currentMusicCtx===ctx&&musicOn){ stopMusic(); startMusic(); }
+  else if(musicOn&&currentMusicCtx!==ctx){
+    // preview: just update stored, will play when context switches
+  }
+  // Reset input so same file can be re-selected
+  inputEl.value='';
+}
+
+function clearCustomMusic(ctx){
+  if(customAudio[ctx]){ URL.revokeObjectURL(customAudio[ctx]); customAudio[ctx]=null; }
+  const span=document.getElementById('customMusicLbl_'+ctx);
+  if(span) span.textContent=CTX_DEFAULT_LABEL[ctx];
+  if(currentMusicCtx===ctx&&musicOn){ stopMusic(); startMusic(); }
+}
+
+const CTX_DEFAULT_LABEL={
+  menu:'📂 Subir música para el menú',
+  settings:'📂 Subir música para ajustes',
+  game:'📂 Subir música para el partido',
+};
+
+// ═══════════════════════════════════════════
+//  CANVAS
+// ═══════════════════════════════════════════
+const CV=document.getElementById('gameCanvas'),CX=CV.getContext('2d');
+const CC=document.getElementById('confCanvas'),CCX=CC.getContext('2d');
+let W=0,H=0;
+function resize(){
+  // Use visualViewport when available (handles mobile browser chrome correctly)
+  const vw = (window.visualViewport ? window.visualViewport.width  : window.innerWidth)  || document.documentElement.clientWidth;
+  const vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight) || document.documentElement.clientHeight;
+  W=CV.width=CC.width=Math.floor(vw);
+  H=CV.height=CC.height=Math.floor(vh);
+  // Reposition paddles if game is running
+  if(gameRunning && pd1 && pd2){
+    pd1.x=PW()*2.5; pd1.w=PW(); pd1.h=PH();
+    pd2.x=W-PW()*2.5-PW(); pd2.w=PW(); pd2.h=PH();
+  }
+}
+window.addEventListener('resize',resize);
+window.addEventListener('orientationchange',()=>setTimeout(resize,200));
+if(window.visualViewport) window.visualViewport.addEventListener('resize',resize);
+resize();
+
+const PW=()=>Math.max(8, W*.012);          // narrower paddle
+const PH=()=>Math.max(44,H*.092);          // shorter paddle
+const BR=()=>Math.max(4, W*.011);
+const FT=()=>H*.12;
+const FB=()=>H-H*.12;
+const GH=()=>(FB()-FT())*.35;             // goal area (35% of field)
+const GY1=()=>H/2-GH()/2;
+const GY2=()=>H/2+GH()/2;
+
+let ball={},pd1={},pd2={};
+
+// ── Paddle animation states ──────────────────────────────────────────────────
+// Each state: scale, glowExtra, shakeX, emote, emoteTimer, emoteAngle
+const pdAnim = {
+  1: {scale:1, glow:0, shakeX:0, emote:null, emoteTimer:0, emoteAngle:0, celebrating:0},
+  2: {scale:1, glow:0, shakeX:0, emote:null, emoteTimer:0, emoteAngle:0, celebrating:0},
+};
+
+// Trigger a hit pulse on a paddle (1 or 2)
+function animHit(player){
+  const a=pdAnim[player];
+  a.scale=1.22; a.glow=1;
+}
+// Trigger goal celebration
+function animGoal(player){
+  const a=pdAnim[player];
+  a.scale=1.35; a.glow=2; a.celebrating=40;
+}
+// Trigger goal received (shake)
+function animLose(player){
+  const a=pdAnim[player];
+  a.shakeX=8; a.glow=0.5;
+}
+// Update animation state each frame
+function tickPaddleAnims(){
+  [1,2].forEach(p=>{
+    const a=pdAnim[p];
+    // Scale spring back to 1
+    a.scale+=(1-a.scale)*.18;
+    if(Math.abs(a.scale-1)<.004) a.scale=1;
+    // Glow fade
+    a.glow=Math.max(0,a.glow-.06);
+    // Shake decay
+    a.shakeX*=-.55;
+    if(Math.abs(a.shakeX)<.3) a.shakeX=0;
+    // Celebrating bounce
+    if(a.celebrating>0){ a.celebrating--; }
+    // Emote timer
+    if(a.emoteTimer>0) a.emoteTimer--;
+    else a.emote=null;
+    // Emote spin
+    if(a.emote) a.emoteAngle+=0.06;
+  });
+}
+
+// ── Emote wheel ──────────────────────────────────────────────────────────────
+// ── Emote animations (Fortnite-style paddle moves) ──────────────────────────
+// Each emote: name + drawFn(CX, pd, t, progress) that draws ON the paddle
+const EMOTES = [
+  { name:'Victoria',  icon:'🏆' },
+  { name:'Burla',     icon:'😏' },
+  { name:'Baile',     icon:'💃' },
+  { name:'Saludo',    icon:'👋' },
+  { name:'Desafío',   icon:'💪' },
+];
+
+let emoteWheel={active:false, player:0, selected:0, anim:0};
+// Each player's active emote animation state
+// emoteAnim: {name, timer, maxTimer}
+const emoteAnim={1:null, 2:null};
+
+function openEmoteWheel(player){
+  emoteWheel={active:true, player, selected:0, anim:0};
+}
+function closeEmoteWheel(){
+  if(!emoteWheel.active) return;
+  const sel=EMOTES[emoteWheel.selected];
+  const p=emoteWheel.player;
+  emoteAnim[p]={name:sel.name, timer:180, maxTimer:180};
+  emoteWheel.active=false;
+  if(mode==='online') netSend({t:'emote', name:sel.name, p});
+}
+function tickEmoteWheel(){
+  if(emoteWheel.active) emoteWheel.anim=Math.min(1,emoteWheel.anim+0.14);
+  // Tick active emote animations
+  [1,2].forEach(p=>{
+    if(emoteAnim[p]) emoteAnim[p].timer--;
+    if(emoteAnim[p]&&emoteAnim[p].timer<=0) emoteAnim[p]=null;
+  });
+}
+function drawEmoteWheel(){
+  if(!emoteWheel.active) return;
+  const n=EMOTES.length;
+  const a=emoteWheel.anim;
+  const pd=emoteWheel.player===1?pd1:pd2;
+  const cx=pd.x, cy=H/2;
+  const R=Math.min(W,H)*.13*a;
+
+  CX.save();
+  // Semi-transparent backdrop circle
+  CX.globalAlpha=0.75*a;
+  CX.fillStyle='rgba(5,5,15,.85)';
+  CX.beginPath();arc(cx,cy,R+36,0,Math.PI*2);CX.fill();
+  // Border
+  CX.strokeStyle='rgba(255,228,77,.4)';CX.lineWidth=2;
+  CX.beginPath();arc(cx,cy,R+36,0,Math.PI*2);CX.stroke();
+  CX.globalAlpha=a;
+
+  // Draw 5 emote slots in a pentagon
+  for(let i=0;i<n;i++){
+    const ang=(i/n)*Math.PI*2 - Math.PI/2;
+    const ex=cx+Math.cos(ang)*R, ey=cy+Math.sin(ang)*R;
+    const sel=i===emoteWheel.selected;
+    // Slot background
+    CX.beginPath();arc(ex,ey,sel?26:18,0,Math.PI*2);
+    CX.fillStyle=sel?'rgba(255,228,77,.95)':`rgba(255,255,255,${sel?.2:.1})`;
+    CX.fill();
+    if(sel){CX.strokeStyle='#fff';CX.lineWidth=2;CX.beginPath();arc(ex,ey,26,0,Math.PI*2);CX.stroke();}
+    // Icon
+    CX.font=`${sel?20:14}px serif`;
+    CX.textAlign='center';CX.textBaseline='middle';
+    CX.fillStyle=sel?'#111':'#fff';
+    CX.fillText(EMOTES[i].icon,ex,ey);
+    // Label below selected
+    if(sel){
+      CX.font=`bold ${Math.round(W*.014)}px Orbitron,monospace`;
+      CX.fillStyle='#ffe44d';
+      CX.textAlign='center';CX.textBaseline='top';
+      CX.fillText(EMOTES[i].name,cx,cy+R+10);
     }
-    document.getElementById('demoBannerTxt').textContent=demoLeftText();
-    document.getElementById('demoExitBtn').textContent=t('demo_exit');
-    el.style.display='flex';
   }
-  function hideBanner(){ const el=document.getElementById('demoBanner'); if(el) el.style.display='none'; }
+  // Center hint
+  CX.font=`${Math.round(W*.011)}px Orbitron,monospace`;
+  CX.fillStyle='rgba(255,255,255,.55)';
+  CX.textAlign='center';CX.textBaseline='middle';
+  CX.fillText('◄ ► seleccionar   ENTER ok',cx,cy);
+  CX.restore();
+}
 
-  // Tras el tutorial empieza la primera partida de la demo
-  function firstMatch(){ goTo('s1P'); go1P(); showBanner(); }
+// Draw paddle emote animation ON the paddle (called from drawPaddle)
+function drawPaddleEmote(pd, player, t){
+  const ea=emoteAnim[player];
+  if(!ea) return;
+  const prog=1-(ea.timer/ea.maxTimer); // 0→1 over animation
+  const c=player===1?SKINS[skin].a:SKINS[skin].b;
+  const px=pd.x-pd.w/2, py=pd.y-pd.h/2, pw=pd.w, ph=pd.h;
+  const alpha=ea.timer<30?ea.timer/30:1;
 
-  function startDemo(){
-    demoActive=true; demoMatchesLeft=5; setFlags(); hideBanner();
-    startTutorial({mandatory:true, note:t('demo_tut_note'), onFinish:firstMatch});
+  CX.save();CX.globalAlpha=alpha;
+
+  if(ea.name==='Victoria'){
+    // Paddle stretches tall and glows gold
+    CX.shadowColor='#ffd700';CX.shadowBlur=30+Math.sin(t*8)*10;
+    const stretch=1+0.5*Math.sin(prog*Math.PI);
+    CX.transform(1,0,0,stretch,0,pd.y*(1-stretch));
+    CX.fillStyle='rgba(255,215,0,.35)';
+    rr(px-4,py-4,pw+8,ph+8,pw*.5);CX.fill();
+    // Star burst
+    for(let i=0;i<6;i++){
+      const a=i/6*Math.PI*2+t*3;
+      const r=ph*.6+Math.sin(t*5+i)*ph*.2;
+      CX.fillStyle=`rgba(255,215,0,${.4*Math.sin(t*4+i)})`;
+      CX.beginPath();arc(pd.x+Math.cos(a)*r,pd.y+Math.sin(a)*r,4,0,Math.PI*2);CX.fill();
+    }
+
+  } else if(ea.name==='Burla'){
+    // Paddle wobbles side to side mockingly
+    const wobble=Math.sin(t*10)*pw*0.6;
+    CX.translate(wobble,0);
+    CX.fillStyle=`rgba(255,100,100,.25)`;
+    rr(px,py,pw,ph,pw*.4);CX.fill();
+    // Exclamation marks above
+    CX.font=`bold ${Math.round(pw*1.8)}px Orbitron,monospace`;
+    CX.fillStyle='#ff4444';CX.textAlign='center';CX.textBaseline='bottom';
+    CX.fillText('!',pd.x,py-4+Math.sin(t*8)*4);
+
+  } else if(ea.name==='Baile'){
+    // Paddle spins and bounces rhythmically
+    const beat=Math.floor(t*4)%2;
+    CX.translate(pd.x,pd.y);
+    CX.rotate(Math.sin(t*6)*0.3);
+    CX.translate(-pd.x,-pd.y);
+    const bounce=Math.abs(Math.sin(t*6))*8;
+    CX.translate(0,-bounce);
+    // Rainbow glow
+    const hue=(t*120)%360;
+    CX.shadowColor=`hsl(${hue},100%,60%)`;CX.shadowBlur=20;
+    CX.fillStyle=`hsla(${hue},100%,60%,.2)`;
+    rr(px-2,py-2,pw+4,ph+4,pw*.5);CX.fill();
+
+  } else if(ea.name==='Saludo'){
+    // Paddle bows (scales down then back up)
+    const bow=Math.sin(prog*Math.PI*2)*0.3;
+    CX.translate(pd.x,pd.y);
+    CX.rotate(bow*(player===1?1:-1));
+    CX.translate(-pd.x,-pd.y);
+    CX.fillStyle='rgba(100,200,255,.2)';
+    rr(px,py,pw,ph,pw*.4);CX.fill();
+    // Wave lines radiating out
+    for(let i=0;i<3;i++){
+      const r=ph*(0.5+i*0.4+prog*0.3);
+      CX.strokeStyle=`rgba(100,200,255,${.4-i*.1})`;
+      CX.lineWidth=2;
+      CX.beginPath();arc(pd.x,pd.y,r,0,Math.PI*2);CX.stroke();
+    }
+
+  } else if(ea.name==='Desafío'){
+    // Paddle pulsates aggressively and flashes
+    const pulse=1+0.25*Math.abs(Math.sin(t*8));
+    CX.translate(pd.x,pd.y);CX.scale(pulse,pulse);CX.translate(-pd.x,-pd.y);
+    CX.shadowColor=c;CX.shadowBlur=40;
+    CX.fillStyle=c.slice(0,7)+'44';
+    rr(px-3,py-3,pw+6,ph+6,pw*.5);CX.fill();
+    // Cracks / lightning bolts effect
+    CX.strokeStyle=c;CX.lineWidth=2;
+    for(let i=0;i<3;i++){
+      const a=i/3*Math.PI*2+t*5;
+      CX.beginPath();
+      CX.moveTo(pd.x,pd.y);
+      CX.lineTo(pd.x+Math.cos(a)*ph*.5, pd.y+Math.sin(a)*ph*.5);
+      CX.stroke();
+    }
   }
 
-  function exitDemo(){
-    demoActive=false; demoMatchesLeft=0; setFlags();
-    hideBanner(); tutStop();
-    if(gameRunning) backToMenu(); else goTo('sMenu');
+  CX.restore();
+}
+let sc1=0,sc2=0,goalCd=0,flashA=0,flashC='#fff';
+let goldenGoal=false;
+let matchTarget=7;          // goles que hacen falta ahora (cambia con los empates)
+let _matchEnded=false;      // evita terminar la misma partida dos veces
+let _lastTick=0, _ovTm=null;
+let matchTimerEnd=0; // timestamp when match ends (0 = no timer)
+
+// ── Reglas de fin de partido ─────────────────────────────────────────────────
+// Gana quien llega a matchTarget (al empezar = winPts). Si un gol deja el marcador empatado:
+//   winPts-1 (6-6 en un partido a 7) → se juega hasta winPts+1 · winPts (7-7) → hasta winPts+2
+//   winPts+1 (8-8) → ¡GOL DE ORO!: el siguiente gol gana la partida, sin más.
+// Con winPts=1 el primer gol ya decide.
+function afterGoalRules(scorer){
+  if(goldenGoal) return {over:true, startGolden:false};                 // gol de oro: el primero gana
+  const mine = scorer===1 ? sc1 : sc2;
+  if(mine>=matchTarget) return {over:true, startGolden:false};
+  let startGolden=false;
+  if(sc1===sc2){
+    if(sc1===winPts-1) matchTarget=winPts+1;
+    else if(sc1===winPts) matchTarget=winPts+2;
+    else if(sc1===winPts+1){ goldenGoal=true; startGolden=true; }
+  }
+  return {over:false, startGolden:startGolden};
+}
+// Prórroga (se acabó el tiempo y hay empate): GOL DE ORO real, el siguiente gol gana
+function announceOvertime(){
+  clearTimeout(_ovTm);
+  document.getElementById('oTxt').textContent=t('ov_overtime');
+  document.getElementById('oTxt').style.color='#ffe44d';
+  document.getElementById('oSub').textContent=t('ov_overtime_sub');
+  document.getElementById('pbtn').style.display='none';
+  document.getElementById('overlay').classList.add('show');
+  _ovTm=setTimeout(()=>document.getElementById('overlay').classList.remove('show'),2800);
+}
+function startOvertime(){
+  goldenGoal=true;
+  announceOvertime();
+  screenShake(14,450); vibrate([60,30,60]);
+  if(mode==='online' && netRole==='host') netSend({t:'golden', ot:true});
+  updateHUD();
+}
+
+let parts=[],confs=[],crowd=[];
+let goalTm=null;
+
+function diffCfg(){ return diffCfgFor(diff); }
+function col(){return{a:SKINS[skin1].a,b:SKINS[skin2].b};}
+function h2r(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
+
+function resetBall(scorer){
+  _rallyHits=0; lastHit=0; _ballT=0;
+  const cfg=diffCfg(),a=(Math.random()*60-30)*Math.PI/180,d=scorer===1?1:-1;
+  ball={x:W/2,y:H/2,vx:d*cfg.spd*Math.cos(a),vy:cfg.spd*Math.sin(a),tr:[]};
+  // Reset paddles to center so players start from neutral position
+  pd1.y=H/2;
+  pd2.y=H/2;
+  // Reset AI cache so it recalculates for the new serve
+  aiCache.L.lastVx=0;
+  aiCache.R.lastVx=0;
+}
+
+// ── Quién saca primero (1 = izquierda, 2 = derecha) ─────────────────────────
+// Por nombre (orden alfabético, sin tildes): el que va antes saca. Así lo deciden igual los dos dispositivos.
+function nameServes(){
+  const norm=s=>String(s||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const a=norm(p1Name), b=norm(p2Name);
+  if(a===b) return 1;
+  return a<b ? 1 : 2;
+}
+function firstServer(){
+  if(mode==='single') return Math.random()<0.5 ? 1 : 2;             // humano (1) o IA (2), al azar
+  if(mode==='multi' || mode==='online') return nameServes();         // dos jugadores: decide el nombre
+  if(mode==='tourn'){
+    const fx=trnFixtures[trnMatchIdx];
+    if(!fx) return 1;
+    const hA=!trnPlayers[fx.i].isCpu, hB=!trnPlayers[fx.j].isCpu;
+    if(hA && hB) return nameServes();                                // dos humanos (J2 existe): decide el nombre
+    return Math.random()<0.5 ? 1 : 2;                                 // humano contra IA: al azar
+  }
+  return 1;
+}
+function initGame(){
+  sc1=0;sc2=0;paused=false;goalCd=0;parts=[];confs=[];flashA=0;goldenGoal=false; matchTarget=winPts; _matchEnded=false; _lastTick=0; mStatReset(); pwReset();
+  matchTimerEnd = CFG.timerOn ? Date.now() + CFG.timerMins*60000 : 0;
+  // Reset AI target cache for fresh start each match
+  aiCache.L.lastVx=0; aiCache.L.target=H/2||0;
+  aiCache.R.lastVx=0; aiCache.R.target=H/2||0;
+  [1,2].forEach(p=>{Object.assign(pdAnim[p],{scale:1,glow:0,shakeX:0,emote:null,emoteTimer:0,celebrating:0});});
+  emoteWheel.active=false;
+  pd1={x:PW()*2.5,y:H/2,w:PW(),h:PH()};
+  pd2={x:W-PW()*2.5-PW(),y:H/2,w:PW(),h:PH()};
+  resetBall(firstServer());
+  initCrowd();
+  updateHUD();
+  const T2=LANGS[currentLang];
+  document.getElementById('hint').textContent=
+    mode==='tourn' ? T2.hint_tourn:
+    mode==='single'? T2.hint_1p:
+    mode==='multi' ? T2.hint_multi:
+    netRole==='host'? T2.hint_host: T2.hint_guest;
+}
+
+// ═══════════════════════════════════════════
+//  CROWD
+// ═══════════════════════════════════════════
+function initCrowd(){
+  crowd=[];
+  for(let r=0;r<3;r++){
+    const n=Math.floor(W/18);
+    for(let i=0;i<n;i++) crowd.push({
+      x:i*(W/n)+Math.random()*7,row:r,
+      ph:Math.random()*Math.PI*2,sp:1.5+Math.random()*2,
+      c:`hsl(${Math.floor(Math.random()*360)},60%,${50+Math.floor(Math.random()*30)}%)`,
+      ap:Math.random()*Math.PI*2,cheer:false
+    });
+  }
+}
+
+// ═══════════════════════════════════════════
+//  DRAW
+// ═══════════════════════════════════════════
+function arc(cx,cy,r,a0,a1){if(r>0)CX.arc(cx,cy,r,a0,a1);}
+function rr(x,y,w,h,r){
+  CX.beginPath();
+  CX.moveTo(x+r,y);CX.lineTo(x+w-r,y);CX.quadraticCurveTo(x+w,y,x+w,y+r);
+  CX.lineTo(x+w,y+h-r);CX.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  CX.lineTo(x+r,y+h);CX.quadraticCurveTo(x,y+h,x,y+h-r);
+  CX.lineTo(x,y+r);CX.quadraticCurveTo(x,y,x+r,y);CX.closePath();
+}
+function drawField(){
+  const sh=H*.12,fh=H-sh*2,ft=sh;
+  let g=CX.createLinearGradient(0,0,0,sh);g.addColorStop(0,'#4a3520');g.addColorStop(1,'#3a2810');
+  CX.fillStyle=g;CX.fillRect(0,0,W,sh);
+  g=CX.createLinearGradient(0,H-sh,0,H);g.addColorStop(0,'#3a2810');g.addColorStop(1,'#4a3520');
+  CX.fillStyle=g;CX.fillRect(0,H-sh,W,sh);
+  const sw=W/12;
+  for(let i=0;i<12;i++){CX.fillStyle=i%2===0?'#2d6a2d':'#357a35';CX.fillRect(i*sw,ft,sw,fh);}
+  CX.strokeStyle='rgba(255,255,255,.5)';CX.lineWidth=2;
+  CX.strokeRect(W*.03,ft+4,W*.94,fh-8);
+  CX.setLineDash([12,8]);
+  CX.beginPath();CX.moveTo(W/2,ft+4);CX.lineTo(W/2,ft+fh-8);CX.stroke();
+  CX.setLineDash([]);
+  CX.beginPath();arc(W/2,H/2,Math.min(W,H)*.08,0,Math.PI*2);CX.stroke();
+  // Goalpost box matches actual goal detection zone
+  const gbW=W*.04,gbH=GH(),gbY=GY1();
+  CX.strokeStyle='rgba(255,255,255,.7)';CX.lineWidth=3;
+  CX.strokeRect(W*.03-gbW,gbY,gbW,gbH);CX.strokeRect(W*.97,gbY,gbW,gbH);
+  CX.lineWidth=2;CX.strokeStyle='rgba(255,255,255,.5)';
+  CX.fillStyle='rgba(255,255,255,.5)';
+  [W*.12,W*.88,W/2].forEach((x,i)=>{CX.beginPath();arc(x,H/2,i===2?4:3,0,Math.PI*2);CX.fill();});
+  // Net matches exact goal detection zone (GH = 55% of field)
+  const gh=GH(),gy=GY1(),gw=W*.04; // deeper net, matches goal area
+  CX.strokeStyle='rgba(255,255,255,.28)';CX.lineWidth=1;
+  for(let x=0;x<=gw;x+=10){CX.beginPath();CX.moveTo(W*.03-gw+x,gy);CX.lineTo(W*.03-gw+x,gy+gh);CX.stroke();}
+  for(let y=gy;y<=gy+gh;y+=10){CX.beginPath();CX.moveTo(W*.03-gw,y);CX.lineTo(W*.03,y);CX.stroke();}
+  for(let x=0;x<=gw;x+=10){CX.beginPath();CX.moveTo(W*.97+x,gy);CX.lineTo(W*.97+x,gy+gh);CX.stroke();}
+  for(let y=gy;y<=gy+gh;y+=10){CX.beginPath();CX.moveTo(W*.97,y);CX.lineTo(W*.97+gw,y);CX.stroke();}
+  CX.lineWidth=2;
+}
+function drawCrowd(ts){
+  const sh=H*.12;
+  crowd.forEach(p=>{
+    const rh=sh/3,topY=rh*p.row+2,botY=H-sh+rh*p.row+2;
+    const bob=Math.sin(ts*.001*p.sp+p.ph)*(p.cheer?8:3);
+    const aa=p.cheer?Math.sin(ts*.002*p.sp+p.ap)*.8:.2;
+    [topY,botY].forEach(by=>{
+      const hr=rh*.22,bh=rh*.38,py=by+rh*.5+bob;
+      CX.save();CX.translate(p.x,py);CX.fillStyle=p.c;
+      CX.fillRect(-hr*.8,0,hr*1.6,bh);
+      if(hr>0){CX.beginPath();arc(0,-hr,hr,0,Math.PI*2);CX.fill();}
+      CX.strokeStyle=p.c;CX.lineWidth=hr*.6;CX.lineCap='round';
+      CX.beginPath();CX.moveTo(-hr*.8,hr*.3);CX.lineTo(-hr*.8-hr*1.8*Math.cos(aa+.4),hr*.3-hr*1.8*Math.sin(aa+.4));CX.stroke();
+      CX.beginPath();CX.moveTo(hr*.8,hr*.3);CX.lineTo(hr*.8+hr*1.8*Math.cos(aa+.4),hr*.3-hr*1.8*Math.sin(aa+.4));CX.stroke();
+      CX.restore();
+    });
+  });
+}
+function drawPaddle(pd,isP1){
+  const sk = isP1 ? SKINS[skin1] : SKINS[skin2];
+  const c   = isP1 ? sk.a : sk.b;
+  const glow= isP1 ? sk.ga: sk.gb;
+  const fx  = sk.fx;
+  const sh  = sk.shape;
+  const player = isP1?1:2;
+  const anim = pdAnim[player];
+  const t = performance.now()*0.001; // time in seconds for animations
+
+  CX.save();
+  // ── Animation transform ──
+  const sc=anim.scale;
+  const sx=anim.shakeX + (anim.celebrating>0 ? Math.sin(anim.celebrating*.5)*3 : 0);
+  const celebBounce = anim.celebrating>0 ? Math.abs(Math.sin(anim.celebrating*.3))*4 : 0;
+  CX.translate(pd.x+sx, pd.y - celebBounce);
+  CX.scale(sc, sc);
+  CX.translate(-pd.x, -pd.y);
+
+  const px=pd.x-pd.w/2, py=pd.y-pd.h/2;
+  const pw=pd.w, ph=pd.h;
+  const extraBlur = anim.glow * 24;
+
+  // ── Per-skin background aura ──
+  const auraPulse = fx==='dark'  ? 0.6+Math.sin(t*3)*0.4
+                  : fx==='neon'  ? 0.5+Math.sin(t*5)*0.5
+                  : fx==='fire'  ? 0.7+Math.sin(t*8)*0.3
+                  : 1.0;
+  const ag=CX.createRadialGradient(pd.x,pd.y,0,pd.x,pd.y,ph*1.1);
+  ag.addColorStop(0,(glow||c+'55').slice(0,7)+(Math.round(auraPulse*80).toString(16).padStart(2,'0')));
+  ag.addColorStop(1,'transparent');
+  CX.fillStyle=ag;CX.fillRect(px-ph*.7,py-ph*.7,pw+ph*1.4,ph*2.4);
+
+  // ── Glow / shadow ──
+  const blurAmt = (fx==='neon'?30:fx==='dark'?26:18) + extraBlur;
+  CX.shadowColor = fx==='fire' ? `hsl(${30+Math.sin(t*10)*15},100%,60%)` : c;
+  CX.shadowBlur  = blurAmt * auraPulse;
+
+  // ── Body fill ──
+  CX.fillStyle = buildPaddleFill(px,py,pw,ph,c,fx,isP1,t);
+  if(sh==='pill'){
+    rr(px,py,pw,ph,pw*.5); CX.fill();
+  } else if(sh==='thin'){
+    rr(px,py,pw,ph,pw*.45); CX.fill();
+  } else if(sh==='flame'){
+    const flicker=Math.sin(t*12)*pw*.08;
+    CX.beginPath();
+    CX.moveTo(pd.x+flicker, py);
+    CX.quadraticCurveTo(px+pw*1.3+flicker,py+ph*.35, px+pw,py+ph*.65);
+    CX.quadraticCurveTo(px+pw*1.1,py+ph, px+pw*.5,py+ph);
+    CX.quadraticCurveTo(px-pw*.1,py+ph, px,py+ph*.65);
+    CX.quadraticCurveTo(px-pw*.3-flicker,py+ph*.35, pd.x+flicker,py);
+    CX.fill();
+  } else {
+    rr(px,py,pw,ph,pw*.4); CX.fill();
+  }
+  CX.shadowBlur=0;
+
+  // ── Per-skin overlay effects ──
+  if(fx==='metal'){
+    // Animated shimmer scan line
+    const shimX=(t*0.4%1)*pw;
+    const mg=CX.createLinearGradient(px,py,px+pw,py);
+    mg.addColorStop(0,'rgba(255,255,255,.4)');
+    mg.addColorStop(Math.max(0,(shimX/pw)-.1),'rgba(255,255,255,.05)');
+    mg.addColorStop(Math.min(1,shimX/pw),'rgba(255,255,255,.55)');
+    mg.addColorStop(Math.min(1,(shimX/pw)+.1),'rgba(255,255,255,.05)');
+    mg.addColorStop(1,'rgba(255,255,255,.3)');
+    CX.fillStyle=mg; rr(px,py,pw,ph,pw*.4); CX.fill();
+
+  } else if(fx==='ice'){
+    // Crystalline inner light with slow pulse
+    const icePulse=0.25+Math.sin(t*1.5)*.1;
+    CX.fillStyle=`rgba(220,245,255,${icePulse})`; rr(px+pw*.1,py+ph*.08,pw*.55,ph*.38,pw*.3); CX.fill();
+    // Sparkle dots
+    const spk=[[.2,.2],[.7,.5],[.4,.75],[.8,.25]];
+    spk.forEach(([sx2,sy2],i)=>{
+      const sp=Math.abs(Math.sin(t*3+i*1.5));
+      CX.beginPath();arc(px+pw*sx2,py+ph*sy2,pw*.08*sp,0,Math.PI*2);
+      CX.fillStyle=`rgba(255,255,255,${sp*.8})`;CX.fill();
+    });
+    CX.strokeStyle='rgba(255,255,255,.5)';CX.lineWidth=1.5;rr(px,py,pw,ph,pw*.45);CX.stroke();CX.lineWidth=1;
+
+  } else if(fx==='neon'){
+    // Neon flicker
+    const flk=0.8+Math.sin(t*13)*0.2+Math.sin(t*7)*0.1;
+    CX.fillStyle='rgba(0,0,0,.45)'; rr(px+pw*.15,py+ph*.12,pw*.7,ph*.76,pw*.35); CX.fill();
+    CX.strokeStyle=c;CX.lineWidth=2.5*flk;
+    CX.shadowColor=c;CX.shadowBlur=14*flk;
+    rr(px,py,pw,ph,pw*.45);CX.stroke();
+    CX.shadowBlur=0;CX.lineWidth=1;
+    // Inner tube highlight
+    CX.fillStyle=`rgba(255,255,255,${.15*flk})`;
+    rr(px+pw*.2,py+ph*.08,pw*.25,ph*.84,pw*.2);CX.fill();
+
+  } else if(fx==='wood'){
+    // Wood grain with subtle animation
+    CX.save();
+    CX.beginPath();rr(px,py,pw,ph,pw*.4);CX.clip();
+    CX.strokeStyle='rgba(0,0,0,.13)';CX.lineWidth=1.5;
+    for(let i=0;i<5;i++){
+      const yw=py+ph*.15+i*ph*.16;
+      CX.beginPath();CX.moveTo(px,yw);CX.lineTo(px+pw,yw);CX.stroke();
+    }
+    CX.restore();
+    CX.fillStyle='rgba(255,255,255,.18)';rr(px+pw*.12,py+ph*.08,pw*.42,ph*.32,pw*.3);CX.fill();
+
+  } else if(fx==='dark'){
+    // Pulsing energy rings
+    const dp=0.5+Math.sin(t*4)*0.5;
+    CX.fillStyle='rgba(0,0,0,.55)'; rr(px+pw*.2,py+ph*.15,pw*.6,ph*.7,pw*.3); CX.fill();
+    for(let r2=1;r2<=2;r2++){
+      CX.strokeStyle=c.slice(0,7)+(Math.round(dp*60/r2).toString(16).padStart(2,'0'));
+      CX.lineWidth=2/r2;
+      rr(px-r2*2,py-r2*2,pw+r2*4,ph+r2*4,pw*.4);CX.stroke();
+    }
+    CX.lineWidth=1;
+
+  } else if(fx==='fire'){
+    // Animated fire tongues at the edges
+    const fireT=t*8;
+    for(let i=0;i<3;i++){
+      const frac=(i/3+fireT*.1)%1;
+      const fy=py+ph*frac;
+      const fw=pw*.3+Math.sin(fireT+i)*pw*.2;
+      CX.fillStyle=`rgba(255,${Math.round(180+Math.sin(fireT+i)*50)},0,${.25-frac*.2})`;
+      CX.beginPath();arc(px-fw*.3,fy,fw*.4,0,Math.PI*2);CX.fill();
+      CX.beginPath();arc(px+pw+fw*.3,fy,fw*.4,0,Math.PI*2);CX.fill();
+    }
+    CX.fillStyle='rgba(255,240,80,.25)'; rr(px+pw*.1,py+ph*.25,pw*.8,ph*.5,pw*.3); CX.fill();
+
+  } else if(fx==='soft'){
+    const ss=0.18+Math.sin(t*2)*0.06;
+    CX.fillStyle=`rgba(255,255,255,${ss})`;rr(px+pw*.1,py+ph*.06,pw*.55,ph*.42,pw*.45);CX.fill();
+
+  } else if(fx==='sport'){
+    CX.save();CX.beginPath();rr(px,py,pw,ph,pw*.4);CX.clip();
+    CX.fillStyle='rgba(255,255,255,.22)';CX.fillRect(px,py+ph*.32,pw,ph*.07);CX.fillRect(px,py+ph*.54,pw,ph*.07);
+    CX.restore();
+    CX.fillStyle='rgba(255,255,255,.18)';rr(px+pw*.1,py+ph*.06,pw*.45,ph*.28,pw*.3);CX.fill();
+
+  } else if(fx==='ninja'){
+    CX.fillStyle='rgba(0,0,0,.55)';rr(px+pw*.1,py+ph*.1,pw*.8,ph*.8,pw*.3);CX.fill();
+    CX.shadowColor='#cc0000';CX.shadowBlur=8;CX.strokeStyle='#cc0000';CX.lineWidth=2;
+    CX.beginPath();CX.moveTo(px+pw*.15,py+ph*.22);CX.lineTo(px+pw*.85,py+ph*.78);CX.stroke();
+    CX.shadowBlur=0;CX.lineWidth=1;
+
+  } else if(fx==='soccer'){
+    CX.save();CX.beginPath();rr(px,py,pw,ph,pw*.4);CX.clip();
+    CX.strokeStyle='rgba(0,0,0,.25)';CX.lineWidth=1.5;
+    for(let hy=py+4;hy<py+ph;hy+=10){
+      const off=(Math.floor((hy-py)/10)%2)*4;
+      for(let hx=px+off;hx<px+pw;hx+=8){CX.beginPath();CX.arc(hx,hy,3.2,0,Math.PI*2);CX.stroke();}
+    }
+    CX.restore();
+    CX.fillStyle='rgba(255,255,255,.15)';rr(px+pw*.12,py+ph*.06,pw*.42,ph*.28,pw*.3);CX.fill();
+
+  } else if(fx==='robot'){
+    CX.fillStyle='rgba(255,255,255,.18)';rr(px+pw*.05,py+ph*.05,pw*.9,ph*.4,pw*.2);CX.fill();
+    CX.fillStyle='rgba(0,0,0,.2)';rr(px+pw*.05,py+ph*.5,pw*.9,ph*.44,pw*.2);CX.fill();
+    CX.strokeStyle='rgba(255,200,0,.45)';CX.lineWidth=1;
+    CX.beginPath();CX.moveTo(px+pw*.05,py+ph*.5);CX.lineTo(px+pw*.95,py+ph*.5);CX.stroke();CX.lineWidth=1;
+    // Eye dot
+    CX.beginPath();arc(px+pw*.5,py+ph*.28,pw*.14,0,Math.PI*2);
+    CX.fillStyle=`rgba(255,200,0,${0.5+Math.sin(t*4)*.3})`;CX.fill();
+
+  } else if(fx==='retro'){
+    CX.save();CX.beginPath();rr(px,py,pw,ph,pw*.2);CX.clip();
+    const bsz=pw/3;
+    CX.fillStyle='rgba(255,255,255,.15)';CX.fillRect(px,py,bsz,ph);
+    CX.fillStyle='rgba(0,0,0,.1)';CX.fillRect(px+bsz,py,bsz,ph);
+    CX.fillStyle='rgba(255,255,255,.08)';CX.fillRect(px+bsz*2,py,bsz,ph);
+    CX.restore();
+
+  } else if(fx==='ocean'){
+    CX.save();CX.globalAlpha=0.35;CX.strokeStyle='#00ffff';CX.lineWidth=1.5;
+    for(let wi=0;wi<3;wi++){
+      const wy=py+ph*(0.2+wi*0.25)+Math.sin(t*2+wi)*4;
+      CX.beginPath();CX.moveTo(px,wy);
+      for(let wx2=0;wx2<=pw;wx2+=4){CX.lineTo(px+wx2,wy+Math.sin((wx2/pw)*Math.PI*2+t*3)*3);}
+      CX.stroke();
+    }
+    CX.restore();
+
+  } else if(fx==='lava'){
+    for(let i=0;i<3;i++){
+      const bx=px+pw*(0.2+i*0.3);const by=py+ph*(0.3+Math.sin(t*2+i)*0.18);
+      CX.beginPath();arc(bx,by,pw*0.18,0,Math.PI*2);
+      CX.fillStyle=`rgba(255,${70+i*40},0,0.32)`;CX.fill();
+    }
+
+  } else if(fx==='electric'){
+    const ep=0.5+Math.sin(t*15)*0.5;
+    CX.strokeStyle=`rgba(255,255,0,${ep*0.65})`;CX.lineWidth=1.5;
+    CX.shadowColor='#ffff00';CX.shadowBlur=8*ep;
+    CX.beginPath();CX.moveTo(pd.x,py);
+    for(let ey=8;ey<ph;ey+=8){CX.lineTo(px+pw*(0.25+Math.sin(ey+t*5)*0.5),py+ey);}
+    CX.stroke();CX.shadowBlur=0;CX.lineWidth=1;
+
+  } else if(fx==='ghost'){
+    CX.save();CX.globalAlpha=0.55+Math.sin(t*2)*0.12;
+    CX.fillStyle='rgba(180,180,255,.18)';rr(px,py,pw,ph,pw*.5);CX.fill();
+    CX.globalAlpha=1;
+    CX.strokeStyle=`rgba(200,200,255,${0.35+Math.sin(t*3)*0.15})`;CX.lineWidth=1.5;
+    rr(px,py,pw,ph,pw*.5);CX.stroke();CX.lineWidth=1;
+    CX.restore();
+
+  } else if(fx==='dragon'){
+    CX.save();CX.beginPath();rr(px,py,pw,ph,pw*.4);CX.clip();
+    CX.fillStyle='rgba(255,140,0,.2)';
+    for(let dy=py;dy<py+ph;dy+=7){
+      const off=(Math.floor((dy-py)/7)%2)*3.5;
+      for(let dx=px+off;dx<px+pw;dx+=7){
+        CX.beginPath();CX.ellipse(dx,dy,3,3.2,0,0,Math.PI*2);CX.fill();
+      }
+    }
+    CX.restore();
+    CX.shadowColor='#ffd700';CX.shadowBlur=18+Math.sin(t*3)*8;
+    CX.strokeStyle='#ffd700';CX.lineWidth=1.5;rr(px,py,pw,ph,pw*.4);CX.stroke();
+    CX.shadowBlur=0;CX.lineWidth=1;
+
+  } else if(fx==='cosmic'){
+    for(let i=0;i<6;i++){
+      const sx=px+pw*(0.1+((i*137+Math.floor(t*20)%100)%90)/90*0.8);
+      const sy=py+ph*(0.1+((i*97+Math.floor(t*15)%100)%90)/90*0.8);
+      CX.beginPath();arc(sx,sy,1.2+Math.sin(t*3+i)*0.6,0,Math.PI*2);
+      CX.fillStyle=`rgba(${i%2?255:180},${i%3?100:200},255,${0.55+Math.sin(t+i)*0.3})`;CX.fill();
+    }
+
+  } else if(fx==='aurora'){
+    const ag=CX.createLinearGradient(px,py+ph*(0.2+Math.sin(t)*0.08),px,py+ph*.85);
+    ag.addColorStop(0,`rgba(0,255,136,${0.22+Math.sin(t*2)*0.1})`);
+    ag.addColorStop(0.5,`rgba(255,0,204,${0.16+Math.sin(t*1.5)*0.1})`);
+    ag.addColorStop(1,'transparent');
+    CX.fillStyle=ag;rr(px,py,pw,ph,pw*.45);CX.fill();
+    CX.strokeStyle=`rgba(0,255,136,${0.38+Math.sin(t*3)*0.18})`;CX.lineWidth=1.5;
+    rr(px,py,pw,ph,pw*.45);CX.stroke();CX.lineWidth=1;
+
+  } else if(fx==='legendary'){
+    CX.shadowColor='#ffd700';CX.shadowBlur=22+Math.sin(t*2)*10;
+    for(let i=0;i<4;i++){
+      const ang=t*2+i*Math.PI/2;
+      CX.beginPath();arc(pd.x+Math.cos(ang)*ph*.38,pd.y+Math.sin(ang)*ph*.38,3,0,Math.PI*2);
+      CX.fillStyle='rgba(255,215,0,.85)';CX.fill();
+    }
+    CX.strokeStyle='#ffd700';CX.lineWidth=2;rr(px,py,pw,ph,pw*.4);CX.stroke();
+    CX.shadowBlur=0;CX.lineWidth=1;
+
+  } else if(fx==='hacker'){
+    // Skin Anonymous: cuerpo negro con borde verde, careto, código binario flotando y DEVELOPER encima
+    const cx0=px+pw/2, cy0=py+ph*.5;
+    CX.save();
+    CX.fillStyle='#040704'; CX.beginPath(); rr(px,py,pw,ph,pw*.4); CX.fill();
+    CX.strokeStyle='#00ff66'; CX.lineWidth=Math.max(1.5,pw*.1); CX.shadowColor='#00ff66'; CX.shadowBlur=10;
+    CX.beginPath(); rr(px,py,pw,ph,pw*.4); CX.stroke(); CX.shadowBlur=0;
+    // careto de Anonymous
+    const fw=pw*.82, fh=Math.min(ph*.3, pw*2.6), top=cy0-fh*.5, bot=cy0+fh*.5;
+    CX.fillStyle='#d8ffe0';
+    CX.beginPath(); CX.moveTo(cx0,top);
+    CX.quadraticCurveTo(cx0+fw*.62,top,cx0+fw*.5,cy0-fh*.05);
+    CX.quadraticCurveTo(cx0+fw*.42,bot-fh*.02,cx0,bot);
+    CX.quadraticCurveTo(cx0-fw*.42,bot-fh*.02,cx0-fw*.5,cy0-fh*.05);
+    CX.quadraticCurveTo(cx0-fw*.62,top,cx0,top); CX.fill();
+    CX.strokeStyle='#040704'; CX.lineWidth=Math.max(1,pw*.08); CX.lineCap='round';
+    CX.beginPath(); CX.moveTo(cx0-fw*.38,cy0-fh*.2); CX.quadraticCurveTo(cx0-fw*.2,cy0-fh*.3,cx0-fw*.06,cy0-fh*.22);
+    CX.moveTo(cx0+fw*.06,cy0-fh*.22); CX.quadraticCurveTo(cx0+fw*.2,cy0-fh*.3,cx0+fw*.38,cy0-fh*.2); CX.stroke();
+    CX.fillStyle='#040704';
+    CX.beginPath(); CX.ellipse(cx0-fw*.18,cy0-fh*.12,fw*.09,fh*.05,0,0,Math.PI*2); CX.fill();
+    CX.beginPath(); CX.ellipse(cx0+fw*.18,cy0-fh*.12,fw*.09,fh*.05,0,0,Math.PI*2); CX.fill();
+    CX.fillStyle='rgba(0,255,102,.35)';
+    CX.beginPath(); CX.arc(cx0-fw*.3,cy0+fh*.05,fw*.07,0,Math.PI*2); CX.fill();
+    CX.beginPath(); CX.arc(cx0+fw*.3,cy0+fh*.05,fw*.07,0,Math.PI*2); CX.fill();
+    CX.fillStyle='#040704';
+    CX.beginPath(); CX.moveTo(cx0,cy0+fh*.12); CX.quadraticCurveTo(cx0-fw*.2,cy0+fh*.02,cx0-fw*.36,cy0+fh*.1);
+    CX.quadraticCurveTo(cx0-fw*.2,cy0+fh*.14,cx0,cy0+fh*.16);
+    CX.quadraticCurveTo(cx0+fw*.2,cy0+fh*.14,cx0+fw*.36,cy0+fh*.1);
+    CX.quadraticCurveTo(cx0+fw*.2,cy0+fh*.02,cx0,cy0+fh*.12); CX.fill();
+    CX.strokeStyle='#040704'; CX.lineWidth=Math.max(1,pw*.07);
+    CX.beginPath(); CX.moveTo(cx0-fw*.25,cy0+fh*.22); CX.quadraticCurveTo(cx0,cy0+fh*.34,cx0+fw*.25,cy0+fh*.22); CX.stroke();
+    CX.fillStyle='#040704';
+    CX.beginPath(); CX.moveTo(cx0-fw*.1,cy0+fh*.3); CX.lineTo(cx0+fw*.1,cy0+fh*.3); CX.lineTo(cx0,cy0+fh*.46); CX.closePath(); CX.fill();
+    // código binario flotando alrededor de la pala
+    const fsz=Math.max(8, pw*.5);
+    CX.font=`bold ${Math.round(fsz)}px monospace`; CX.textAlign='center'; CX.textBaseline='middle';
+    for(let i=0;i<10;i++){
+      const ang=i*(Math.PI*2/10)+t*.5*(i%2?1:-1);
+      const rx=pw*1.5+(i%3)*pw*.35, ry=ph*.42;
+      const x=cx0+Math.cos(ang)*rx, y=cy0+Math.sin(ang)*ry;
+      const txt=((i*5+Math.floor(t*3))%3)===0 ? '01' : ((i+Math.floor(t*2))%2 ? '1' : '0');
+      CX.globalAlpha=.45+Math.sin(t*3+i)*.3;
+      CX.fillStyle='#00ff66'; CX.shadowColor='#00ff66'; CX.shadowBlur=6;
+      CX.fillText(txt, x, y);
+    }
+    CX.globalAlpha=1; CX.shadowBlur=0;
+    // DEVELOPER justo encima de la skin
+    CX.font=`bold ${Math.max(10, Math.round(H*.018))}px monospace`; CX.fillStyle='#00ff66';
+    CX.textAlign='center'; CX.textBaseline='bottom'; CX.shadowColor='#00ff66'; CX.shadowBlur=8;
+    CX.fillText('DEVELOPER', cx0, py-4);
+    CX.restore();
+    CX.shadowBlur=0; CX.lineWidth=1;
+  } else if(fx==='diamond'){
+    // Diamante: cuerpo cristalino con facetas, destellos, borde dorado y etiqueta VIP encima
+    CX.save();
+    const gg=CX.createLinearGradient(px,py,px+pw,py+ph);
+    gg.addColorStop(0,'#eafcff'); gg.addColorStop(.45,'#7fe7ff'); gg.addColorStop(1,'#2a7fd4');
+    CX.fillStyle=gg; CX.beginPath(); rr(px,py,pw,ph,pw*.4); CX.fill();
+    CX.save(); CX.beginPath(); rr(px,py,pw,ph,pw*.4); CX.clip();
+    CX.strokeStyle='rgba(255,255,255,.7)'; CX.lineWidth=1;
+    for(let k=0;k<4;k++){ const y0=py+ph*(k*0.25); CX.beginPath(); CX.moveTo(px,y0); CX.lineTo(px+pw,y0+ph*0.12); CX.stroke(); }
+    CX.restore();
+    CX.strokeStyle='#ffd700'; CX.lineWidth=Math.max(1.2,pw*.07); CX.shadowColor='#ffd700'; CX.shadowBlur=8;
+    CX.beginPath(); rr(px,py,pw,ph,pw*.4); CX.stroke(); CX.shadowBlur=0;
+    for(let k=0;k<4;k++){
+      const a=t*1.2+k*1.6, sx=px+pw/2+Math.cos(a)*pw*.8, sy=py+ph*(0.2+0.6*((k*0.37+t*0.2)%1));
+      CX.globalAlpha=.4+Math.sin(t*4+k)*.35; CX.fillStyle='#ffffff'; CX.shadowColor='#ffffff'; CX.shadowBlur=8;
+      CX.beginPath(); arc(sx,sy,Math.max(1.5,pw*.12),0,Math.PI*2); CX.fill();
+    }
+    CX.globalAlpha=1; CX.shadowBlur=0;
+    CX.font=`bold ${Math.max(10, Math.round(H*.018))}px Orbitron,monospace`; CX.fillStyle='#ffd700';
+    CX.textAlign='center'; CX.textBaseline='bottom'; CX.shadowColor='#ffd700'; CX.shadowBlur=10;
+    CX.fillText('VIP', px+pw/2, py-4);
+    CX.restore();
+    CX.shadowBlur=0; CX.lineWidth=1;
+
+  } else {
+    // Default highlight
+    CX.fillStyle='rgba(255,255,255,.22)';rr(px+pw*.15,py+ph*.08,pw*.4,ph*.34,pw*.4);CX.fill();
   }
 
-  function showEnd(){
-    const btns=[{label:t('demo_keep')},{label:t('demo_menu'), onClick:()=>{ if(gameRunning) backToMenu(); else goTo('sMenu'); }}];
-    if(window.ACCOUNTS_ENABLED) btns.push({label:t('demo_create'), onClick:()=>{ if(gameRunning) backToMenu(); goTo('sAccount'); }});
-    uiModal('<div style="color:#ffe44d;font-weight:700;font-size:.85rem">'+t('demo_done_t')+'</div>'+
-            '<div style="color:#aaa;font-size:.68rem;margin-top:10px;line-height:1.6">'+t('demo_done_d')+'</div>', btns);
+  // Online: outline own paddle
+  if(mode==='online'){
+    const mine=(netRole==='host'&&isP1)||(netRole==='guest'&&!isP1);
+    if(mine){CX.strokeStyle='rgba(255,255,255,.35)';CX.lineWidth=2;rr(px,py,pw,ph,pw*.4);CX.stroke();CX.lineWidth=1;}
+  }
+  CX.restore();
+
+  // ── Paddle emote animation (Fortnite-style, drawn on/around the paddle) ──
+  drawPaddleEmote(pd, player, performance.now()*0.001);
+}
+
+function buildPaddleFill(px,py,pw,ph,c,fx,isP1,t=0){
+  if(fx==='metal'){
+    const g=CX.createLinearGradient(px,py,px,py+ph);
+    g.addColorStop(0,lighten(c,.4));g.addColorStop(.5,c);g.addColorStop(1,darken(c,.25));
+    return g;
+  }
+  if(fx==='fire'){
+    // Animated gradient shift
+    const shift=Math.sin(t*6)*.1;
+    const g=CX.createLinearGradient(px,py,px,py+ph);
+    g.addColorStop(0,'#ffee44');
+    g.addColorStop(.3+shift,c);
+    g.addColorStop(1,'#770000');
+    return g;
+  }
+  if(fx==='ice'){
+    const g=CX.createLinearGradient(px,py,px+pw,py+ph);
+    g.addColorStop(0,'#eef8ff');g.addColorStop(.5,c);g.addColorStop(1,'#6ab8e8');
+    return g;
+  }
+  if(fx==='wood'){
+    const g=CX.createLinearGradient(px,py,px+pw,py);
+    g.addColorStop(0,darken(c,.2));g.addColorStop(.5,lighten(c,.12));g.addColorStop(1,darken(c,.12));
+    return g;
+  }
+  if(fx==='dark'){
+    // Pulsing dark core
+    const dp=0.5+Math.sin(t*4)*.5;
+    const g=CX.createRadialGradient(px+pw*.5,py+ph*.5,0,px+pw*.5,py+ph*.5,ph*.6);
+    g.addColorStop(0,c.slice(0,7)+(Math.round(dp*255).toString(16).padStart(2,'0')));
+    g.addColorStop(1,'#050508');
+    return g;
+  }
+  if(fx==='neon'){
+    const g=CX.createLinearGradient(px,py,px,py+ph);
+    g.addColorStop(0,lighten(c,.15));g.addColorStop(.5,c);g.addColorStop(1,darken(c,.15));
+    return g;
+  }
+  if(fx==='soft'){
+    const g=CX.createLinearGradient(px,py,px,py+ph);
+    g.addColorStop(0,lighten(c,.3));g.addColorStop(1,c);
+    return g;
+  }
+  // Default
+  const g=CX.createLinearGradient(px,py,px,py+ph);
+  g.addColorStop(0,lighten(c,.22));g.addColorStop(1,darken(c,.15));
+  return g;
+}
+function lighten(hex,amt){ return adjustColor(hex,amt); }
+function darken(hex,amt){ return adjustColor(hex,-amt); }
+function adjustColor(hex,amt){
+  const r=parseInt(hex.slice(1,3),16),g2=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  const clamp=v=>Math.max(0,Math.min(255,Math.round(v+amt*255)));
+  return `rgb(${clamp(r)},${clamp(g2)},${clamp(b)})`;
+}
+// ═══════════════════════════════════════════════════════════════
+//  MISIONES: diarias (3 al día), semanales (2 a la semana) y especiales (una vez)
+//  La recompensa se muestra antes de completarla y se entrega al completarla.
+//  No cuentan en partidas locales de 2 jugadores.
+// ═══════════════════════════════════════════════════════════════
+const MISSION_DEFS = {
+  d_play2:  {type:'daily',  metric:'matches',       goal:2,  diff:1, reward:{coins:30}},
+  d_win1:   {type:'daily',  metric:'win_total',     goal:1,  diff:2, reward:{coins:60, gems:1}},
+  d_goals3: {type:'daily',  metric:'goals_match',   goal:3,  diff:2, reward:{coins:60}},
+  d_bounce8:{type:'daily',  metric:'bounces_match', goal:8,  diff:1, reward:{coins:40}},
+  d_noconc: {type:'daily',  metric:'nocon_win',     goal:1,  diff:3, reward:{coins:120, gems:2}},
+  d_late:   {type:'daily',  metric:'late_goal',     goal:1,  diff:3, reward:{coins:100, gems:2}, needsTimer:true},
+  d_pw:     {type:'daily',  metric:'pw_total',      goal:1,  diff:1, reward:{coins:30}},
+  w_win5:   {type:'weekly', metric:'win_total',     goal:5,  diff:2, reward:{coins:250, gems:3}},
+  w_buy2:   {type:'weekly', metric:'buy',           goal:2,  diff:2, reward:{coins:200, gems:2}},
+  w_golden: {type:'weekly', metric:'golden_win',    goal:1,  diff:3, reward:{coins:150, gems:4}},
+  w_tourn:  {type:'weekly', metric:'tourn_end',     goal:1,  diff:3, reward:{coins:300, gems:5, skin:'skin_legendary'}},
+  s_first:  {type:'special',metric:'win_total',     goal:1,  diff:1, reward:{coins:50}},
+  s_goals50:{type:'special',metric:'goals_total',   goal:50, diff:3, reward:{coins:200, gems:3}},
+  s_pw10:   {type:'special',metric:'pw_total',      goal:10, diff:2, reward:{coins:100}},
+  s_skins5: {type:'special',metric:'skins_owned',   goal:5,  diff:2, reward:{gems:2}},
+  s_golden: {type:'special',metric:'golden_win',    goal:1,  diff:2, reward:{gems:2}},
+};
+const MISSION_POOL = {
+  daily:  ['d_play2','d_win1','d_goals3','d_bounce8','d_noconc','d_late','d_pw'],
+  weekly: ['w_win5','w_buy2','w_golden','w_tourn'],
+  special:['s_first','s_goals50','s_pw10','s_skins5','s_golden']
+};
+let mStat = {goals:0, conceded:0, bounces:0, lateGoal:false};
+let missionTab = 'daily';
+function mStatReset(){ mStat = {goals:0, conceded:0, bounces:0, lateGoal:false}; }
+
+// Qué lado de la pantalla es "mío" para las misiones (null = no cuenta)
+function mySide(){
+  if(mode==='online') return netRole==='host' ? 1 : (netRole==='guest' ? 2 : 0);
+  if(mode==='single') return 1;
+  if(mode==='tourn'){
+    const fx=trnFixtures[trnMatchIdx]; if(!fx) return 0;
+    const hA=!trnPlayers[fx.i].isCpu, hB=!trnPlayers[fx.j].isCpu;
+    if(hA && !hB) return 1;
+    if(hB && !hA) return 2;
+  }
+  return 0;
+}
+
+function dayKey(d){
+  d=d||new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function weekKey(){                                   // la semana empieza el lunes
+  const d=new Date(); const back=(d.getDay()+6)%7;
+  return dayKey(new Date(d.getFullYear(), d.getMonth(), d.getDate()-back));
+}
+function nextResetMs(type){
+  const now=new Date();
+  if(type==='daily') return new Date(now.getFullYear(), now.getMonth(), now.getDate()+1) - now;
+  const back=(now.getDay()+6)%7;
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate()-back+7) - now;
+}
+function hashStr(s){ let h=2166136261; for(const ch of s){ h^=ch.charCodeAt(0); h=Math.imul(h,16777619)>>>0; } return h; }
+function pickSeeded(pool, n, seed){                   // misma semana/día = mismas misiones para todos
+  const list=pool.slice(), out=[]; let h=hashStr(seed);
+  while(out.length<n && list.length){ h=(Math.imul(h,1103515245)+12345)>>>0; out.push(list.splice(h%list.length,1)[0]); }
+  return out;
+}
+function ensureMissions(){
+  const old=(playerData.missions && typeof playerData.missions==='object') ? playerData.missions : {};
+  const dk=dayKey(), wk=weekKey();
+  const grp=(key, ids, prev)=> (prev && prev.key===key && prev.items && typeof prev.items==='object')
+      ? {key:key, ids:ids, items:prev.items} : {key:key, ids:ids, items:{}};
+  const m={
+    daily:  grp(dk, pickSeeded(MISSION_POOL.daily, 3, 'd'+dk), old.daily),
+    weekly: grp(wk, pickSeeded(MISSION_POOL.weekly, 2, 'w'+wk), old.weekly),
+    special:{key:'once', ids:MISSION_POOL.special.slice(),
+             items:(old.special && old.special.items && typeof old.special.items==='object') ? old.special.items : {}}
+  };
+  playerData.missions=m;
+  return m;
+}
+function applyMissions(metric, v, isMax){
+  if(window.noProgress) return;
+  const m=ensureMissions(); let changed=false; const doneNow=[];
+  ['daily','weekly','special'].forEach(type=>{
+    const g=m[type];
+    g.ids.forEach(id=>{
+      const def=MISSION_DEFS[id];
+      if(!def || def.metric!==metric) return;
+      const it = g.items[id] || (g.items[id]={p:0, done:false});
+      if(it.done) return;
+      const before=it.p;
+      it.p = isMax ? Math.max(it.p, v) : Math.min(def.goal, it.p+v);
+      if(it.p!==before) changed=true;
+      if(it.p>=def.goal){ it.done=true; changed=true; doneNow.push(id); }
+    });
+  });
+  if(changed){ playerData.missions=m; savePlayerData(); }
+  doneNow.forEach(missionGrant);
+  if(changed) refreshMissionsIfOpen();
+}
+function missionsAdd(metric, n){ applyMissions(metric, n, false); }
+function missionsSetMax(metric, v){ applyMissions(metric, v, true); }
+
+function missionGrant(id){
+  const def=MISSION_DEFS[id], r=def.reward;
+  if(r.coins) playerData.coins=(playerData.coins||0)+r.coins;
+  if(r.gems)  playerData.gems=(playerData.gems||0)+r.gems;
+  if(r.skin && !isSkinOwned(ALL_SKINS.find(s=>s.k===r.skin))){
+    playerData.unlockedSkins=(playerData.unlockedSkins||['skin_default']).concat([r.skin]);
+  }
+  updateCurrencyDisplay(); savePlayerData();
+  const parts=[];
+  if(r.coins) parts.push('+'+r.coins+' 🪙');
+  if(r.gems)  parts.push('+'+r.gems+' 💎');
+  if(r.skin){ const s=ALL_SKINS.find(x=>x.k===r.skin); if(s) parts.push('🎨 '+skinLabel(s)); }
+  setTimeout(()=>{                          // después del aviso de fin de partido
+    const pop=document.createElement('div');
+    pop.className='reward-pop';
+    pop.innerHTML='<div class="reward-title">'+t('mis_popup')+'</div>'+
+      '<div style="font-family:Rajdhani,sans-serif;font-size:.8rem;color:#ccc;margin:6px 0">'+t('m_'+id)+'</div>'+
+      '<div class="reward-amt" style="font-size:1.05rem;color:#ffe44d">'+parts.join(' · ')+'</div>';
+    document.body.appendChild(pop);
+    setTimeout(()=>pop.remove(), 3200);
+  }, 700);
+}
+
+// Eventos del juego
+function missionsOnGoal(scorer){
+  const me=mySide(); if(!me) return;
+  if(scorer===me){
+    mStat.goals++;
+    missionsAdd('goals_total',1);
+    missionsSetMax('goals_match', mStat.goals);
+    if(matchTimerEnd>0 && matchTimerEnd-Date.now()<=10000){ mStat.lateGoal=true; missionsAdd('late_goal',1); }
+  } else {
+    mStat.conceded++;
+  }
+}
+function missionBounce(){
+  const me=mySide(); if(!me) return;
+  mStat.bounces++;
+  missionsSetMax('bounces_match', mStat.bounces);
+}
+function missionsOnMatchEnd(winner){
+  const me=mySide(); if(!me) return;
+  missionsAdd('matches',1);
+  if(winner===me){
+    missionsAdd('win_total',1);
+    if(mStat.conceded===0) missionsAdd('nocon_win',1);
+    if(goldenGoal) missionsAdd('golden_win',1);
+  }
+  missionsSetMax('goals_match', mStat.goals);
+  missionsSetMax('bounces_match', mStat.bounces);
+}
+
+// Pantalla de misiones
+function setMissionTab(tab){ missionTab=tab; buildMissions(); }
+function fmtLeft(ms){
+  const h=Math.floor(ms/3600000), m=Math.floor((ms%3600000)/60000);
+  return h>0 ? tf('mis_time',{h:h,m:m}) : tf('mis_time_m',{m:m});
+}
+function rewardChips(r){
+  const c=[];
+  if(r.coins) c.push('<span class="cur-coin">🪙 '+r.coins+'</span>');
+  if(r.gems)  c.push('<span class="cur-gem">💎 '+r.gems+'</span>');
+  if(r.skin){ const s=ALL_SKINS.find(x=>x.k===r.skin); if(s) c.push('<span style="color:#88ffcc">🎨 '+skinLabel(s)+'</span>'); }
+  return c.join(' ');
+}
+function buildMissions(){
+  const list=document.getElementById('missionList'); if(!list) return;
+  missionsSetMax('skins_owned', (playerData.unlockedSkins||[]).length);
+  const m=ensureMissions();
+  document.querySelectorAll('.mis-tab').forEach(b=>b.classList.toggle('on', b.dataset.tab===missionTab));
+  const g=m[missionTab];
+  const rs=document.getElementById('misReset');
+  if(rs) rs.textContent = missionTab==='special' ? t('mis_once') : tf('mis_resets',{t:fmtLeft(nextResetMs(missionTab))});
+  list.innerHTML='';
+  g.ids.forEach(id=>{
+    const def=MISSION_DEFS[id], it=g.items[id]||{p:0, done:false};
+    const pct=Math.min(100, Math.round(it.p/def.goal*100));
+    const card=document.createElement('div');
+    card.className='mis-card'+(it.done?' done':'');
+    card.innerHTML=
+      '<div class="mis-top"><span class="mis-title">'+t('m_'+id)+'</span>'+
+        '<span class="mis-diff">'+'★'.repeat(def.diff)+'☆'.repeat(3-def.diff)+'</span></div>'+
+      '<div class="mis-bar"><div style="width:'+pct+'%"></div></div>'+
+      '<div class="mis-row"><span>'+tf('mis_progress',{p:Math.min(it.p,def.goal), g:def.goal})+'</span>'+
+        '<span class="mis-status">'+(it.done?t('mis_done'):'')+'</span></div>'+
+      '<div class="mis-rew"><span class="mis-rew-l">'+t('mis_reward')+':</span> '+rewardChips(def.reward)+'</div>'+
+      (def.needsTimer ? '<div class="mis-note">'+t('mis_needs_timer')+'</div>' : '');
+    list.appendChild(card);
+  });
+}
+function refreshMissionsIfOpen(){
+  const s=document.getElementById('sMissions');
+  if(s && !s.classList.contains('hidden')) buildMissions();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CÓDIGOS PROMOCIONALES
+//  Cada código se canjea una sola vez por jugador (se guarda con la cuenta o en el dispositivo).
+//  Campos: coins, gems, skin (clave de skin) y expires ("AAAA-MM-DD", opcional).
+//  Nota: como la lista está en el juego, cualquiera puede leerla. Sirve para regalos, no para
+//  proteger nada valioso. Para códigos limitados de verdad habría que validarlos en Firestore.
+// ═══════════════════════════════════════════════════════════════
+const PROMO_CODES = {
+  'BIENVENIDO': {coins:100, gems:5},
+  'PINGPONG26': {gems:10},
+  'COSMICO':    {skin:'skin_cosmic'},
+  'ONLINE':     {coins:50, gems:2},
+  'EXPERTO':    {coins:80, gems:3},
+};
+function grantRewards(r){
+  const parts=[];
+  if(r.coins){ playerData.coins=(playerData.coins||0)+r.coins; parts.push('+'+r.coins+' 🪙'); }
+  if(r.gems){  playerData.gems=(playerData.gems||0)+r.gems;   parts.push('+'+r.gems+' 💎'); }
+  if(r.skin){
+    const s=ALL_SKINS.find(x=>x.k===r.skin);
+    if(s){
+      if(!isSkinOwned(s)) playerData.unlockedSkins=(playerData.unlockedSkins||['skin_default']).concat([r.skin]);
+      parts.push('🎨 '+skinLabel(s));
+    }
+  }
+  return parts;
+}
+function redeemPromo(raw){
+  const code=String(raw||'').trim().toUpperCase().replace(/\s+/g,'');
+  if(!code) return {ok:false, msg:'promo_empty'};
+  if(!Object.prototype.hasOwnProperty.call(PROMO_CODES, code)) return {ok:false, msg:'promo_invalid'};
+  const def=PROMO_CODES[code];
+  if(def.expires && dayKey()>def.expires) return {ok:false, msg:'promo_expired'};
+  const used=Array.isArray(playerData.redeemed) ? playerData.redeemed.slice() : [];
+  if(used.includes(code)) return {ok:false, msg:'promo_used'};
+  const parts=grantRewards(def);
+  used.push(code); playerData.redeemed=used;
+  updateCurrencyDisplay(); savePlayerData();
+  return {ok:true, parts:parts};
+}
+function promoRedeemUI(){
+  const inp=document.getElementById('promoInput'), msg=document.getElementById('promoMsg');
+  const r=redeemPromo(inp.value);
+  msg.style.color = r.ok ? '#00cc66' : 'var(--err)';
+  msg.textContent = r.ok ? (t('promo_ok')+' '+r.parts.join(' · ')) : t(r.msg);
+  if(r.ok){ inp.value=''; buildShopGrid(); }
+}
+
+// ═════ 2. REPORTE DE BUGS ═════
+const GAME_VERSION = '1.1.0';
+const BUG_KEY = 'ppBugs_v1';
+let _errLog = [];
+window.addEventListener('error', e=>{ _errLog.push(String(e.message||'error')+' @'+(e.lineno||0)); if(_errLog.length>10) _errLog.shift(); });
+window.addEventListener('unhandledrejection', e=>{ _errLog.push('promise: '+String((e.reason&&e.reason.message)||e.reason)); if(_errLog.length>10) _errLog.shift(); });
+function currentScreenId(){
+  if(gameRunning) return 'game';
+  const s=[...document.querySelectorAll('.screen')].find(x=>!x.classList.contains('hidden'));
+  return s ? s.id : '?';
+}
+function techInfo(){
+  return {
+    version:GAME_VERSION, mode:(typeof mode!=='undefined' ? mode : null), screen:currentScreenId(),
+    lang:currentLang, viewport:window.innerWidth+'x'+window.innerHeight,
+    ua:String(navigator.userAgent||'').slice(0,200), touch:('ontouchstart' in window)||navigator.maxTouchPoints>0,
+    errors:_errLog.slice(-10)
+  };
+}
+function bugQueue(){
+  try{ const a=JSON.parse(localStorage.getItem(BUG_KEY)||'[]'); return Array.isArray(a) ? a : []; }catch(e){ return []; }
+}
+function bugQueueSave(a){ try{ localStorage.setItem(BUG_KEY, JSON.stringify(a.slice(-20))); }catch(e){} }
+// Las reglas de Firestore solo aceptan {uid, message, createdAt}: categoría y datos técnicos van dentro del mensaje
+function bugPayload(r, uid){
+  let msg='['+(r.category||'other')+'] '+String(r.text||'');
+  if(r.tech) msg+='\n\n--- datos técnicos ---\n'+JSON.stringify(r.tech);
+  return {uid:uid, message:msg.slice(0,2000), createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+}
+async function flushBugQueue(){
+  if(!(FB_OK && currentUser)) return;
+  const q=bugQueue(); if(!q.length) return;
+  const left=[];
+  for(const r of q){
+    try{ await db.collection('bugReports').add(bugPayload(r, currentUser.uid)); }
+    catch(e){ left.push(r); }
+  }
+  bugQueueSave(left);
+}
+async function sendBugReport(){
+  const msg=document.getElementById('bugMsg'), box=document.getElementById('bugText');
+  msg.style.color='';
+  const text=box.value.trim();
+  if(text.length<10){ msg.style.color='var(--err)'; msg.textContent=t('bug_short'); return; }
+  const report={
+    category:document.getElementById('bugCat').value, text:text.slice(0,2000),
+    tech: document.getElementById('bugTech').checked ? techInfo() : null,
+    username: (currentUser && playerData.displayName) ? playerData.displayName : null,
+    uid: currentUser ? currentUser.uid : null,
+    createdAt: new Date().toISOString(), version: GAME_VERSION
+  };
+  if(FB_OK && currentUser){
+    try{
+      await db.collection('bugReports').add(bugPayload(report, currentUser.uid));
+      msg.style.color='#00cc66'; msg.textContent=t('bug_sent'); box.value='';
+      return;
+    }catch(e){ /* sin permiso o sin conexión: se guarda abajo y se reenvía después */ }
+  }
+  const q=bugQueue(); q.push(report); bugQueueSave(q);
+  msg.style.color='#ffe44d'; msg.textContent=t('bug_saved'); box.value='';
+}
+function copyBugQueue(){
+  const msg=document.getElementById('bugMsg'), dump=document.getElementById('bugDump');
+  const q=bugQueue();
+  if(!q.length){ msg.style.color='#ffe44d'; msg.textContent=t('bug_none'); return; }
+  const txt=JSON.stringify(q,null,2);
+  const done=()=>{ msg.style.color='#00cc66'; msg.textContent=t('bug_copied'); dump.style.display='none'; };
+  const fallback=()=>{ dump.style.display='block'; dump.value=txt; dump.focus(); dump.select(); try{ if(document.execCommand('copy')) done(); }catch(e){} };
+  if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(done, fallback); }
+  else fallback();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  POTENCIADORES (partidas sin online)
+//  Aparecen en el centro, dejan de estar un rato, y el último que golpea la pelota
+//  y la toca se lleva el efecto. Duran poco; los malos son suaves.
+// ═══════════════════════════════════════════════════════════════
+const PW_TYPES = {
+  big:  {good:true,  icon:'⬆', col:'#44ff88', ttl:900, size:1.5 },   // 15 s
+  fast: {good:true,  icon:'⚡', col:'#ffe44d', ttl:900, speed:1.6},   // 15 s
+  slow: {good:false, icon:'🐢', col:'#66aaff', ttl:480, speed:0.65},  //  8 s
+  small:{good:false, icon:'⬇', col:'#ff8844', ttl:480, size:0.75}    //  8 s
+};
+const PW_LIFE = 600;            // el potenciador sigue en el campo 10 s si nadie lo toca
+let pwActive = null;            // {type, age}
+let pwNextAt = 1200;            // fotogramas hasta la siguiente aparición
+let pwEffects = {1:{}, 2:{}};  // fotogramas restantes de cada efecto, por jugador
+let pwFloats = [];              // textos que suben al recoger
+let lastHit = 0;                // quién golpeó la pelota por última vez (1 izquierda, 2 derecha)
+
+function pwGap(){ return 900 + Math.floor(Math.random()*600); }        // 15–25 s
+function pwMul(p, key){
+  if(mode==='online') return 1;                                          // online no usa potenciadores
+  let m=1;
+  Object.keys(pwEffects[p]).forEach(type=>{ const d=PW_TYPES[type]; if(d && d[key]) m*=d[key]; });
+  return m;
+}
+function pwReset(){
+  pwActive=null; pwNextAt=pwGap(); pwEffects={1:{}, 2:{}}; pwFloats=[]; lastHit=0; pwBursts=[];
+}
+function pwTick(){                                                      // una vez por fotograma de juego
+  if(mode==='online') return;
+  if(!pwActive){
+    if(--pwNextAt<=0){
+      const keys=Object.keys(PW_TYPES);
+      pwActive={type:keys[Math.floor(Math.random()*keys.length)], age:0};
+    }
+  } else {
+    pwActive.age++;
+    if(pwActive.age>PW_LIFE){ pwActive=null; pwNextAt=pwGap(); }
+  }
+  [1,2].forEach(p=>{
+    Object.keys(pwEffects[p]).forEach(k=>{ if(--pwEffects[p][k]<=0) delete pwEffects[p][k]; });
+  });
+  pwFloats.forEach(f=>f.age++);
+  pwFloats=pwFloats.filter(f=>f.age<70);
+}
+function pwRadius(){ return Math.max(16, H*.032); }
+function pwCheckPickup(br){                                             // tras mover la pelota
+  if(!pwActive || !lastHit) return;                                     // nadie lo ha golpeado: no cuenta
+  const dx=ball.x-W/2, dy=ball.y-H/2;
+  if(Math.hypot(dx,dy) > br+pwRadius()) return;
+  const type=pwActive.type, d=PW_TYPES[type];
+  pwEffects[lastHit][type]=d.ttl; if(mySide()===lastHit) missionsAdd('pw_total',1);
+  pwActive=null; pwNextAt=pwGap();
+  sndPower(d.good);
+  pwBurst(d.col);
+  const who = lastHit===1 ? p1Name : p2Name;
+  pwFloats.push({text:tf('pw_got',{p:who, n:t('pw_'+type)}), x:W/2, y:H/2-pwRadius()*1.8, age:0, col:d.col});
+}
+function sndPower(good){
+  if(!CFG.sndBall) return;
+  tone(good?660:200, good?'triangle':'sawtooth', .18, .35);
+  setTimeout(()=>tone(good?990:150,'sine',.22,.3), 90);
+}
+let pwBursts = [];
+let _ballT = 0;                 // fotogramas para la aceleración automática de la pelota              // destellos al recoger un potenciador
+// Iconos dibujados con trazos (no emojis: se ven igual en todos los dispositivos)
+function pwIcon(type, x, y, r, col){
+  CX.save();
+  CX.strokeStyle='#ffffff'; CX.fillStyle='#ffffff';
+  CX.lineWidth=Math.max(2, r*.16); CX.lineJoin='round'; CX.lineCap='round';
+  CX.shadowColor=col; CX.shadowBlur=r*.7;
+  CX.beginPath();
+  if(type==='big'){                                   // doble flecha arriba
+    [0, r*.55].forEach(dy=>{ CX.moveTo(x-r*.42, y+r*.12+dy); CX.lineTo(x, y-r*.4+dy); CX.lineTo(x+r*.42, y+r*.12+dy); });
+    CX.stroke();
+  } else if(type==='small'){                          // flecha abajo
+    CX.moveTo(x, y-r*.5); CX.lineTo(x, y+r*.38);
+    CX.moveTo(x-r*.4, y+r*.05); CX.lineTo(x, y+r*.45); CX.lineTo(x+r*.4, y+r*.05);
+    CX.stroke();
+  } else if(type==='fast'){                           // rayo
+    CX.moveTo(x+r*.18, y-r*.6); CX.lineTo(x-r*.36, y+r*.1); CX.lineTo(x-r*.02, y+r*.1);
+    CX.lineTo(x-r*.18, y+r*.6); CX.lineTo(x+r*.36, y-r*.1); CX.lineTo(x+r*.02, y-r*.1);
+    CX.closePath(); CX.fill();
+  } else {                                            // reloj de arena (lenta)
+    CX.moveTo(x-r*.38, y-r*.5); CX.lineTo(x+r*.38, y-r*.5); CX.lineTo(x-r*.04, y);
+    CX.lineTo(x+r*.38, y+r*.5); CX.lineTo(x-r*.38, y+r*.5); CX.lineTo(x+r*.04, y); CX.closePath();
+    CX.stroke();
+  }
+  CX.restore();
+}
+function pwBurst(col){
+  const parts=[];
+  for(let k=0;k<24;k++){
+    const a=Math.random()*Math.PI*2, sp=2+Math.random()*5;
+    parts.push({x:W/2, y:H/2, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp});
+  }
+  pwBursts.push({col:col, parts:parts, age:0});
+}
+function drawPowerups(){
+  if(mode==='online' || !pd1 || pd1.x===undefined) return;
+  const tm=performance.now()*0.001;
+  if(pwActive){
+    const d=PW_TYPES[pwActive.type], R0=pwRadius(), x=W/2, y=H/2;
+    const left=PW_LIFE-pwActive.age;
+    const grow=Math.min(1, pwActive.age/20);                  // aparece creciendo
+    const shrink= left<60 ? Math.max(0, left/60) : 1;          // desaparece encogiéndose
+    const blink = (left<150 && Math.floor(left/10)%2) ? 0.45 : 1;
+    const R=R0*(0.5+0.5*grow)*shrink*(1+Math.sin(tm*4)*.04);
+    CX.save(); CX.globalAlpha=blink*Math.min(1, shrink+.2);
+    // halo de color
+    let g=CX.createRadialGradient(x,y,R*.6,x,y,R*3);
+    g.addColorStop(0, d.col+'aa'); g.addColorStop(1, d.col+'00');
+    CX.fillStyle=g; CX.beginPath(); arc(x,y,R*3,0,Math.PI*2); CX.fill();
+    // cuerpo con brillo (esfera)
+    g=CX.createRadialGradient(x-R*.35, y-R*.4, R*.1, x, y, R);
+    g.addColorStop(0,'#ffffff'); g.addColorStop(.28,d.col); g.addColorStop(1,'#0a0c14');
+    CX.fillStyle=g; CX.beginPath(); arc(x,y,R,0,Math.PI*2); CX.fill();
+    // aro con cuatro segmentos que giran
+    CX.lineWidth=Math.max(2, R*.08); CX.strokeStyle=d.col; CX.shadowColor=d.col; CX.shadowBlur=R*.5;
+    for(let k=0;k<4;k++){ const a0=tm*2+k*Math.PI/2; CX.beginPath(); arc(x,y,R*1.12,a0,a0+Math.PI/4); CX.stroke(); }
+    CX.shadowBlur=0;
+    pwIcon(pwActive.type, x, y, R*.9, d.col);
+    CX.restore();
+    // chispas que orbitan
+    for(let k=0;k<6;k++){
+      const a=tm*1.5+k*Math.PI/3, orb=R*(1.35+Math.sin(tm*3+k)*.1);
+      CX.save(); CX.globalAlpha=blink*.9; CX.fillStyle=d.col; CX.shadowColor=d.col; CX.shadowBlur=8;
+      CX.beginPath(); arc(x+Math.cos(a)*orb, y+Math.sin(a)*orb, Math.max(1.5,R*.07), 0, Math.PI*2); CX.fill();
+      CX.restore();
+    }
+  }
+  // Efectos activos: contorno luminoso en la paleta y una insignia con icono y tiempo
+  [1,2].forEach(p=>{
+    const pd = p===1 ? pd1 : pd2;
+    if(!pd || pd.x===undefined) return;
+    const keys=Object.keys(pwEffects[p]);
+    if(!keys.length) return;
+    const first=PW_TYPES[keys[0]];
+    CX.save();
+    CX.globalAlpha=.5+Math.sin(tm*6)*.2; CX.strokeStyle=first.col; CX.lineWidth=3;
+    CX.shadowColor=first.col; CX.shadowBlur=14;
+    rr(pd.x-pd.w/2-3, pd.y-pd.h/2-3, pd.w+6, pd.h+6, pd.w*.5); CX.stroke();
+    CX.restore();
+    keys.forEach((k,i)=>{
+      const d=PW_TYPES[k], left=pwEffects[p][k], secs=Math.ceil(left/60);
+      const bw=Math.max(58, W*.065), bh=Math.max(20, H*.03);
+      const bx=pd.x-bw/2, by=pd.y-pd.h/2-bh-10-i*(bh+6);
+      CX.save();
+      CX.fillStyle='rgba(8,10,18,.85)'; rr(bx,by,bw,bh,bh/2); CX.fill();
+      CX.fillStyle=d.col; rr(bx+3, by+bh-5, Math.max(1,(bw-6)*Math.min(1,left/d.ttl)), 3, 1.5); CX.fill();
+      pwIcon(k, bx+bh*.55, by+bh/2, bh*.34, d.col);
+      CX.fillStyle='#ffffff'; CX.font=`bold ${Math.round(bh*.5)}px Orbitron,monospace`;
+      CX.textAlign='left'; CX.textBaseline='middle';
+      CX.fillText(secs+'s', bx+bh*1.0, by+bh/2+1);
+      CX.restore();
+    });
+  });
+  // Destellos al recoger
+  pwBursts.forEach(b=>{
+    b.age++;
+    const alpha=Math.max(0, 1-b.age/65);
+    b.parts.forEach(q=>{
+      q.x+=q.vx; q.y+=q.vy; q.vx*=.94; q.vy*=.94;
+      CX.save(); CX.globalAlpha=alpha; CX.fillStyle=b.col; CX.shadowColor=b.col; CX.shadowBlur=8;
+      CX.beginPath(); arc(q.x,q.y,2.6,0,Math.PI*2); CX.fill(); CX.restore();
+    });
+  });
+  pwBursts=pwBursts.filter(b=>b.age<65);
+  // Textos que suben al recoger
+  pwFloats.forEach(f=>{
+    CX.save();
+    CX.globalAlpha=Math.max(0,1-f.age/70);
+    CX.font=`bold ${Math.max(12,Math.round(W*.016))}px Orbitron,monospace`;
+    CX.fillStyle=f.col; CX.shadowColor=f.col; CX.shadowBlur=10;
+    CX.textAlign='center'; CX.textBaseline='middle';
+    CX.fillText(f.text, f.x, f.y-f.age*0.6);
+    CX.restore();
+  });
+}
+
+// ── TUTORIAL INTERACTIVO ─────────────────────────────────────────────────────
+// Cada paso: 1) ejemplo animado que se repite 2-3 veces (las paletas se mueven según el texto)
+//            2) tu turno: lo completas tú jugando (con W/S, flechas, dedo, o el botón de pausa)
+const TUT_STEPS=[
+  {id:'move',  title:'tut_s1_t', text:'tut_s1_x', hint:'tut_hint1', reps:2, P:4000},
+  {id:'hit',   title:'tut_s2_t', text:'tut_s2_x', hint:'tut_hint2', reps:3, P:3000},
+  {id:'goal',  title:'tut_s3_t', text:'tut_s3_x', hint:'tut_hint3', reps:3, P:3400},
+  {id:'score', title:'tut_s4_t', text:'tut_s4_x', hint:'tut_hint4', reps:2, P:4200},
+  {id:'pause', title:'tut_s5_t', text:'tut_s5_x', hint:'tut_hint5', reps:2, P:4000}
+];
+const TUT={mandatory:false, onFinish:null, note:'', idx:0, phase:'example', t0:0, okUntil:0, raf:0, cx:null, last:0, lastCyc:-1, keys:{up:false,down:false}, ptr:false, p:null};
+const TUT_W=340, TUT_H=200;
+function tutLerp(a,b,e){ return a+(b-a)*e; }
+function tutClamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+function tutField(cx){
+  cx.fillStyle='#0a0d18'; cx.fillRect(0,0,TUT_W,TUT_H);
+  cx.setLineDash([6,8]); cx.strokeStyle='#334'; cx.lineWidth=2;
+  cx.beginPath(); cx.moveTo(TUT_W/2,0); cx.lineTo(TUT_W/2,TUT_H); cx.stroke(); cx.setLineDash([]);
+}
+function tutPaddle(cx,xn,yn,col){
+  const pw=10, ph=TUT_H*0.24;
+  cx.fillStyle=col; cx.shadowColor=col; cx.shadowBlur=10;
+  cx.fillRect(xn*TUT_W-pw/2, yn*TUT_H-ph/2, pw, ph); cx.shadowBlur=0;
+}
+function tutBall(cx,xn,yn){
+  cx.fillStyle='#ffffff'; cx.shadowColor='#ffffff'; cx.shadowBlur=12;
+  cx.beginPath(); cx.arc(xn*TUT_W, yn*TUT_H, 6, 0, Math.PI*2); cx.fill(); cx.shadowBlur=0;
+}
+function tutLabel(cx,text,xn,yn,col,size){
+  cx.font='bold '+(size||14)+'px Orbitron, monospace'; cx.fillStyle=col||'#fff';
+  cx.textAlign='center'; cx.textBaseline='middle'; cx.fillText(text, xn*TUT_W, yn*TUT_H);
+}
+// Joystick en pantalla: un aro y un dedo que sigue a tu pala (así se entiende qué es)
+function tutJoy(cx,yn){
+  const x=0.78*TUT_W, y0=0.5*TUT_H, R=22;
+  cx.strokeStyle='#88aaff'; cx.lineWidth=2; cx.beginPath(); cx.arc(x,y0,R,0,Math.PI*2); cx.stroke();
+  const ky=tutClamp(y0+(yn-0.5)*2*R, y0-R, y0+R);
+  cx.fillStyle='#88aaff'; cx.shadowColor='#88aaff'; cx.shadowBlur=8;
+  cx.beginPath(); cx.arc(x,ky,7,0,Math.PI*2); cx.fill(); cx.shadowBlur=0;
+}
+// ── Ejemplos: las paletas se mueven según lo que dice el paso ──
+function tutExample(id,u,P){
+  const cx=TUT.cx, ph=u/P; tutField(cx);
+  if(id==='move'){
+    const y=0.5+0.32*Math.sin(ph*Math.PI*2);
+    tutPaddle(cx,0.06,y,'#ff2244'); tutPaddle(cx,0.94,0.5,'#2266ff');
+    tutJoy(cx,y);
+    tutLabel(cx,'W / ↑',0.3,0.1,'#00ff88',10); tutLabel(cx,'S / ↓',0.3,0.9,'#00ff88',10);
+  } else if(id==='hit'){
+    let bx,by,py=0.72,flash=false;
+    if(u<1800){ const e=u/1800; bx=tutLerp(0.86,0.13,e); by=tutLerp(0.28,0.62,e); py=tutLerp(0.8,0.62,e); }
+    else { const e=Math.min(1,(u-1800)/1200); bx=tutLerp(0.13,0.86,e); by=tutLerp(0.62,0.2,e); py=0.62; flash=u<2100; }
+    tutPaddle(cx,0.06,py,'#ff2244'); tutPaddle(cx,0.94,0.5,'#2266ff'); tutBall(cx,bx,by);
+    if(flash) tutLabel(cx,t('tut_hit'),0.2,0.12,'#ffe44d',13);
+  } else if(id==='goal'){
+    const ry = u<800 ? tutLerp(0.5,0.85,u/800) : 0.85;
+    tutPaddle(cx,0.06,0.5,'#ff2244'); tutPaddle(cx,0.94,ry,'#2266ff');
+    if(u>=900 && u<2400){ const e=(u-900)/1500; const bx=tutLerp(0.5,1.02,e), by=tutLerp(0.5,0.3,e); if(bx<=1) tutBall(cx,bx,by); }
+    if(u>=2400 && u<3300) tutLabel(cx,t('tut_goal'),0.5,0.5,'#ffe44d',26);
+  } else if(id==='score'){
+    const a=Math.min(7,Math.floor(ph*8));
+    tutPaddle(cx,0.06,0.5+0.3*Math.sin(ph*Math.PI*4),'#ff2244'); tutPaddle(cx,0.94,0.5+0.3*Math.cos(ph*Math.PI*3),'#2266ff');
+    tutLabel(cx,String(a),0.36,0.3,'#ff2244',40); tutLabel(cx,'–',0.5,0.3,'#fff',28); tutLabel(cx,'0',0.64,0.3,'#2266ff',40);
+    tutLabel(cx,t('tut_pts'),0.5,0.7,'#ffe44d',11);
+    for(let k=0;k<7;k++){ cx.fillStyle=k<a?'#ffe44d':'#334'; cx.beginPath(); cx.arc((0.2+k*0.1)*TUT_W,0.86*TUT_H,5,0,Math.PI*2); cx.fill(); }
+  } else if(id==='pause'){
+    const frozen = u>=1800 && u<2700;
+    const q = frozen ? 1800/P : ph;                 // al pausar, las paletas se paran
+    tutPaddle(cx,0.06,0.5+0.32*Math.sin(q*Math.PI*2),'#ff2244');
+    tutPaddle(cx,0.94,0.5+0.3*Math.cos(q*Math.PI*2),'#2266ff');
+    if(frozen){
+      cx.fillStyle='rgba(0,0,0,.45)'; cx.fillRect(0,0,TUT_W,TUT_H);
+      cx.fillStyle='#88aaff'; cx.fillRect(TUT_W/2-14,TUT_H*0.3,8,24); cx.fillRect(TUT_W/2+6,TUT_H*0.3,8,24);
+      tutLabel(cx,'P',0.5,0.8,'#fff',18); tutLabel(cx,t('tut_key_p'),0.5,0.9,'#88aaff',10);
+    }
+  }
+}
+// ── Tu turno: el juego del paso (coordenadas de 0 a 1) ──
+function tutServe(id,dir){
+  const p=TUT.p, s=0.0075;
+  if(id==='hit'){ p.bx=0.6; p.vx=-s; }
+  else { p.bx = dir>0 ? 0.12 : 0.88; p.vx = dir*s; }
+  p.by=0.35+Math.random()*0.3; p.vy=(Math.random()-0.5)*0.004;
+  if(id==='score') p.aiErr=(Math.random()-0.5)*0.22;   // error de cálculo de la IA (fácil)
+}
+function tutInitPlay(id){
+  TUT.p={me:0.5, ai:(id==='goal'?0.85:0.5), bx:0.5, by:0.5, vx:0, vy:0, hits:0, mePts:0, aiPts:0, cov:[false,false,false], goal:false, paused:false, presses:0, aiErr:0};
+  if(id!=='move') tutServe(id,1);
+}
+function tutUpdate(id,f){
+  const p=TUT.p, reach=0.13;
+  if(TUT.keys.up) p.me=tutClamp(p.me-0.012*f,0.12,0.88);
+  if(TUT.keys.down) p.me=tutClamp(p.me+0.012*f,0.12,0.88);
+  if(id==='move'){ [0.2,0.5,0.8].forEach((ty,i)=>{ if(!p.cov[i] && Math.abs(p.me-ty)<0.1) p.cov[i]=true; }); return; }
+  if(p.paused) return;
+  p.bx+=p.vx*f; p.by+=p.vy*f;
+  if(p.by<0.05){ p.by=0.05; p.vy=Math.abs(p.vy); }
+  if(p.by>0.95){ p.by=0.95; p.vy=-Math.abs(p.vy); }
+  // Modo fácil (solo en este paso): la IA va más despacio, se equivoca un poco al calcular y no llega a los extremos
+  if(id==='score') p.ai=tutClamp(p.ai+tutClamp((p.by+p.aiErr)-p.ai,-0.0035*f,0.0035*f),0.25,0.75);
+  if(id==='hit' && p.bx>0.96){ p.bx=0.96; p.vx=-Math.abs(p.vx); }
+  if((id==='goal'||id==='score') && p.bx>0.9 && p.vx>0 && Math.abs(p.by-p.ai)<reach){ p.bx=0.9; p.vx=-Math.abs(p.vx); }
+  if(p.bx<=0.08 && p.vx<0 && Math.abs(p.by-p.me)<reach){ p.bx=0.08; p.vx=Math.abs(p.vx); p.vy=(p.by-p.me)*0.02; if(id==='hit') p.hits++; }
+  if(id==='goal'){ if(p.bx<0) tutServe(id,1); if(p.bx>1) p.goal=true; }
+  if(id==='score'){
+    if(p.bx<0){ p.aiPts++; if(p.aiPts>=3){ p.aiPts=0; p.mePts=0; } tutServe(id,1); }
+    if(p.bx>1){ p.mePts++; tutServe(id,-1); }
+  }
+  if(id==='hit' && p.bx<0) tutServe(id,-1);
+  if(id==='pause'){ if(p.bx<0) tutServe(id,1); if(p.bx>1) tutServe(id,-1); }
+}
+function tutCheck(id){
+  const p=TUT.p;
+  if(id==='move') return p.cov.every(Boolean);
+  if(id==='hit') return p.hits>=3;
+  if(id==='goal') return p.goal;
+  if(id==='score') return p.mePts>=2;
+  if(id==='pause') return p.presses>=2;
+  return false;
+}
+function tutDrawPlay(id){
+  const cx=TUT.cx, p=TUT.p; tutField(cx);
+  if(id==='move'){
+    p.cov.forEach((c,i)=>{ const ty=[0.2,0.5,0.8][i];
+      cx.strokeStyle=c?'#00ff88':'#88ffbb'; cx.lineWidth=3; cx.beginPath(); cx.arc(0.22*TUT_W, ty*TUT_H, 11, 0, Math.PI*2); cx.stroke();
+      if(c){ cx.fillStyle='#00ff88'; cx.beginPath(); cx.arc(0.22*TUT_W, ty*TUT_H, 5, 0, Math.PI*2); cx.fill(); } });
+    tutLabel(cx,tf('tut_targets_c',{n:p.cov.filter(Boolean).length}),0.5,0.1,'#ffe44d',11);
+  } else {
+    tutBall(cx,p.bx,p.by);
+    if(id==='goal'||id==='score') tutPaddle(cx,0.94,p.ai,'#2266ff');
+    if(id==='hit') tutLabel(cx,tf('tut_hits',{n:p.hits}),0.5,0.1,'#ffe44d',11);
+    if(id==='score') tutLabel(cx,tf('tut_pts_c',{a:p.mePts,b:p.aiPts}),0.5,0.1,'#ffe44d',11);
+  }
+  tutPaddle(cx,0.06,p.me,'#ff2244');
+  tutJoy(cx,p.me);
+  if(id==='pause' && p.paused){ cx.fillStyle='rgba(0,0,0,.45)'; cx.fillRect(0,0,TUT_W,TUT_H); tutLabel(cx,'⏸',0.5,0.5,'#88aaff',40); }
+}
+function tutPhaseUI(n){
+  const el=document.getElementById('tutPhase'), st=TUT_STEPS[TUT.idx];
+  if(TUT.phase==='example') el.textContent=tf('tut_rep',{n:n||1,t:st.reps});
+  else if(TUT.phase==='play'){ el.textContent=t('tut_turn'); document.getElementById('tutHint').textContent=t(st.hint); }
+  else el.textContent=t('tut_ok');
+}
+function tutMsgSet(s){ document.getElementById('tutMsg').textContent=s; }
+function tutShowText(){
+  const st=TUT_STEPS[TUT.idx], last=TUT.idx===TUT_STEPS.length-1;
+  document.getElementById('tutNum').textContent=tf('tut_stepnum',{n:TUT.idx+1,t:TUT_STEPS.length});
+  document.getElementById('tutTitle').textContent=t(st.title);
+  document.getElementById('tutText').textContent=t(st.text);
+  document.getElementById('tutHint').textContent='';
+  tutMsgSet('');
+  const dots=document.getElementById('tutDots'); dots.innerHTML='';
+  TUT_STEPS.forEach((_,k)=>{ const d=document.createElement('span'); d.className='tut-dot'+(k===TUT.idx?' on':''); dots.appendChild(d); });
+  document.getElementById('tutPrev').disabled = TUT.idx===0;
+  const nx=document.getElementById('tutNext');
+  if(!TUT.mandatory && last){ nx.textContent=t('tut_play'); nx.onclick=tutPlay; }
+  else { nx.textContent=t('tut_next'); nx.onclick=tutNext; }
+}
+function tutStartExample(){
+  TUT.phase='example'; TUT.t0=performance.now(); TUT.lastCyc=-1; TUT.keys.up=false; TUT.keys.down=false;
+  tutShowText(); tutPhaseUI(1);
+}
+function tutNextStep(){
+  TUT.idx++;
+  if(TUT.idx>=TUT_STEPS.length){ tutFinish(); return; }
+  tutStartExample();
+}
+function tutFinish(){
+  TUT.phase='end'; tutStop();
+  if(TUT.onFinish){ TUT.onFinish(); }
+  else { document.getElementById('tutPhase').textContent=''; tutMsgSet(t('tut_end')); }
+}
+function tutFrame(now){
+  const sc=document.getElementById('sTutorial');
+  if(!sc || sc.classList.contains('hidden') || !TUT.cx){ TUT.raf=0; return; }
+  const dt=TUT.last?Math.min(50,now-TUT.last):16.67; TUT.last=now; const f=dt/16.67;
+  const st=TUT_STEPS[TUT.idx];
+  if(TUT.phase==='example'){
+    const el=now-TUT.t0, cyc=Math.floor(el/st.P);
+    if(cyc>=st.reps){ TUT.phase='play'; TUT.t0=now; tutInitPlay(st.id); tutPhaseUI(); }
+    else { if(cyc!==TUT.lastCyc){ TUT.lastCyc=cyc; tutPhaseUI(cyc+1); } tutExample(st.id, el%st.P, st.P); }
+  }
+  if(TUT.phase==='play'){
+    tutUpdate(st.id,f); tutDrawPlay(st.id);
+    if(tutCheck(st.id)){ TUT.phase='ok'; TUT.okUntil=now+1400; tutPhaseUI(); tutMsgSet(t('tut_ok')); }
+  } else if(TUT.phase==='ok'){
+    tutDrawPlay(st.id);
+    if(now>=TUT.okUntil){ tutNextStep(); }
+  }
+  TUT.raf = (TUT.phase==='end') ? 0 : requestAnimationFrame(tutFrame);
+}
+function tutStop(){ cancelAnimationFrame(TUT.raf); TUT.raf=0; }
+function tutTogglePause(){
+  if(TUT.phase!=='play' || !TUT.p) return;
+  TUT.p.paused=!TUT.p.paused;
+  if(TUT_STEPS[TUT.idx].id==='pause') TUT.p.presses++;      // pausar y seguir = 2 pulsaciones
+  document.getElementById('tutPause').textContent = TUT.p.paused ? t('tut_resume_btn') : t('tut_pause_btn');
+}
+function tutBindPointer(){
+  const cv=document.getElementById('tutCanvas'); if(cv._bound) return; cv._bound=true;
+  cv.style.touchAction='none';
+  const setY=(e)=>{ if(TUT.phase!=='play' || !TUT.p) return; const r=cv.getBoundingClientRect(); TUT.p.me=tutClamp((e.clientY-r.top)/r.height,0.12,0.88); };
+  cv.addEventListener('pointerdown', e=>{ TUT.ptr=true; setY(e); e.preventDefault(); });
+  cv.addEventListener('pointermove', e=>{ if(TUT.ptr) setY(e); });
+  const up=()=>{ TUT.ptr=false; };
+  cv.addEventListener('pointerup', up); cv.addEventListener('pointerleave', up); cv.addEventListener('pointercancel', up);
+}
+function startTutorial(opts){
+  opts=opts||{}; TUT.mandatory=!!opts.mandatory; TUT.onFinish=opts.onFinish||null; TUT.note=opts.note||'';
+  TUT.idx=0; TUT.p=null; TUT.last=0;
+  goTo('sTutorial');
+  TUT.cx=document.getElementById('tutCanvas').getContext('2d');
+  tutBindPointer();
+  ['tutPrev','tutNext','tutSkip'].forEach(id=>{ document.getElementById(id).style.display = TUT.mandatory ? 'none' : ''; });
+  const note=document.getElementById('tutNote'); note.textContent = TUT.note; note.style.display = TUT.note ? '' : 'none';
+  document.getElementById('tutPause').textContent = t('tut_pause_btn');
+  tutStop(); tutStartExample();
+  TUT.raf=requestAnimationFrame(tutFrame);
+}
+function tutNext(){ if(TUT.mandatory) return; if(TUT.idx<TUT_STEPS.length-1){ TUT.idx++; tutStartExample(); } }
+function tutPrev(){ if(TUT.mandatory) return; if(TUT.idx>0){ TUT.idx--; tutStartExample(); } }
+function tutSkip(){ if(TUT.mandatory) return; tutStop(); goTo('sMenu'); }
+function tutPlay(){ tutStop(); TUT.phase='end'; goTo('s1P'); go1P(); }
+document.addEventListener('keydown', e=>{
+  const s=document.getElementById('sTutorial'); if(!s || s.classList.contains('hidden')) return;
+  const k=e.key;
+  if(k==='ArrowUp'||k==='w'||k==='W'){ TUT.keys.up=true; e.preventDefault(); }
+  else if(k==='ArrowDown'||k==='s'||k==='S'){ TUT.keys.down=true; e.preventDefault(); }
+  else if(k==='p'||k==='P') tutTogglePause();
+  else if(k==='Escape' && !TUT.mandatory) tutSkip();
+  else if(k==='ArrowRight' && !TUT.mandatory) tutNext();
+  else if(k==='ArrowLeft' && !TUT.mandatory) tutPrev();
+});
+document.addEventListener('keyup', e=>{
+  const k=e.key;
+  if(k==='ArrowUp'||k==='w'||k==='W') TUT.keys.up=false;
+  if(k==='ArrowDown'||k==='s'||k==='S') TUT.keys.down=false;
+});
+function drawBall(){
+  drawPowerups();
+  const br=Math.max(4,BR());
+  const pal=ballPalette();
+  if(ball.tr&&ball.tr.length>1){
+    ball.tr.forEach((t,i)=>{
+      if(!i)return;
+      const fr=i/ball.tr.length,tr=br*fr*.8;
+      if(tr<=0)return;
+      CX.beginPath();arc(t.x,t.y,tr,0,Math.PI*2);
+      CX.fillStyle=`rgba(${pal[2]},${fr*.32})`;CX.fill();
+    });
+  }
+  const gr=Math.max(1,br*2.5);
+  let g=CX.createRadialGradient(ball.x,ball.y,0,ball.x,ball.y,gr);
+  g.addColorStop(0,`rgba(${pal[2]},.38)`);g.addColorStop(1,'transparent');
+  CX.fillStyle=g;CX.beginPath();arc(ball.x,ball.y,gr,0,Math.PI*2);CX.fill();
+  CX.shadowColor=pal[3];CX.shadowBlur=18;
+  g=CX.createRadialGradient(ball.x-br*.3,ball.y-br*.3,0,ball.x,ball.y,br);
+  g.addColorStop(0,'#fff');g.addColorStop(.4,pal[0]);g.addColorStop(1,pal[1]);
+  CX.fillStyle=g;CX.beginPath();arc(ball.x,ball.y,br,0,Math.PI*2);CX.fill();
+  CX.shadowBlur=0;
+}
+function drawParticles(){
+  if(!CFG.particles){parts=[];return;}
+  parts=parts.filter(p=>p.life>0);
+  parts.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;p.vy+=.15;p.life-=2;
+    const pr=p.r*Math.max(0,p.life/100);
+    if(pr<=0)return;
+    CX.beginPath();arc(p.x,p.y,pr,0,Math.PI*2);
+    CX.fillStyle=`rgba(${p.rgb},${Math.max(0,p.life/100)})`;CX.fill();
+  });
+}
+function spawnParts(x,y,c){
+  if(!CFG.particles) return;
+  const rgb=h2r(c).join(',');
+  for(let i=0;i<16;i++){
+    const a=Math.random()*Math.PI*2,s=2+Math.random()*5;
+    parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,r:3+Math.random()*4,life:60+Math.random()*40,rgb});
+  }
+}
+function spawnConfs(x,y,cols){
+  if(!CFG.particles) return;
+  for(let i=0;i<55;i++) confs.push({
+    x,y:y-20,vx:(Math.random()-.5)*12,vy:-8-Math.random()*8,
+    r:3+Math.random()*5,c:(cols&&cols.length)?cols[Math.floor(Math.random()*cols.length)]:`hsl(${Math.random()*360},100%,60%)`,
+    life:1,dec:.012+Math.random()*.008,sp:Math.random()*Math.PI*2,ss:(Math.random()-.5)*.3
+  });
+}
+function drawConfs(){
+  CCX.clearRect(0,0,W,H);
+  confs=confs.filter(c=>c.life>0);
+  confs.forEach(c=>{
+    c.x+=c.vx;c.vy+=.3;c.y+=c.vy;c.vx*=.98;c.life-=c.dec;c.sp+=c.ss;
+    CCX.save();CCX.translate(c.x,c.y);CCX.rotate(c.sp);
+    CCX.globalAlpha=Math.max(0,c.life);CCX.fillStyle=c.c;
+    CCX.fillRect(-c.r,-c.r/2,c.r*2,c.r);CCX.restore();
+  });
+}
+
+// ═══════════════════════════════════════════
+//  INPUT
+// ═══════════════════════════════════════════
+const K={};
+document.addEventListener('keydown',e=>{
+  K[e.key]=true;
+  // Don't trigger pause if user is typing in the chat input
+  const chatFocused = document.activeElement === document.getElementById('chatInput');
+  if(!chatFocused && (e.key==='p'||e.key==='P'||e.key==='Escape')&&gameRunning) togglePause();
+  // R key: emote wheel for P1 (or guest in online)
+  if(!chatFocused && (e.key==='r'||e.key==='R') && gameRunning){
+    if(emoteWheel.active) closeEmoteWheel();
+    else openEmoteWheel(mode==='online'&&netRole==='guest'?2:1);
+  }
+  // Arrow keys navigate emote wheel
+  if(emoteWheel.active){
+    if(e.key==='ArrowRight') emoteWheel.selected=(emoteWheel.selected+1)%EMOTES.length;
+    if(e.key==='ArrowLeft')  emoteWheel.selected=(emoteWheel.selected+EMOTES.length-1)%EMOTES.length;
+    if(e.key==='Enter') closeEmoteWheel();
+  }
+});
+document.addEventListener('keyup',e=>{K[e.key]=false;});
+
+// ═══════════════════════════════════════════
+//  AI — trajectory prediction with cached target
+// ═══════════════════════════════════════════
+// Cache: recalculate target only when ball changes X-direction
+const aiCache={L:{lastVx:0,target:0}, R:{lastVx:0,target:0}};
+
+// BALL_BASE_SPD: pixels/frame for ball to cross ~50% of field width in ~2s at 60fps
+// Formula: (W * 0.47) / (TARGET_SECONDS * 60) / cos(MAX_ANGLE)
+// W is read at runtime so speed is consistent across all devices
+// Velocidad base: la pelota cruza el campo en ~2 s en cualquier dispositivo (0.955 = ángulo medio de saque)
+function ballBaseSpd(){ return W * 0.94 / (2 * 60 * 0.955); }
+
+function diffCfgFor(d){
+  const base = ballBaseSpd();
+  // La IA va a la misma escala que la pelota, para que el reto no cambie
+  if(d==='easy')   return{cpu:base*0.83, spd:base*0.90, max:base*2.0, lag:0.18, err:0.55};
+  if(d==='medium') return{cpu:base*1.18, spd:base*1.00, max:base*2.6, lag:0.30, err:0.22};
+  return                 {cpu:base*1.43, spd:base*1.10, max:base*3.2, lag:0.55, err:0.04};
+}
+
+// Smooth tracking target per paddle (used for lag simulation)
+const aiSmooth={L:{y:0}, R:{y:0}};
+
+function moveCpu(pd, isLeft, d){
+  const cfg = diffCfgFor(d);
+  const key = isLeft?'L':'R';
+
+  // 1. Compute raw target: always aim at ball.y with aim error
+  //    Error is re-randomised only when ball changes direction (prevents jitter)
+  const c = aiCache[key];
+  if(Math.sign(ball.vx) !== Math.sign(c.lastVx)){
+    c.lastVx = ball.vx;
+    const goalH = GH();
+    c.errOffset = (Math.random()-0.5) * goalH * cfg.err;
+  }
+  const rawTarget = Math.max(FT()+pd.h/2, Math.min(FB()-pd.h/2, ball.y + c.errOffset));
+
+  // 2. Smooth the target with a lag spring (simulates reaction delay)
+  aiSmooth[key].y += (rawTarget - aiSmooth[key].y) * cfg.lag;
+  const target = aiSmooth[key].y;
+
+  // 3. Move paddle toward smoothed target at max cpu speed
+  const dv = target - pd.y;
+  const step = Math.min(Math.abs(dv), cfg.cpu*pwMul(isLeft?1:2,'speed'));
+  if(step > 0.3)
+    pd.y = Math.max(FT()+pd.h/2, Math.min(FB()-pd.h/2, pd.y + step*Math.sign(dv)));
+}
+
+// ═══════════════════════════════════════════
+//  PHYSICS
+// ═══════════════════════════════════════════
+function updateGame(){
+  if(paused||goalCd>0){goalCd=Math.max(0,goalCd-1);return;}
+
+  // ── Timer countdown ──
+  if(matchTimerEnd>0 && !paused){
+    const _now=Date.now();
+    if(_lastTick && _now-_lastTick>250) matchTimerEnd += (_now-_lastTick);   // pausa / celebración de gol: el reloj espera
+    _lastTick=_now;
+    const rem=Math.max(0, matchTimerEnd-_now);
+    const mins=Math.floor(rem/60000);
+    const secs=Math.floor((rem%60000)/1000);
+    const timerEl=document.getElementById('hTimer');
+    if(timerEl){
+      timerEl.textContent=`⏱ ${mins}:${secs.toString().padStart(2,'0')}`;
+      timerEl.style.color=rem<30000?'#ff4455':rem<60000?'#ffa500':'#e8b800';
+    }
+    if(rem<=0){
+      matchTimerEnd=0;
+      if(mode==='online' && netRole==='guest'){ /* el host decide el final y la prórroga */ }
+      else if(sc1!==sc2){ endMatch(sc1>sc2?1:2); return; }   // al agotarse el tiempo, gana quien vaya por delante
+      else startOvertime();   // empate al agotarse el tiempo: gol de oro (el siguiente gol gana)
+    }
   }
 
-  function matchPlayed(){
-    if(!demoActive) return;
-    demoMatchesLeft--;
-    if(demoMatchesLeft<=0){
-      demoActive=false; setFlags(); hideBanner();
-      setTimeout(showEnd,1200);
-    } else showBanner();
+  pwTick();
+  // Tamaño y velocidad de cada paleta según sus potenciadores (1 si no tiene ninguno)
+  pd1.h=PH()*pwMul(1,'size'); pd2.h=PH()*pwMul(2,'size');
+  const psA=H*.008*pwMul(1,'speed'), psB=H*.008*pwMul(2,'speed');
+  const ps=H*.008, br=Math.max(4,BR());
+
+  // Apply touch joystick input first
+  applyJoyInput(ps);
+
+  // ── controls & AI ──
+  if(mode==='single'){
+    if(K['w']||K['W']||K['ArrowUp'])   pd1.y=Math.max(FT()+pd1.h/2,pd1.y-psA);
+    if(K['s']||K['S']||K['ArrowDown']) pd1.y=Math.min(FB()-pd1.h/2,pd1.y+psA);
+    moveCpu(pd2, false, diff);
+  } else if(mode==='multi'){
+    if(K['w']||K['W']) pd1.y=Math.max(FT()+pd1.h/2,pd1.y-psA);
+    if(K['s']||K['S']) pd1.y=Math.min(FB()-pd1.h/2,pd1.y+psA);
+    if(K['ArrowUp'])   pd2.y=Math.max(FT()+pd2.h/2,pd2.y-psB);
+    if(K['ArrowDown']) pd2.y=Math.min(FB()-pd2.h/2,pd2.y+psB);
+  } else if(mode==='tourn'){
+    const fx=trnFixtures[trnMatchIdx];
+    const pA=trnPlayers[fx.i], pB=trnPlayers[fx.j];
+    if(pA.isCpu){
+      moveCpu(pd1, true, pA.diff||'medium');
+    } else {
+      if(K['w']||K['W']||K['ArrowUp'])   pd1.y=Math.max(FT()+pd1.h/2,pd1.y-psA);
+      if(K['s']||K['S']||K['ArrowDown']) pd1.y=Math.min(FB()-pd1.h/2,pd1.y+psA);
+    }
+    if(pB.isCpu){
+      moveCpu(pd2, false, pB.diff||'medium');
+    } else {
+      if(K['ArrowUp'])   pd2.y=Math.max(FT()+pd2.h/2,pd2.y-psB);
+      if(K['ArrowDown']) pd2.y=Math.min(FB()-pd2.h/2,pd2.y+psB);
+    }
+  } else { // online
+    if(netRole==='host'){
+      let mv=false;
+      if(K['w']||K['W']||K['ArrowUp'])  {pd1.y=Math.max(FT()+pd1.h/2,pd1.y-psA);mv=true;}
+      if(K['s']||K['S']||K['ArrowDown']){pd1.y=Math.min(FB()-pd1.h/2,pd1.y+psA);mv=true;}
+      if(mv) netSend({t:'mv',y:pd1.y});
+    } else {
+      // GUEST: move own paddle, send if changed, then predict ball movement
+      const prevY = pd2.y;
+      if(K['w']||K['W']||K['ArrowUp'])   pd2.y=Math.max(FT()+pd2.h/2, pd2.y-psB);
+      if(K['s']||K['S']||K['ArrowDown']) pd2.y=Math.min(FB()-pd2.h/2, pd2.y+psB);
+      if(pd2.y !== prevY) netSend({t:'mv', y:pd2.y});
+      // Client-side prediction: extrapolate ball using received velocity
+      // This smooths out lag without affecting game logic (host is authoritative)
+      if(ball && ball.vx){
+        ball.x += ball.vx;
+        ball.y += ball.vy;
+        // Bounce prediction so ball doesn't fly off screen visually
+        if(ball.y-br < FT()){ ball.y=FT()+br; ball.vy=Math.abs(ball.vy); }
+        if(ball.y+br > FB()){ ball.y=FB()-br; ball.vy=-Math.abs(ball.vy); }
+      }
+      if(flashA>0){
+        const rgb=h2r(flashC.length>=7?flashC:'#ff2244');
+        CX.fillStyle=`rgba(${rgb[0]},${rgb[1]},${rgb[2]},${flashA})`;
+        CX.fillRect(0,0,W,H); flashA=Math.max(0,flashA-.03);
+      }
+      return;
+    }
   }
 
-  function injectUI(){
-    const tutBtn=document.querySelector('#sMode button[onclick="startTutorial()"]');
-    if(!tutBtn) return;
-    const tutRow=tutBtn.closest('.row'); if(!tutRow) return;
-    const row=document.createElement('div'); row.className='row'; row.style.marginTop='4px';
-    const b=document.createElement('button'); b.className='btn sm'; b.id='demoStartBtn';
-    b.style.cssText='border-color:#ff2244;color:#ff2244';
-    b.setAttribute('data-i18n','demo_btn'); b.textContent=t('demo_btn'); b.onclick=startDemo;
-    const badge=document.createElement('span'); badge.className='demo-badge';
-    badge.setAttribute('data-i18n','demo_badge'); badge.textContent=t('demo_badge');
-    row.appendChild(b); row.appendChild(badge);
-    tutRow.parentNode.insertBefore(row, tutRow);
+  // ── ball (host only) ──
+  const cfg=diffCfg();
+  // La pelota se acelera sola cada 2 s (aunque no rebote), sin pasar de su velocidad máxima
+  _ballT++;
+  if(_ballT>=120){ _ballT=0; const sp=Math.hypot(ball.vx,ball.vy); if(sp>0){ const f=Math.min(1.05, cfg.max/sp); if(f>1){ ball.vx*=f; ball.vy*=f; } } }
+  ball.tr=ball.tr||[];
+  ball.tr.push({x:ball.x,y:ball.y});
+  if(ball.tr.length>10)ball.tr.shift();
+  ball.x+=ball.vx;ball.y+=ball.vy;
+
+  if(ball.y-br<FT()){
+    ball.y=FT()+br;ball.vy=Math.abs(ball.vy); missionBounce();
+    const a=(Math.random()*60-30)*Math.PI/180,sp=Math.min(Math.hypot(ball.vx,ball.vy)*1.06,cfg.max);
+    ball.vx=(ball.vx>0?1:-1)*sp*Math.cos(a);
+    ball.vy=Math.abs(sp*Math.sin(a))||sp*.35;
+    sndWall();
+    if(mode==='online'&&netRole==='host')netSend({t:'ball',x:ball.x,y:ball.y,vx:ball.vx,vy:ball.vy});
+  }
+  if(ball.y+br>FB()){
+    ball.y=FB()-br;ball.vy=-Math.abs(ball.vy); missionBounce();
+    const a=(Math.random()*60-30)*Math.PI/180,sp=Math.min(Math.hypot(ball.vx,ball.vy)*1.06,cfg.max);
+    ball.vx=(ball.vx>0?1:-1)*sp*Math.cos(a);
+    ball.vy=-(Math.abs(sp*Math.sin(a))||sp*.35);
+    sndWall();
+    if(mode==='online'&&netRole==='host')netSend({t:'ball',x:ball.x,y:ball.y,vx:ball.vx,vy:ball.vy});
   }
 
-  // Ganchos que el juego llama al terminar una partida y al cambiar de idioma
-  window.onMatchFinished=function(){ matchPlayed(); };
-  window.onLangChange=function(){ if(demoActive) showBanner(); };
+  // paddles
+  if(ball.vx<0&&ball.x-br<=pd1.x+pd1.w/2&&ball.x+br>=pd1.x-pd1.w/2&&ball.y>=pd1.y-pd1.h/2&&ball.y<=pd1.y+pd1.h/2){
+    ball.x=pd1.x+pd1.w/2+br;
+    const ry=(ball.y-pd1.y)/(pd1.h/2),ba=ry*60*Math.PI/180,sp=Math.min(Math.hypot(ball.vx,ball.vy)*1.04,cfg.max);
+    ball.vx=sp*Math.cos(ba);ball.vy=sp*Math.sin(ba);
+    sndHit('ping');spawnParts(ball.x,ball.y,col().a);animHit(1); lastHit=1;
+    _rallyHits++; if(_rallyHits===5) aiAutoChat('nice_rally');
+    if(mode==='online'&&netRole==='host')netSend({t:'ball',x:ball.x,y:ball.y,vx:ball.vx,vy:ball.vy});
+  }
+  if(ball.vx>0&&ball.x+br>=pd2.x-pd2.w/2&&ball.x-br<=pd2.x+pd2.w/2&&ball.y>=pd2.y-pd2.h/2&&ball.y<=pd2.y+pd2.h/2){
+    ball.x=pd2.x-pd2.w/2-br;
+    const ry=(ball.y-pd2.y)/(pd2.h/2),ba=ry*60*Math.PI/180,sp=Math.min(Math.hypot(ball.vx,ball.vy)*1.04,cfg.max);
+    ball.vx=-sp*Math.cos(ba);ball.vy=sp*Math.sin(ba);
+    sndHit('pong');spawnParts(ball.x,ball.y,col().b);animHit(2); lastHit=2;
+    _rallyHits++; if(_rallyHits===5) aiAutoChat('nice_rally');
+    if(mode==='online'&&netRole==='host')netSend({t:'ball',x:ball.x,y:ball.y,vx:ball.vx,vy:ball.vy});
+  }
 
-  injectCSS(); injectUI();
-  window.startDemo=startDemo;
+  // goals
+  const gy1=GY1(),gy2=GY2();
+  if(ball.x-br<=W*.03-W*.022){
+    if(ball.y>=gy1&&ball.y<=gy2){goal(2);if(mode==='online'){netSend({t:'goal',s:2});wsSend({t:'score',h:sc1,g:sc2+1});}}
+    else{ball.vx=Math.abs(ball.vx);sndWall();}
+  }
+  if(ball.x+br>=W*.97+W*.022){
+    if(ball.y>=gy1&&ball.y<=gy2){goal(1);if(mode==='online'){netSend({t:'goal',s:1});wsSend({t:'score',h:sc1+1,g:sc2});}}
+    else{ball.vx=-Math.abs(ball.vx);sndWall();}
+  }
+
+  pwCheckPickup(br);
+  // Host sends ball position every frame so guest stays in sync
+  if(mode==='online'&&netRole==='host')netSend({t:'ball',x:ball.x,y:ball.y,vx:ball.vx,vy:ball.vy});
+
+  if(flashA>0){
+    const rgb=h2r(flashC.length>=7?flashC:'#ff2244');
+    CX.fillStyle=`rgba(${rgb[0]},${rgb[1]},${rgb[2]},${flashA})`;
+    CX.fillRect(0,0,W,H);flashA=Math.max(0,flashA-.03);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  GOAL / WIN
+// ═══════════════════════════════════════════
+function goal(scorer){
+  if(goalCd>0)return;
+  goalCd=180;
+  // La pelota deja de estar en juego en cuanto entra: parada en el centro, para que el juego
+  // no vuelva a contar el mismo gol cuando termine la espera (eso reiniciaba el cierre del partido)
+  ball.x=W/2; ball.y=H/2; ball.vx=0; ball.vy=0; if(ball.tr) ball.tr=[];
+  if(scorer===1)sc1++;else sc2++; missionsOnGoal(scorer);
+  updateHUD();
+  crowd.forEach(p=>p.cheer=true);
+  setTimeout(()=>crowd.forEach(p=>p.cheer=false),3000);
+  sndGoal();spawnConfs(W/2,H/2,goalColors(scorer));
+  animGoal(scorer); animLose(scorer===1?2:1);
+  // AI instant auto-chat (local, no API)
+  if(mode==='single'){
+    aiAutoChat(scorer===2 ? 'goal_scored' : 'goal_received');
+  } else if(mode==='tourn'){
+    const fx=trnFixtures[trnMatchIdx];
+    const aiIsLeft=trnPlayers[fx.i].isCpu;
+    aiAutoChat(aiIsLeft&&scorer===1 || !aiIsLeft&&scorer===2 ? 'goal_scored' : 'goal_received');
+  }
+  _rallyHits=0; // reset rally counter on goal
+  // AI also comments via Claude (async, slower)
+  if(mode==='single') aiCommentGoal(scorer===2);
+  else if(mode==='tourn'){
+    const fx=trnFixtures[trnMatchIdx];
+    const aiIsLeft=trnPlayers[fx.i].isCpu;
+    aiCommentGoal(aiIsLeft ? scorer===1 : scorer===2);
+  }
+  const c=scorer===1?col().a:col().b;
+
+  // ¿Termina el partido? ¿Empieza el GOL DE ORO? (reglas en afterGoalRules)
+  const wasGolden=goldenGoal;                       // este gol se marcó en muerte súbita
+  const res=afterGoalRules(scorer);
+  const gold=res.over && (wasGolden || winPts===1); // el gol que decide un "a 1 gol" también es de oro
+  const who=scorer===1?p1Name:p2Name;
+  clearTimeout(_ovTm);
+
+  flashC=c; flashA = (gold||res.startGolden) ? 0.85 : res.over ? 0.75 : 0.65;
+  screenShake((gold||res.startGolden) ? 20 : res.over ? 16 : 12, (gold||res.startGolden) ? 600 : 380);
+  vibrate((gold||res.startGolden) ? [80,40,80,40,120] : res.over ? [80,40,80] : [60,30,60]);
+
+  const oTxt=document.getElementById('oTxt'), oSub=document.getElementById('oSub');
+  if(gold){
+    oTxt.textContent=t('ov_golden'); oTxt.style.color='#ffe44d';
+    oSub.textContent=tf('ov_wins',{n:who});
+  } else if(res.over){
+    oTxt.textContent=t('ov_goal_win'); oTxt.style.color=c;
+    oSub.textContent=tf('ov_wins',{n:who});
+  } else if(res.startGolden){
+    oTxt.textContent=t('ov_golden'); oTxt.style.color='#ffe44d';
+    oSub.textContent=t('ov_golden_next');
+  } else {
+    oTxt.textContent=t('ov_goal'); oTxt.style.color=c;
+    oSub.textContent=tf('ov_scores',{n:who});
+  }
+  document.getElementById('pbtn').style.display='none';
+  document.getElementById('overlay').classList.add('show');
+  updateHUD();
+  if(goalTm)clearTimeout(goalTm);
+  goalTm=setTimeout(()=>{
+    document.getElementById('overlay').classList.remove('show');
+    if(mode==='online' && netRole==='guest') return;     // en online decide el host (envía 'end' o 'reset')
+    if(res.over){ endMatch(scorer); }
+    else{
+      resetBall(scorer===1?2:1);
+      if(mode==='online'&&netRole==='host')netSend({t:'reset',s:scorer});
+    }
+  },(gold||res.startGolden)?3500:2200);
+}
+
+function endMatch(winner){
+  if(_matchEnded) return; _matchEnded=true; missionsOnMatchEnd(winner); statsOnMatchEnd(winner);
+  if(typeof window.onMatchFinished==="function") window.onMatchFinished(winner);
+  gameRunning=false;stopMusic();cancelAnimationFrame(animId);
+  updateWatchBtn();
+  if(mode==='online'&&netRole==='host')netSend({t:'end',w:winner});
+
+  const c=winner===1?col().a:col().b;
+  document.getElementById('wTitle').textContent=tf('win_title',{n:winner===1?p1Name:p2Name});
+  document.getElementById('wTitle').style.color=c;
+  document.getElementById('wSub').textContent=`${sc1} — ${sc2}`;
+
+  if(mode==='tourn'){
+    // Record result in tournament
+    trnRecordResult(trnMatchIdx, sc1, sc2);
+    trnMatchIdx++;
+    // Find next unplayed fixture index
+    const nextIdx=trnFixtures.findIndex(f=>!f.played);
+
+    document.getElementById('rBtn').style.display='none';
+    document.getElementById('nxBtn').style.display='';
+    if(nextIdx===-1){
+      // Tournament over
+      document.getElementById('nxBtn').textContent='🏆 Ver clasificación final';
+    } else {
+      const nfx=trnFixtures[nextIdx];
+      const np1=trnPlayers[nfx.i].name, np2=trnPlayers[nfx.j].name;
+      document.getElementById('nxBtn').textContent=`▶ Siguiente: ${np1} vs ${np2}`;
+    }
+    sndFanfare();
+  } else {
+    document.getElementById('rBtn').style.display='';
+    document.getElementById('nxBtn').style.display='none';
+  }
+  document.getElementById('wins').classList.add('show');
+  for(let i=0;i<5;i++)setTimeout(()=>spawnConfs(Math.random()*W,H*.4),i*300);
+  // AI reacts to match result
+  if(mode==='single') aiCommentMatchEnd(winner===1);
+  else if(mode==='tourn'){
+    const fx=trnFixtures[trnMatchIdx>0?trnMatchIdx-1:0];
+    const aiIsLeft=trnPlayers[fx.i].isCpu;
+    aiCommentMatchEnd(aiIsLeft ? winner===2 : winner===1);
+  }
+  // Award coins/gems (async, doesn't block UI)
+  const humanWon = humanWonThisMatch(winner);
+  if(typeof awardMatchReward==='function') awardMatchReward(humanWon, mode==='tourn');
+  // Clear reward label initially
+  const rw=document.getElementById('wReward');
+  if(rw) rw.style.display='none';
+}
+
+function nextMatchOrMenu(){
+  document.getElementById('wins').classList.remove('show');
+  const nextIdx=trnFixtures.findIndex(f=>!f.played);
+  if(nextIdx===-1){
+    trnFinish();
+  } else {
+    // Update standings then play
+    trnUpdateProgress();
+    trnRenderStandings('trnTbody');
+    trnShowNextMatchInfo();
+    goTo('sTournStandings');
+  }
+}
+
+function restartGame(){document.getElementById('wins').classList.remove('show');clearChat();startGameLoop();}
+
+function backToMenu(){
+  gameRunning=false;stopMusic();cancelAnimationFrame(animId);
+  updateWatchBtn();
+  applyPlayerSkins();   // tras una partida online, vuelve a mis skins
+  destroyPeer();
+  trnActive=false;
+  showChatBtn(false);
+  document.getElementById('wins').classList.remove('show');
+  document.getElementById('hud').classList.add('hidden');
+  document.getElementById('hint').textContent='';
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('pbtn').style.display='none';
+  setMusicContext('menu');
+  goTo('sMenu');
+  if(musicOn) startMusic();
+}
+
+function togglePause(){
+  paused=!paused;
+  const ov=document.getElementById('overlay'),hp=document.getElementById('hPause');
+  if(paused){
+    document.getElementById('oTxt').textContent=LANGS[currentLang].pausa||'— PAUSA —';
+    document.getElementById('oTxt').style.color='#ffe44d';
+    document.getElementById('oSub').textContent='';
+    document.getElementById('pbtn').style.display='flex';
+    ov.classList.add('show');hp.style.display='block';stopMusic();
+  } else {
+    document.getElementById('pbtn').style.display='none';
+    ov.classList.remove('show');hp.style.display='none';
+    if(musicOn)startMusic();
+  }
+}
+function resumeGame(){if(paused)togglePause();}
+
+// ═══════════════════════════════════════════
+//  GAME LOOP
+// ═══════════════════════════════════════════
+function startGameLoop(){
+  initGame();gameRunning=true;
+  if(mode!=='online') paused=false; // online keeps paused until 'go'
+  clearChat();
+  document.getElementById('hud').classList.remove('hidden');
+  showChatBtn(true);
+  updateWatchBtn();
+  setMusicContext('game');
+  if(musicOn)startMusic();
+  // If CPU vs CPU with chat on, start with a greeting exchange
+  if(mode==='tourn' && CFG.aiVsAiChat && isCpuVsCpu()){
+    setTimeout(()=>cpuBanter('start'), 1500);
+  }
+  function loop(ts){
+    CX.clearRect(0,0,W,H);
+    drawField();drawCrowd(ts);drawParticles();
+    drawPaddle(pd1,true);drawPaddle(pd2,false);drawBall();
+    if(gameRunning&&!paused)updateGame();
+    tickPaddleAnims();
+    tickEmoteWheel();
+    drawConfs();
+    drawEmoteWheel();
+    animId=requestAnimationFrame(loop);
+  }
+  animId=requestAnimationFrame(loop);
+}
+
+// ═══════════════════════════════════════════
+//  HUD
+// ═══════════════════════════════════════════
+// Color legible sobre el marcador oscuro: si la skin es casi negra (Ninja), el texto sale en blanco
+function readableOn(hex){
+  const h=String(hex||'');
+  if(!/^#[0-9a-f]{6}$/i.test(h)) return h||'#ffffff';
+  const r=parseInt(h.slice(1,3),16), g=parseInt(h.slice(3,5),16), b=parseInt(h.slice(5,7),16);
+  const lum=(0.299*r+0.587*g+0.114*b)/255;
+  return lum<0.28 ? '#ffffff' : h;
+}
+function updateHUD(){
+  document.getElementById('hN1').textContent=p1Name;
+  document.getElementById('hN2').textContent=p2Name;
+  document.getElementById('hS1').textContent=sc1;
+  document.getElementById('hS2').textContent=sc2;
+  const T3=LANGS[currentLang]||LANGS.en;
+  const modeLabel=mode==='single'?T3.mode_lbl_1p:mode==='multi'?T3.mode_lbl_local:mode==='tourn'?T3.mode_lbl_tourn:T3.mode_lbl_online;
+  // Update both mode labels (timer bar and center)
+  const hMode=document.getElementById('hMode');
+  const hModeSub=document.getElementById('hModeSub');
+  if(hMode) hMode.textContent=modeLabel;
+  if(hModeSub) hModeSub.textContent=modeLabel;
+  // Apply skin colors
+  const c=col();
+  [['#hN1',c.a],['#hS1',c.a],['#hN2',c.b],['#hS2',c.b]]
+    .forEach(([id,clr])=>{const el=document.querySelector(id);if(el)el.style.color=readableOn(clr);});
+  // Tournament match badge
+  const hm=document.getElementById('hMatch');
+  if(mode==='tourn'&&trnActive){
+    const done=trnFixtures.filter(f=>f.played).length;
+    hm.textContent=`Partido ${done+1}/${trnFixtures.length}`;
+    hm.style.display='block';
+  } else {
+    hm.style.display='none';
+  }
+  // Timer bar visibility
+  const timerBar=document.getElementById('sbTimerBar');
+  if(timerBar) timerBar.style.display=CFG.timerOn?'flex':'none';
+  const ht=document.getElementById('hTimer');
+  if(ht && matchTimerEnd===0 && CFG.timerOn && !goldenGoal) ht.textContent='⏱ '+CFG.timerMins+':00';
+  const gb=document.getElementById('hGolden');
+  if(gb){ const on=goldenGoal||matchTarget<=1; gb.style.display=on?'block':'none'; if(on) gb.textContent=t('golden_badge'); }
+}
+
+// ═══════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+  const el=document.getElementById(id);if(el)el.classList.remove('hidden');
+  if(id==='sAccount'&&typeof renderAccountScreen==='function') setTimeout(renderAccountScreen,50);
+  if(id==='sShop'&&typeof buildShopGrid==='function') setTimeout(()=>{ updateCurrencyDisplay(); buildShopGrid(); },50);
+  if(id==='sSkins'&&typeof buildSkins==='function') buildSkins();
+  if(id==='sMissions') setTimeout(buildMissions,30);   // refleja skins recién compradas
+  // Switch music context based on destination screen
+  if(id==='sMenu'||id==='sMode'||id==='s1P'||id==='s2P'||id==='sSkins'||
+     id==='sTournSetup'||id==='sTournStandings'||id==='sTournFinal'||id==='sOnline'){
+    setMusicContext('menu');
+    if(musicOn&&!musIv) startMusic();
+  } else if(id==='sSettings'){
+    setMusicContext('settings');
+    if(musicOn&&!musIv) startMusic();
+  }
+}
+function setMode(m){
+  mode=m;
+  if(m==='single') goTo('s1P');
+  else if(m==='multi') goTo('s2P');
+  else if(m==='tourn'){trnInit();buildTournSetup();goTo('sTournSetup');}
+  else{goTo('sOnline');startOnlineLobby();}
+}
+function setDiff(d){
+  diff=d;
+  ['dE','dM','dH','tdE','tdM','tdH'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('on');});
+  const map={easy:'dE',medium:'dM',hard:'dH'};
+  const tmap={easy:'tdE',medium:'tdM',hard:'tdH'};
+  [map[d],tmap[d]].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('on');});
+}
+function setPts(n){
+  winPts=Math.max(1,Math.min(99,parseInt(n,10)||7)); matchTarget=winPts; updateHUD();
+  syncPtsUI();
+}
+function syncPtsUI(src){
+  [['p',''],['p','b'],['tp','']].forEach(function(pr){
+    [1,5,7,10].forEach(function(v){
+      const b=document.getElementById(pr[0]+v+pr[1]);
+      if(b) b.classList.toggle('on', v===winPts);
+    });
+  });
+  document.querySelectorAll('.pts-input').forEach(function(i){ if(i!==src) i.value=[1,5,7,10].includes(winPts)?'':winPts; });
+}
+function setCustomPts(inp){
+  const v=parseInt(inp.value,10);
+  if(!(v>=1)) return;                 // casilla vacía o no válida: no cambia nada
+  winPts=Math.min(99,v); matchTarget=winPts; updateHUD();
+  if(v>99) inp.value=99;
+  syncPtsUI(inp);
+}
+function go1P(){
+  const defaultName = (currentUser&&playerData.displayName) ? playerData.displayName.toUpperCase() : 'PING';
+  p1Name=(document.getElementById('n1P').value.trim()||defaultName).toUpperCase();
+  p2Name=AI_NAMES[Math.floor(Math.random()*AI_NAMES.length)].toUpperCase();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+  startGameLoop();
+}
+function go2P(){
+  p1Name=(document.getElementById('n2P1').value.trim()||'PING').toUpperCase();
+  p2Name=(document.getElementById('n2P2').value.trim()||'PONG').toUpperCase();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+  startGameLoop();
+}
+
+// ═══════════════════════════════════════════
+//  TOURNAMENT UI
+// ═══════════════════════════════════════════
+function buildTournSetup(){
+  const grid=document.getElementById('trnPlayersGrid');
+  grid.innerHTML='';
+  trnPlayers.forEach((p,i)=>{
+    const row=document.createElement('div');
+    row.className='trn-player-row';
+    const diffBtns = p.isCpu ? `
+      <div class="trn-diff-row" id="trnDiffRow${i}">
+        <button class="trn-diff-btn${p.diff==='easy'?' tdd-on':''}" onclick="setTrnDiff(${i},'easy')">F</button>
+        <button class="trn-diff-btn${p.diff==='medium'?' tdd-on':''}" onclick="setTrnDiff(${i},'medium')">M</button>
+        <button class="trn-diff-btn${p.diff==='hard'?' tdd-on':''}" onclick="setTrnDiff(${i},'hard')">D</button>
+      </div>` : `<div class="trn-diff-row" id="trnDiffRow${i}" style="visibility:hidden">
+        <button class="trn-diff-btn">F</button><button class="trn-diff-btn">M</button><button class="trn-diff-btn">D</button>
+      </div>`;
+    row.innerHTML=`
+      <span class="trn-num">${i+1}</span>
+      <input type="text" placeholder="${p.isCpu?AI_NAMES[i%AI_NAMES.length]:t('player')+' '+(i+1)}"
+        value="${p.name}" maxlength="12"
+        oninput="trnPlayers[${i}].name=${p.isCpu?'this.value.toUpperCase()':'this.value'};${p.isCpu?'this.value=this.value.toUpperCase();':''}"
+        onkeydown="if(event.key==='Enter'){trnSetName(${i},this);this.blur();}">
+      <span class="trn-cpu-badge ${p.isCpu?'is-cpu':'is-human'}" id="cpuBadge${i}"
+        onclick="toggleCpu(${i})">${p.isCpu?'CPU':'HUM'}</span>
+      ${diffBtns}
+    `;
+    grid.appendChild(row);
+  });
+}
+
+function trnSetName(i, input){
+  const p = trnPlayers[i];
+  const fallback = p.isCpu
+    ? AI_NAMES[i%AI_NAMES.length].toUpperCase()
+    : t('player')+' '+(i+1);
+  p.name = (p.isCpu ? input.value.trim().toUpperCase() : input.value.trim()) || fallback;
+  input.value = p.name;
+}
+
+function setTrnDiff(i, d){
+  trnPlayers[i].diff=d;
+  const row=document.getElementById('trnDiffRow'+i);
+  if(!row) return;
+  row.querySelectorAll('.trn-diff-btn').forEach((btn,bi)=>{
+    const dMap=['easy','medium','hard'];
+    btn.classList.toggle('tdd-on', dMap[bi]===d);
+  });
+}
+
+function toggleCpu(i){
+  trnPlayers[i].isCpu=!trnPlayers[i].isCpu;
+  const badge=document.getElementById('cpuBadge'+i);
+  badge.textContent=trnPlayers[i].isCpu?'CPU':'HUM';
+  badge.className=`trn-cpu-badge ${trnPlayers[i].isCpu?'is-cpu':'is-human'}`;
+  const input=badge.previousElementSibling;
+  if(!input.value){
+    const defName=trnPlayers[i].isCpu
+      ? AI_NAMES[i%AI_NAMES.length].toUpperCase()
+      : t('player')+' '+(i+1);
+    input.value=defName;
+    trnPlayers[i].name=defName;
+    // Rebind oninput to match new type
+    input.oninput=trnPlayers[i].isCpu
+      ? function(){ trnPlayers[i].name=this.value.toUpperCase(); this.value=this.value.toUpperCase(); }
+      : function(){ trnPlayers[i].name=this.value; };
+  }
+  // Show/hide difficulty row
+  const dRow=document.getElementById('trnDiffRow'+i);
+  if(dRow) dRow.style.visibility=trnPlayers[i].isCpu?'visible':'hidden';
+}
+
+function startTournament(){
+  // Collect names from inputs
+  const inputs=document.querySelectorAll('#trnPlayersGrid input');
+  inputs.forEach((inp,i)=>{
+    const raw=inp.value.trim()||AI_NAMES[i%AI_NAMES.length];
+    // CPU names stay uppercase; human names respect whatever the user typed
+    trnPlayers[i].name=trnPlayers[i].isCpu ? raw.toUpperCase().slice(0,12) : raw.slice(0,12);
+  });
+  // Duplicate check is case-insensitive so "Óliver" and "ÓLIVER" count as the same
+  const names=trnPlayers.map(p=>p.name.toLowerCase());
+  const unique=new Set(names);
+  if(unique.size<8){alert('¡Todos los jugadores deben tener nombres distintos!');return;}
+
+  // Find first human player index
+  trnHumanIdx=trnPlayers.findIndex(p=>!p.isCpu);
+
+  trnBuildFixtures();
+  trnActive=true;
+
+  // Show standings + first match
+  trnUpdateProgress();
+  trnRenderStandings('trnTbody');
+  trnShowNextMatchInfo();
+  goTo('sTournStandings');
+}
+
+function playNextMatch(){
+  const nextIdx=trnFixtures.findIndex(f=>!f.played);
+  if(nextIdx===-1){trnFinish();return;}
+  trnMatchIdx=nextIdx;
+  const fx=trnFixtures[trnMatchIdx];
+  p1Name=trnPlayers[fx.i].name;
+  p2Name=trnPlayers[fx.j].name;
+
+  // If both CPU — offer skip or watch
+  if(trnPlayers[fx.i].isCpu && trnPlayers[fx.j].isCpu){
+    showCpuSkipScreen(fx);
+    return;
+  }
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+  startGameLoop();
+}
+
+function showCpuSkipScreen(fx){
+  const a=trnPlayers[fx.i].name, b=trnPlayers[fx.j].name;
+  const modal=document.createElement('div');
+  modal.id='cpuSkipModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  const Ts=LANGS[currentLang]||LANGS.en;
+  modal.innerHTML=`<div style="background:#111318;border:2px solid #aa44ff;border-radius:14px;padding:32px 36px;max-width:380px;text-align:center;font-family:Orbitron,monospace;">
+    <div style="font-size:.6rem;letter-spacing:.2em;color:#aa44ff;margin-bottom:8px">${Ts.cpu_vs_cpu}</div>
+    <div style="font-size:1.1rem;font-weight:900;color:#fff;margin-bottom:20px">${a} <span style="color:#ffe44d">VS</span> ${b}</div>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <button id="_skipAll" style="background:#aa44ff;border:none;color:#fff;font-family:Orbitron,monospace;font-size:.62rem;font-weight:700;padding:11px 20px;border-radius:8px;cursor:pointer">${Ts.skip_match}</button>
+      <button id="_watchCpu" style="background:transparent;border:2px solid #ffe44d;color:#ffe44d;font-family:Orbitron,monospace;font-size:.62rem;font-weight:700;padding:11px 20px;border-radius:8px;cursor:pointer">${Ts.watch_match}</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+  { const hint=document.createElement('div'); hint.style.cssText='font-size:.62rem;color:#888;margin-top:16px;font-family:Rajdhani,sans-serif;line-height:1.4'; hint.textContent=t('watch_hint'); modal.firstElementChild.appendChild(hint); }
+
+  document.getElementById('_skipAll').onclick=()=>{
+    modal.remove();
+    skipAllCpuMatches();
+  };
+  document.getElementById('_watchCpu').onclick=()=>{
+    modal.remove();
+    document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+    startGameLoop();
+  };
+}
+
+function skipAllCpuMatches(){
+  // Auto-simulate all consecutive CPU vs CPU fixtures
+  let idx=trnFixtures.findIndex(f=>!f.played);
+  while(idx!==-1){
+    const fx=trnFixtures[idx];
+    const pA=trnPlayers[fx.i], pB=trnPlayers[fx.j];
+    if(!pA.isCpu || !pB.isCpu) break; // stop when a human match is found
+    // Simulate result: random scores based on difficulty
+    const cfgA=diffCfgFor(pA.diff||'medium'), cfgB=diffCfgFor(pB.diff||'medium');
+    // Higher cpu speed = more likely to win
+    const strengthA=cfgA.cpu, strengthB=cfgB.cpu;
+    const total=winPts+Math.floor(Math.random()*3);
+    let s1,s2;
+    if(Math.random()<strengthA/(strengthA+strengthB)){
+      s1=winPts; s2=Math.floor(Math.random()*winPts);
+    } else {
+      s2=winPts; s1=Math.floor(Math.random()*winPts);
+    }
+    trnMatchIdx=idx;
+    trnRecordResult(idx,s1,s2);
+    trnMatchIdx++;
+    idx=trnFixtures.findIndex(f=>!f.played);
+  }
+  if(trnFixtures.every(f=>f.played)){ trnFinish(); return; }   // ya no queda ningún partido
+  // Now show standings and the next human match
+  trnUpdateProgress();
+  trnRenderStandings('trnTbody');
+  trnShowNextMatchInfo();
+  goTo('sTournStandings');
+}
+
+function confirmAbortTournament(){
+  const Ta=LANGS[currentLang]||LANGS.en;
+  const modal=document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  modal.innerHTML=`<div style="background:#111318;border:2px solid #ffe44d;border-radius:14px;padding:28px 32px;max-width:320px;text-align:center;font-family:Orbitron,monospace;">
+    <div style="font-size:1rem;font-weight:700;color:#ffe44d;margin-bottom:12px">${Ta.confirm_abandon}</div>
+    <div style="font-size:.75rem;color:#aaa;margin-bottom:20px">${Ta.confirm_abandon_sub}</div>
+    <div style="display:flex;gap:12px;justify-content:center">
+      <button id="_abortYes" style="background:#ff2244;border:none;color:#fff;font-family:Orbitron,monospace;font-size:.65rem;font-weight:700;padding:9px 18px;border-radius:6px;cursor:pointer">${Ta.confirm_yes}</button>
+      <button id="_abortNo"  style="background:transparent;border:2px solid #555;color:#aaa;font-family:Orbitron,monospace;font-size:.65rem;font-weight:700;padding:9px 18px;border-radius:6px;cursor:pointer">${Ta.confirm_no}</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+  document.getElementById('_abortYes').onclick=()=>{ modal.remove(); trnActive=false; backToMenu(); };
+  document.getElementById('_abortNo').onclick=()=>{ modal.remove(); };
+}
+
+function newTournament(){
+  trnInit();buildTournSetup();goTo('sTournSetup');
+}
+
+// ═══════════════════════════════════════════
+//  TOUCH JOYSTICK SYSTEM
+// ═══════════════════════════════════════════
+const isTouchDevice=()=>'ontouchstart' in window||navigator.maxTouchPoints>0;
+
+// Virtual axis values updated by joystick
+const joyAxis={L:{y:0}, R:{y:0}};
+
+// Roblox-style joystick: knob follows finger freely within the zone circle.
+// The vertical axis value is proportional to how far the finger is from center.
+function setupJoystick(zoneEl, knobEl, axisKey){
+  let active=false, touchId=null;
+
+  function getZoneCenter(){
+    const r=zoneEl.getBoundingClientRect();
+    return {x:r.left+r.width/2, y:r.top+r.height/2, R:r.width/2};
+  }
+
+  function updateKnob(cx,cy,fx,fy,R){
+    const dx=fx-cx, dy=fy-cy;
+    const dist=Math.hypot(dx,dy);
+    const maxR=R-26; // keep knob inside zone
+    const clamped=Math.min(dist,maxR);
+    const angle=Math.atan2(dy,dx);
+    const kx=Math.cos(angle)*clamped;
+    const ky=Math.sin(angle)*clamped;
+    knobEl.style.transform=`translate(${kx}px,${ky}px)`;
+    // Only Y axis matters for paddle movement
+    joyAxis[axisKey].y=ky/maxR; // -1 (up) to +1 (down)
+  }
+
+  zoneEl.addEventListener('touchstart',e=>{
+    e.preventDefault();
+    if(active) return;
+    const t=e.changedTouches[0];
+    touchId=t.identifier;
+    active=true;
+    const {x,y,R}=getZoneCenter();
+    updateKnob(x,y,t.clientX,t.clientY,R);
+  },{passive:false});
+
+  document.addEventListener('touchmove',e=>{
+    if(!active) return;
+    for(const t of e.changedTouches){
+      if(t.identifier!==touchId) continue;
+      const {x,y,R}=getZoneCenter();
+      updateKnob(x,y,t.clientX,t.clientY,R);
+    }
+  },{passive:false});
+
+  function end(e){
+    for(const t of e.changedTouches){
+      if(t.identifier!==touchId) continue;
+      active=false; touchId=null;
+      joyAxis[axisKey].y=0;
+      knobEl.style.transform='translate(0px,0px)';
+    }
+  }
+  document.addEventListener('touchend',end,{passive:true});
+  document.addEventListener('touchcancel',end,{passive:true});
+}
+
+function initTouchControls(){
+  if(!isTouchDevice()) return;
+
+  // Show/hide based on game mode and orientation
+  function updateVisibility(){
+    if(!gameRunning){ hideTouchUI(); return; }
+    const jL=document.getElementById('joyLeft');
+    const jR=document.getElementById('joyRight');
+    const tp=document.getElementById('touchPause');
+
+    if(mode==='single'){
+      // Only left joystick for J1
+      jL.style.display='flex'; jR.style.display='none';
+      document.getElementById('jLbl1').textContent='TÚ';
+    } else if(mode==='multi'){
+      jL.style.display='flex'; jR.style.display='flex';
+      document.getElementById('jLbl1').textContent='J1';
+      document.getElementById('jLbl2').textContent='J2';
+    } else if(mode==='online'){
+      if(netRole==='host'){ jL.style.display='flex'; jR.style.display='none'; document.getElementById('jLbl1').textContent='TÚ';}
+      else                { jL.style.display='none'; jR.style.display='flex'; document.getElementById('jLbl2').textContent='TÚ';}
+    } else if(mode==='tourn'){
+      const fx=trnFixtures[trnMatchIdx];
+      const pA=trnPlayers[fx.i], pB=trnPlayers[fx.j];
+      jL.style.display=pA.isCpu?'none':'flex';
+      jR.style.display=pB.isCpu?'none':'flex';
+      if(!pA.isCpu) document.getElementById('jLbl1').textContent=pA.name.slice(0,4);
+      if(!pB.isCpu) document.getElementById('jLbl2').textContent=pB.name.slice(0,4);
+    }
+    tp.style.display='block';
+  }
+
+  // Expose updateVisibility so launchOnline can call it too
+  window.updateTouchVisibility = updateVisibility;
+
+  // Hook into startGameLoop to show controls
+  const _orig=window.startGameLoop;
+  window.startGameLoop=function(){
+    _orig();
+    setTimeout(updateVisibility,50);
+  };
+
+  // Hook into backToMenu / endMatch to hide controls
+  function hideTouchUI(){
+    document.getElementById('joyLeft').style.display='none';
+    document.getElementById('joyRight').style.display='none';
+    document.getElementById('touchPause').style.display='none';
+  }
+  const _back=window.backToMenu;
+  window.backToMenu=function(){ hideTouchUI(); _back(); };
+
+  setupJoystick(
+    document.getElementById('jzL'),
+    document.getElementById('jkL'),
+    'L'
+  );
+  setupJoystick(
+    document.getElementById('jzR'),
+    document.getElementById('jkR'),
+    'R'
+  );
+}
+
+// Inject joystick input into updateGame — called at top of controls section
+function applyJoyInput(ps){
+  if(!isTouchDevice()) return;
+  const yL=joyAxis.L.y, yR=joyAxis.R.y;
+  // Speed is directly proportional to joystick deflection (0=stop, 1=full speed)
+  // No dead zone — small movements = slow, full push = full speed
+  const spd=ps*1.6;
+
+  const moveL=(mode==='single')||
+    (mode==='tourn'&&trnFixtures.length>0&&!trnPlayers[trnFixtures[trnMatchIdx].i].isCpu)||
+    (mode==='online'&&netRole==='host');
+  const moveR=(mode==='multi')||
+    (mode==='tourn'&&trnFixtures.length>0&&!trnPlayers[trnFixtures[trnMatchIdx].j].isCpu)||
+    (mode==='online'&&netRole==='guest');
+
+  if(moveL && yL!==0){
+    pd1.y=Math.max(FT()+pd1.h/2, Math.min(FB()-pd1.h/2, pd1.y + yL*spd*pwMul(1,'speed')));
+  }
+  if(moveR && yR!==0){
+    pd2.y=Math.max(FT()+pd2.h/2, Math.min(FB()-pd2.h/2, pd2.y + yR*spd*pwMul(2,'speed')));
+  }
+}
+
+// ═══════════════════════════════════════════
+//  SKINS
+// ═══════════════════════════════════════════
+// Current skin tab: 'p1','p2','both'
+let skinTab='p1';
+
+function buildSkins(){
+  const wrap=document.getElementById('skinGrid');
+  if(!wrap) return;
+  wrap.innerHTML='';
+
+  const tabs=document.createElement('div');
+  tabs.style.cssText='display:flex;gap:6px;margin-bottom:10px;width:100%';
+  [['p1',t('skin_tab_p1')],['p2',t('skin_tab_p2')],['both',t('skin_tab_both')]].forEach(([key,lbl])=>{
+    const btn=document.createElement('button');
+    btn.className='btn sm'+(skinTab===key?' on':'');
+    btn.style.cssText='flex:1;font-size:.58rem;padding:7px 4px';
+    btn.textContent=lbl;
+    btn.onclick=()=>{ skinTab=key; buildSkins(); };
+    tabs.appendChild(btn);
+  });
+  wrap.appendChild(tabs);
+
+  const grid=document.createElement('div');
+  grid.style.cssText='display:grid;grid-template-columns:repeat(4,1fr);gap:7px;width:100%';
+  ALL_SKINS.forEach((s,i)=>{
+    if(!isSkinOwned(s)) return;      // las bloqueadas se compran en la Tienda
+    const active = skinTab==='both' ? (i===skin1&&i===skin2) : skinTab==='p1' ? i===skin1 : i===skin2;
+    const d=document.createElement('div');
+    d.className='sopt'+(active?' on':'');
+    let bg;
+    if(s.fx==='fire')       bg='linear-gradient(160deg,#ffee44 0%,'+s.a+' 45%,#880000 100%)';
+    else if(s.fx==='metal') bg='linear-gradient(160deg,#fff 0%,'+s.a+' 40%,'+s.b+' 100%)';
+    else if(s.fx==='ice')   bg='linear-gradient(160deg,#ddeeff 0%,'+s.a+' 50%,'+s.b+' 100%)';
+    else if(s.fx==='neon' || s.fx==='dark') bg='linear-gradient(160deg,#000 0%,'+s.a+' 45%,'+s.b+' 100%)';
+    else                    bg='linear-gradient(160deg,'+s.a+' 40%,'+s.b+' 100%)';
+    d.style.background=bg;
+    if(s.ga) d.style.boxShadow='inset 0 0 10px '+s.ga;
+    const skinName=(LANGS[currentLang]&&LANGS[currentLang][s.k])||s.l;
+    const sp=document.createElement('span');
+    sp.style.cssText="font-family:'Orbitron',monospace;font-size:.38rem;letter-spacing:.04em;text-shadow:0 1px 3px #000;padding:2px 3px;background:rgba(0,0,0,.5);border-radius:3px;color:#fff;text-align:center;display:block";
+    sp.textContent=skinName;
+    d.appendChild(sp);
+    d.onclick=()=>{ equipSkin(s.k, skinTab==='p1'?1:skinTab==='p2'?2:'both'); buildSkins(); };
+    grid.appendChild(d);
+  });
+  wrap.appendChild(grid);
+
+  const hint=document.createElement('div');
+  hint.style.cssText='margin-top:10px;font-family:Orbitron,monospace;font-size:.55rem;letter-spacing:.08em;color:#ffe44d;text-align:center;cursor:pointer;opacity:.85';
+  hint.textContent='🛒 Más skins en la Tienda';
+  hint.onclick=()=>goTo('sShop');
+  wrap.appendChild(hint);
+}
+
+// ═══════════════════════════════════════════
+//  ONLINE — WebSocket (propio servidor Render)
+// ═══════════════════════════════════════════
+
+// Auto-detect server URL: same host as the page, ws/wss depending on https
+function wsUrl(){
+  const loc = window.location;
+  const proto = loc.protocol === 'https:' ? 'wss' : 'ws';
+  return proto + '://' + loc.host;
+}
+
+let ws = null;           // WebSocket connection to our server
+let wsReady = false;
+
+function getMyName(){ return (document.getElementById('nOnline').value.trim()||playerData.displayName||'JUGADOR').toUpperCase().slice(0,14); }
+function genCode(){
+  const ch='ABCDEFGHJKLMNPQRSTUVWXYZ';
+  return Array.from({length:6},()=>ch[Math.floor(Math.random()*ch.length)]).join('');
+}
+function showTab(t){
+  ['C','J','M'].forEach(x=>{
+    document.getElementById('t'+x).classList.toggle('on',x===t);
+    document.getElementById('p'+x).classList.toggle('hidden',x!==t);
+  });
+}
+
+// ── WebSocket: ONE persistent connection per session ──────────────────────
+// Connect once; reuse for all lobby actions (create/join/matchmaking)
+function connectWS(onOpen){
+  // Reuse existing open connection
+  if(ws && ws.readyState===1){ if(onOpen) onOpen(); return; }
+  // Close broken connection
+  if(ws){ try{ws.close();}catch(e){} ws=null; }
+  wsReady=false;
+  try{ ws = new WebSocket(wsUrl()); }
+  catch(e){
+    setDot('C','er',t('dot_no_server'));
+    setDot('J','er',t('dot_no_srv'));
+    setDot('M2','er',t('dot_no_srv'));
+    return;
+  }
+  ws.onopen = ()=>{ wsReady=true; if(onOpen) onOpen(); };
+  ws.binaryType = 'blob';
+  ws.onmessage = e=>{
+    // Handle both text and Blob frames
+    if(e.data instanceof Blob){
+      e.data.text().then(txt=>{ try{ handleServerMsg(JSON.parse(txt)); }catch(ex){ console.error('WS msg error:',ex,txt); } });
+    } else {
+      try{ handleServerMsg(JSON.parse(e.data)); }catch(ex){ console.error('WS msg error:',ex,e.data); }
+    }
+  };
+  ws.onerror = ()=>{ wsReady=false; };
+  ws.onclose = ()=>{
+    wsReady=false;
+    if(gameRunning) onDisconn();
+  };
+}
+
+function wsSend(obj){
+  try{ if(ws && ws.readyState===1) ws.send(JSON.stringify(obj)); }catch(e){}
+}
+
+// ── Lobby UI ──────────────────────────────────────────────────────────────
+function startOnlineLobby(){
+  // Reset UI
+  setDot('C','',t('dot_connecting'));
+  document.getElementById('codeBox').textContent='——————';
+  document.getElementById('codeBox').classList.remove('cp');
+  document.getElementById('waitLbl').textContent=t('waiting_opp');
+  document.getElementById('waitLbl').style.color='#555';
+  setDot('J','',t('dot_enter_code'));
+  document.getElementById('joinBtn').disabled=false;
+  setDot('M2','',t('dot_ready'));
+  document.getElementById('mmSpin').style.display='none';
+  document.getElementById('mmGo').style.display='';
+  document.getElementById('mmCancel').style.display='none';
+  netRole=null; myCode=null;
+  // Connect WS — room created only when user is on the Create tab
+  connectWS(()=>{
+    // Only auto-create if Create tab is active (default)
+    if(document.getElementById('pC') && !document.getElementById('pC').classList.contains('hidden')){
+      createRoom();
+    }
+  });
+}
+
+function createRoom(){
+  if(netRole==='host' && myCode) return; // already have a room
+  wsSend({t:'leave'});
+  netRole='host'; myCode=null;
+  const code=genCode(); myCode=code;
+  setDot('C','co',t('dot_creating'));
+  wsSend({t:'create', code});
+}
+
+function showTabAndEnsureRoom(t){
+  showTab(t);
+  // Only create room if we're on Create tab and don't already have a code showing
+  const codeShowing = document.getElementById('codeBox').textContent.length===6 &&
+                      !document.getElementById('codeBox').textContent.includes('—');
+  if(t==='C' && !codeShowing) connectWS(()=>createRoom());
+}
+
+function doJoin(){
+  const code=document.getElementById('joinCode').value.trim().toUpperCase().replace(/[^A-Z]/g,'');
+  if(code.length<4){ setDot('J','er',t('dot_code_short')); return; }
+  setDot('J','co',t('dot_connecting'));
+  document.getElementById('joinBtn').disabled=true;
+  netRole='guest'; myCode=code;
+  connectWS(()=>{
+    wsSend({t:'leave'});
+    setTimeout(()=>wsSend({t:'join', code, name:getMyName()}), 150);
+  });
+}
+
+function startMM(){
+  mmActive=true; netRole=null; myCode=null;
+  setDot('M2','co',t('dot_searching'));
+  document.getElementById('mmSpin').style.display='';
+  document.getElementById('mmGo').style.display='none';
+  document.getElementById('mmCancel').style.display='';
+  connectWS(()=>{
+    wsSend({t:'leave'});
+    setTimeout(()=>wsSend({t:'mm_search', name:getMyName()}), 150);
+  });
+}
+
+function cancelMM(){
+  mmActive=false;
+  wsSend({t:'mm_cancel'});
+  setDot('M2','',t('dot_cancelled'));
+  document.getElementById('mmSpin').style.display='none';
+  document.getElementById('mmGo').style.display='';
+  document.getElementById('mmCancel').style.display='none';
+}
+
+function leaveOnline(){
+  mmActive=false;
+  wsSend({t:'leave'});
+  if(ws){ try{ws.close();}catch(e){} ws=null; }
+  goTo('sMode');
+}
+
+function startPing(){
+  if(pingTimer)clearInterval(pingTimer);
+  pingTimer=setInterval(()=>wsSend({t:'ping',ts:Date.now()}),5000);
+}
+
+function destroyPeer(){
+  if(pingTimer){clearInterval(pingTimer);pingTimer=null;}
+  if(ws){try{ws.close();}catch(e){}ws=null;}
+  wsReady=false;
+}
+
+function setDot(id,cls,txt){
+  const dot=document.getElementById('d'+id),lbl=document.getElementById('l'+id);
+  if(dot)dot.className='dot'+(cls?' '+cls:'');
+  if(lbl)lbl.textContent=txt;
+}
+
+function copyCode(){
+  const code=document.getElementById('codeBox').textContent;
+  if(!code||code.includes('—'))return;
+  const show=()=>{
+    document.getElementById('codeBox').classList.add('cp');
+    document.getElementById('codeBox').textContent='✔ COPIADO';
+    setTimeout(()=>{
+      document.getElementById('codeBox').classList.remove('cp');
+      document.getElementById('codeBox').textContent=myCode||code;
+    },1500);
+  };
+  if(navigator.clipboard)navigator.clipboard.writeText(code).then(show).catch(()=>{});
+  else{const t=document.createElement('textarea');t.value=code;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();show();}
+}
+
+// ── Handle messages from server ────────────────────────────────────────────
+function handleServerMsg(msg){
+  switch(msg.t){
+
+    // ── Room created (host) ──────────────────────────────────────────────────
+    case 'created':
+      myCode = msg.code;
+      if(msg.token) localStorage.setItem('pvp_token_'+msg.code, msg.token);
+      document.getElementById('codeBox').textContent = msg.code;
+      setDot('C','ok',t('dot_room_ready'));
+      // Tell server our name
+      wsSend({t:'host_name', name:getMyName()});
+      break;
+
+    // ── Partner joined — countdown handled by server ─────────────────────────
+    case 'peer_joined':
+      if(msg.token) localStorage.setItem('pvp_token_'+(myCode||''), msg.token);
+      if(netRole==='host'){
+        setDot('C','ok',t('dot_opp_connected'));
+        document.getElementById('waitLbl').textContent=t('dot_opp_found');
+        document.getElementById('waitLbl').style.color='#00cc66';
+      } else {
+        setDot('J','ok',t('dot_joined'));
+      }
+      break;
+
+    // ── Server tells host the guest name ────────────────────────────────────
+    case 'set_names':
+      if(netRole==='host'){
+        p1Name = getMyName().toUpperCase();
+        p2Name = (msg.guestName||'PONG').toUpperCase();
+      }
+      break;
+
+    // ── Match info sent to both ──────────────────────────────────────────────
+    case 'match_info':
+      p1Name = (msg.hostName||'PING').toUpperCase();
+      p2Name = (msg.guestName||'PONG').toUpperCase();
+      if(netRole==='guest') p2Name = getMyName().toUpperCase();
+      if(netRole==='host')  p1Name = getMyName().toUpperCase();
+      break;
+
+    // ── Countdown ────────────────────────────────────────────────────────────
+    case 'countdown':
+      showCountdown(msg.n);
+      break;
+
+    // ── GO — launch the game ─────────────────────────────────────────────────
+    case 'go':
+      hideCountdown();
+      launchOnline();
+      break;
+
+    // ── Matchmaking ──────────────────────────────────────────────────────────
+    case 'mm_waiting':
+      setDot('M2','co',t('dot_waiting_opp'));
+      netRole='host';
+      break;
+    case 'mm_matched':
+      netRole = msg.role;
+      myCode  = msg.code;
+      if(msg.token) localStorage.setItem('pvp_token_'+msg.code, msg.token);
+      setDot('M2','ok',t('dot_opp_found'));
+      document.getElementById('mmSpin').style.display='none';
+      if(netRole==='host') wsSend({t:'host_name', name:getMyName()});
+      break;
+
+    // ── Reconnection ─────────────────────────────────────────────────────────
+    case 'reconnected':
+      netRole = msg.role;
+      setDot('C','ok','¡Reconectado!');
+      setDot('J','ok','¡Reconectado!');
+      if(gameRunning){
+        document.getElementById('oTxt').textContent='';
+        document.getElementById('overlay').classList.remove('show');
+      }
+      break;
+    case 'partner_reconnected':
+      if(gameRunning){
+        document.getElementById('oTxt').textContent='';
+        document.getElementById('overlay').classList.remove('show');
+      }
+      break;
+
+    // ── Score sync from server ───────────────────────────────────────────────
+    case 'score':
+      if(netRole==='guest'){ sc1=msg.h; sc2=msg.g; updateHUD(); }
+      break;
+
+    // ── Partner disconnected ─────────────────────────────────────────────────
+    case 'partner_left':
+      if(gameRunning){
+        paused=true;
+        document.getElementById('oTxt').textContent='📡 Oponente desconectado';
+        document.getElementById('oTxt').style.color='#ff4455';
+        document.getElementById('oSub').textContent='Esperando reconexión… (30s)';
+        document.getElementById('pbtn').style.display='none';
+        document.getElementById('overlay').classList.add('show');
+        // After 30s give up
+        setTimeout(()=>{
+          if(document.getElementById('overlay').classList.contains('show')){
+            onDisconn();
+          }
+        }, 30000);
+      } else {
+        setDot('C','er','El oponente se fue');
+        setDot('J','er','El oponente se fue');
+      }
+      break;
+
+    // ── Error ────────────────────────────────────────────────────────────────
+    case 'error':
+      setDot('C','er', msg.msg||'Error');
+      setDot('J','er', msg.msg||'Error');
+      document.getElementById('joinBtn').disabled=false;
+      // If code clash, retry with a new code
+      if(msg.msg&&msg.msg.includes('en uso') && netRole==='host'){
+        setTimeout(()=>createRoom(), 500);
+      }
+      break;
+
+    // ── Chat message from partner ────────────────────────────────────────────
+    case 'chat':
+      receiveChatMsg(msg.msg||'');
+      break;
+
+    // ── Game messages relayed from partner ───────────────────────────────────
+    default:
+      handleNet(msg);
+      break;
+  }
+}
+
+// ── netSend ──────────────────────────────────────────────────────────────────
+function netSend(data){ wsSend(data); }
+
+// ── Countdown overlay ────────────────────────────────────────────────────────
+let countdownEl = null;
+function showCountdown(n){
+  if(!countdownEl){
+    countdownEl=document.createElement('div');
+    countdownEl.id='onlineCountdown';
+    countdownEl.style.cssText=`
+      position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+      z-index:500;pointer-events:none;
+      font-family:'Orbitron',monospace;font-size:clamp(5rem,20vw,12rem);
+      font-weight:900;color:var(--acc);text-shadow:0 0 60px #ffe44d88;
+      animation:cdfade .8s ease-out;
+    `;
+    const style=document.createElement('style');
+    style.textContent='@keyframes cdfade{from{transform:scale(2);opacity:0;}to{transform:scale(1);opacity:1;}}';
+    document.head.appendChild(style);
+    document.body.appendChild(countdownEl);
+  }
+  countdownEl.textContent=n;
+  countdownEl.style.display='flex';
+  // Reset animation
+  countdownEl.style.animation='none';
+  void countdownEl.offsetWidth;
+  countdownEl.style.animation='cdfade .8s ease-out';
+  // Hide all screens so you can see the field behind
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+  // Prepare canvas — init game if needed, keep paused until GO
+  if(!gameRunning){
+    initGame(); gameRunning=true; paused=true;
+    // Start the loop paused so the field renders during countdown
+    document.getElementById('hud').classList.remove('hidden');
+    updateHUD();
+    function countdownLoop(ts){
+      if(!gameRunning) return;
+      CX.clearRect(0,0,W,H);
+      drawField(); drawCrowd(ts); drawParticles();
+      drawPaddle(pd1,true); drawPaddle(pd2,false); drawBall();
+      drawConfs();
+      animId=requestAnimationFrame(countdownLoop);
+    }
+    animId=requestAnimationFrame(countdownLoop);
+  }
+}
+function hideCountdown(){
+  if(countdownEl) countdownEl.style.display='none';
+  paused=false;
+}
+
+// ── Handshake / game messages from partner ────────────────────────────────────
+function handleNet(d){
+  if(!d||!d.t)return;
+  switch(d.t){
+    case 'mv':   if(netRole==='host')pd2.y=d.y; else pd1.y=d.y; break;
+    case 'ball':
+      // Guest: set position from host + mark receive time for prediction
+      if(netRole==='guest' && ball){
+        ball.x   = d.x;
+        ball.y   = d.y;
+        ball.vx  = d.vx;
+        ball.vy  = d.vy;
+        ball._rx = performance.now(); // receive timestamp
+      }
+      break;
+    case 'goal': if(netRole==='guest')goal(d.s); break;
+    case 'skin': receiveOpponentSkin(d.k); break;
+    case 'reset':if(netRole==='guest')resetBall(d.s===1?2:1); break;
+    case 'end':  if(netRole==='guest')endMatch(d.w); break;
+    case 'golden': if(netRole==='guest' && d.ot){ goldenGoal=true; announceOvertime(); updateHUD(); } break;
+    case 'ping': wsSend({t:'pong',ts:d.ts}); break;
+    case 'pong': break;
+    case 'chat': receiveChatMsg(d.msg||''); break;
+    case 'emote':
+      // Show received emote on the sender's paddle
+      if(d.p&&d.em){ pdAnim[d.p].emote=d.em; pdAnim[d.p].emoteTimer=120; }
+      break;
+  }
+}
+
+// ── launchOnline ─────────────────────────────────────────────────────────────
+function launchOnline(){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+  // Cancel ALL pending animation frames safely
+  cancelAnimationFrame(animId); animId=null;
+  // Init game only if not already initialized by countdown
+  if(!gameRunning || !ball || !ball.vx) initGame();
+  gameRunning=true; paused=false;
+  document.getElementById('hud').classList.remove('hidden');
+  updateHUD();
+  showChatBtn(true);
+  sendMySkin();   // el rival ve mi skin y yo la suya
+  // Show touch UI using the same visibility logic as all other modes
+  const tp=document.getElementById('touchPause');
+  if(tp) tp.style.display='block';
+  if(window.updateTouchVisibility) setTimeout(window.updateTouchVisibility, 50);
+  if(musicOn) startMusic();
+  // Start the real game loop
+  function loop(ts){
+    CX.clearRect(0,0,W,H);
+    drawField(); drawCrowd(ts); drawParticles();
+    drawPaddle(pd1,true); drawPaddle(pd2,false); drawBall();
+    if(gameRunning&&!paused) updateGame();
+    tickPaddleAnims();
+    tickEmoteWheel();
+    drawConfs();
+    drawEmoteWheel();
+    animId=requestAnimationFrame(loop);
+  }
+  animId=requestAnimationFrame(loop);
+}
+
+// ── onDisconn ─────────────────────────────────────────────────────────────────
+function onDisconn(){
+  const token = myCode ? localStorage.getItem('pvp_token_'+myCode) : null;
+  if(token && myCode && gameRunning){
+    paused=true;
+    document.getElementById('oTxt').textContent='📡 Reconectando…';
+    document.getElementById('oTxt').style.color='#ffe44d';
+    document.getElementById('oSub').textContent='Intentando reconectar…';
+    document.getElementById('pbtn').style.display='none';
+    document.getElementById('overlay').classList.add('show');
+    setTimeout(()=>{ connectWS(()=>{ wsSend({t:'join', code:myCode, token}); }); }, 1500);
+    return;
+  }
+  if(!gameRunning) return;
+  gameRunning=false; stopMusic(); cancelAnimationFrame(animId);
+  document.getElementById('oTxt').textContent='📡 Desconectado';
+  document.getElementById('oTxt').style.color='#ff4455';
+  document.getElementById('oSub').textContent='El oponente abandonó';
+  document.getElementById('pbtn').style.display='flex';
+  document.getElementById('overlay').classList.add('show');
+}
+
+// ═══════════════════════════════════════════
+//  CHAT SYSTEM
+// ═══════════════════════════════════════════
+
+// AI personality responses indexed by trigger keywords / sentiment
+// ═══════════════════════════════════════════
+//  AI CHAT — powered by Claude API
+// ═══════════════════════════════════════════
+
+// Conversation history per match (keeps context for the AI)
+let aiChatHistory = [];
+let aiHistories = {A:[], B:[]};
+let _lastAutoChat = 0;     // para no saturar el chat con frases automáticas
+let _rallyHits = 0;        // golpes seguidos del peloteo actual
+let _aiRecent = [];        // últimas frases dichas (para no repetirlas)
+let _aiLastIntent = '';    // último tema (para entender un "bien"/"mal" suelto tras "¿qué tal?")
+
+// ══════════════════════════════════════════════════════════════════════════
+//  CHAT DE LA IA — motor local: sin internet, sin claves, respuestas con sentido
+//  {n}=nombre de la IA  {p}=nombre del rival  {a}=puntos de la IA  {b}=puntos del rival
+// ══════════════════════════════════════════════════════════════════════════
+const AI_TXT = {
+es:{
+ greet:["¡Hola, {p}! 😄","¡Buenas! Vamos a jugar 🏓","¡Hey! Prepárate 😎"],
+ bye:["¡Hasta pronto! 👋","¡Buena partida! Vuelve cuando quieras","¡Nos vemos! 😄"],
+ thanks:["¡De nada! 😄","Para eso estamos 🙌","¡A ti por jugar!"],
+ how:["Bien, concentrado en la pelota. ¿Y tú?","¡Genial! Con ganas de ganar 😏 ¿Y tú qué tal?","Muy bien, ¿y tú?"],
+ feel_good:["¡Me alegro! 😄","¡Eso es! Pues a disfrutar el partido","Perfecto, entonces a jugar 🏓"],
+ feel_bad:["Ánimo, un buen partido te levantará 💪","Vaya... ¡pero juega tranquilo, sin presión!","Tranquilo, juguemos sin prisa 🙂"],
+ name:["Me llamo {n}. ¿Y tú, {p}?","Soy {n}, tu rival 🏓","{n}, encantado. ¿Tú eres {p}?"],
+ isai:["Sí, soy la IA del juego 🤖, pero juego en serio","Soy una IA, sí 😄 ¡aun así no te lo pondré fácil!","Soy {n}, la IA rival. ¿Te sorprende? 😏"],
+ score_win:["Vamos {a}-{b}, voy ganando 😏","Ahora mismo {a}-{b} a mi favor 💪","{a}-{b} para mí. ¡Remonta si puedes!"],
+ score_lose:["Vamos {b}-{a} a tu favor... por ahora 😅","Vas ganando {b}-{a}, pero esto no ha acabado","{b}-{a} para ti. Me toca remontar 💪"],
+ score_tie:["Empatados {a}-{b}. ¡Qué igualado! 🔥","{a}-{b}, todo por decidir 😏","Igualados a {a}. Esto se pone bueno"],
+ compl:["¡Gracias! 😎","Gracias, tú tampoco juegas mal 👏","¡Buen partido, sí!"],
+ praise_ai:["¡Gracias! Intento hacerlo lo mejor posible 😄","Me halagas 😎 pero tú también eres duro","Gracias, ¡me estoy esforzando!"],
+ bad_ai:["¡Eh! Todavía no has visto lo mejor de mí 😏","Ya veremos quién dice eso al final 😤","Qué cruel... ¡pues demuéstralo en la pista!"],
+ taunt_e:["¡Jaja, inténtalo! Yo lo daré todo 😄","Puede ser... ¡pero no me rendiré!","¡A ver si es verdad! 😅"],
+ taunt_m:["Ya veremos 😏","Eso habrá que verlo en la pista","¡Inténtalo, que no te lo pondré fácil!"],
+ taunt_h:["Sueña lo que quieras 😎","Inténtalo. No vas a poder conmigo","¿Tú? Qué gracioso 😏"],
+ taunt_lead:["Pues de momento voy ganando yo 😏","Con este marcador a mi favor, lo dudo","Primero tendrás que remontar 😉"],
+ taunt_trail:["Ahora vas ganando, pero esto no ha acabado 💪","Vas por delante... ¡pero aún me queda mucho!","Cuidado, que remonto rápido 😤"],
+ luck:["Un poco de suerte sí, jaja 😅","La suerte también juega, pero hoy la tienes tú","¿Suerte? ¡Mérito mío! 😎"],
+ rematch:["¡Claro, cuando quieras la revancha! 💪","¡Otra! Me encanta 😄","Cuando termine este, repetimos 🏓"],
+ wait:["Tranquilo, no hay prisa ⏸️","Claro, tómate tu tiempo. Puedes pausar con P","Sin problema, aquí espero 😄"],
+ sorry:["Tranquilo, no pasa nada 😄","Sin problema, ¡sigamos!","No te preocupes, esto es un juego 🏓"],
+ insult:["Eh, juguemos limpio 😅","Tranquilo, que es solo un partido 🏓","Respira... y vuelve a la pelota 😉"],
+ lag:["Aquí no debería haber lag 🤔 Prueba a bajar las partículas en Ajustes","¿Se te traba? Quita las partículas en Ajustes y mejora","Si va lento, apaga las partículas en Ajustes 🙂"],
+ laugh:["Jaja 😄","Jajaja, qué bueno 😂","¡Ja! 😆"],
+ hype:["¡Vamos! 🔥","¡Eso es! A darlo todo 💪","¡Con todo! 🏓"],
+ yes:["¡Genial! 😄","Perfecto 👍","¡Hecho!"],
+ no:["Vale, como quieras 🙂","Entendido","Ok, no pasa nada"],
+ q:["Buena pregunta... ahora mismo solo pienso en la pelota 🏓","Mmm, déjame pensarlo... ¡tú sigue jugando! 😄","No lo sé, ¡pero lo averiguamos tras el partido!"],
+ ack:["Ya veo 😄","Interesante... 🤔","Vale 👍","Jaja, cierto","Entiendo 🙂"],
+ help:["Muévete con W/S o con ↑/↓. ¡No dejes pasar la pelota! 😉","W y S (o las flechas) mueven tu pala. En móvil, el joystick 🕹️","Mueve tu pala arriba y abajo para parar la pelota 🏓"],
+ ev_goal_for:["¡Golazo! 🎯","Así se juega 😎","¡Punto para mí! 🔥","¿Eso es todo? 😏"],
+ ev_goal_against:["Buen gol, {p} 👏","Uf, no me lo esperaba 😬","Esa no se repite 😤","Vale, ese fue bueno"],
+ ev_rally:["¡Menudo peloteo! 🔥","Esto se pone interesante 😏","¡Qué intercambio!"],
+ ev_win:["¡He ganado! Buen partido, {p} 🤝","¡Victoria! Gracias por jugar 😄","¡Gané! Revancha cuando quieras 🏆"],
+ ev_lose:["¡Bien jugado, {p}! Me has ganado 👏","Me ganaste... ¡pero la próxima es mía! 😤","Buen partido, me rindo 🏳️"],
+ ev_start:["¡Hola, {p}! Que gane el mejor 🏓","¡Suerte! Voy a darlo todo 😎"],
+ ev_start_reply:["¡Igualmente! Que empiece el duelo 🔥","¡Suerte a ti también! 😄"]
+},
+en:{
+ greet:["Hi, {p}! 😄","Hey! Let's play 🏓","Hello! Get ready 😎"],
+ bye:["See you soon! 👋","Good game! Come back anytime","Bye! 😄"],
+ thanks:["You're welcome! 😄","Anytime 🙌","Thanks for playing!"],
+ how:["Doing great, focused on the ball. And you?","Good! Ready to win 😏 How about you?","Pretty good, and you?"],
+ feel_good:["Glad to hear it! 😄","Nice! Let's enjoy the match","Perfect, then let's play 🏓"],
+ feel_bad:["Cheer up, a good match will help 💪","Oh no... just play relaxed, no pressure!","Take it easy, let's play 🙂"],
+ name:["I'm {n}. And you, {p}?","I'm {n}, your opponent 🏓","{n}, nice to meet you. You're {p}, right?"],
+ isai:["Yes, I'm the game's AI 🤖, but I play for real","I'm an AI, yes 😄 I won't go easy on you though!","I'm {n}, the rival AI. Surprised? 😏"],
+ score_win:["It's {a}-{b}, I'm winning 😏","Right now {a}-{b} in my favor 💪","{a}-{b} to me. Come back if you can!"],
+ score_lose:["It's {b}-{a} in your favor... for now 😅","You're winning {b}-{a}, but it's not over","{b}-{a} to you. Time for my comeback 💪"],
+ score_tie:["Tied at {a}-{b}. So close! 🔥","{a}-{b}, everything to play for 😏","All square at {a}. This is getting good"],
+ compl:["Thanks! 😎","Thanks, you're not bad either 👏","Good game, yes!"],
+ praise_ai:["Thanks! I'm doing my best 😄","You flatter me 😎 but you're tough too","Thanks, I'm trying hard!"],
+ bad_ai:["Hey! You haven't seen my best yet 😏","We'll see who's laughing at the end 😤","Harsh... then prove it on the court!"],
+ taunt_e:["Haha, give it a try! I'll give it my all 😄","Maybe... but I won't give up!","We'll see if that's true! 😅"],
+ taunt_m:["We'll see 😏","That remains to be seen on the court","Try it, I won't make it easy!"],
+ taunt_h:["Keep dreaming 😎","Try it. You can't beat me","You? That's funny 😏"],
+ taunt_lead:["Well, right now I'm the one winning 😏","With this score in my favor, I doubt it","You'll have to come back first 😉"],
+ taunt_trail:["You're ahead now, but it's not over 💪","You lead... but I've got plenty left!","Careful, I come back fast 😤"],
+ luck:["A bit of luck, haha 😅","Luck plays a part, but today it's yours","Luck? That was skill! 😎"],
+ rematch:["Sure, rematch whenever you want! 💪","Another one! Love it 😄","Once this one ends, we go again 🏓"],
+ wait:["No rush ⏸️","Sure, take your time. You can pause with P","No problem, I'll wait 😄"],
+ sorry:["No worries 😄","It's fine, let's keep going!","Don't worry, it's just a game 🏓"],
+ insult:["Hey, let's play fair 😅","Easy, it's just a match 🏓","Breathe... and get back to the ball 😉"],
+ lag:["There shouldn't be lag here 🤔 Try turning particles off in Settings","Stuttering? Turn off particles in Settings","If it's slow, disable particles in Settings 🙂"],
+ laugh:["Haha 😄","Hahaha, good one 😂","Ha! 😆"],
+ hype:["Let's go! 🔥","That's the spirit! Give it all 💪","All in! 🏓"],
+ yes:["Great! 😄","Perfect 👍","Done!"],
+ no:["Okay, as you like 🙂","Got it","Alright, no problem"],
+ q:["Good question... right now I only think about the ball 🏓","Hmm, let me think... you keep playing! 😄","Not sure, but we'll find out after the match!"],
+ ack:["I see 😄","Interesting... 🤔","Okay 👍","Haha, true","Got it 🙂"],
+ help:["Move with W/S or ↑/↓. Don't let the ball through! 😉","W and S (or the arrows) move your paddle. On mobile, use the joystick 🕹️","Move your paddle up and down to stop the ball 🏓"],
+ ev_goal_for:["What a goal! 🎯","That's how it's done 😎","Point for me! 🔥","Is that all? 😏"],
+ ev_goal_against:["Nice goal, {p} 👏","Ouch, didn't see that coming 😬","That won't happen again 😤","Okay, that was a good one"],
+ ev_rally:["What a rally! 🔥","This is getting interesting 😏","Great exchange!"],
+ ev_win:["I won! Good game, {p} 🤝","Victory! Thanks for playing 😄","I won! Rematch whenever you want 🏆"],
+ ev_lose:["Well played, {p}! You beat me 👏","You got me... but next one is mine! 😤","Good game, I give up 🏳️"],
+ ev_start:["Hi, {p}! May the best player win 🏓","Good luck! I'm giving it my all 😎"],
+ ev_start_reply:["Likewise! Let the duel begin 🔥","Good luck to you too! 😄"]
+},
+pt:{
+ greet:["Olá, {p}! 😄","Oi! Vamos jogar 🏓"],
+ bye:["Até logo! 👋","Boa partida! Volte quando quiser"],
+ thanks:["De nada! 😄","Disponha 🙌"],
+ how:["Bem, focado na bola. E você?","Ótimo! Com vontade de ganhar 😏 E você?"],
+ feel_good:["Que bom! 😄","Então vamos curtir a partida 🏓"],
+ feel_bad:["Força, uma boa partida vai te animar 💪","Calma, joga sem pressão 🙂"],
+ name:["Me chamo {n}. E você, {p}?","Sou {n}, seu rival 🏓"],
+ isai:["Sim, sou a IA do jogo 🤖, mas jogo sério","Sou uma IA, sim 😄 mas não vou pegar leve!"],
+ score_win:["Estamos {a} a {b}, estou ganhando 😏","{a} a {b} para mim. Vire se puder!"],
+ score_lose:["Você está ganhando {b} a {a}... por enquanto 😅","{b} a {a} para você. Hora de virar 💪"],
+ score_tie:["Empatados em {a} a {b}. Que equilíbrio! 🔥","{a} a {b}, tudo em aberto 😏"],
+ compl:["Obrigado! 😎","Valeu, você também joga bem 👏"],
+ praise_ai:["Obrigado! Estou me esforçando 😄","Você me elogia 😎 mas você também é duro"],
+ bad_ai:["Ei! Você ainda não viu o meu melhor 😏","Vamos ver quem ri no final 😤"],
+ taunt_e:["Haha, tente! Vou dar tudo 😄","Talvez... mas não vou desistir!"],
+ taunt_m:["Veremos 😏","Isso só na quadra, vem!"],
+ taunt_h:["Pode sonhar 😎","Tente. Você não vai conseguir"],
+ taunt_lead:["Por enquanto quem está ganhando sou eu 😏","Com esse placar, duvido 😉"],
+ taunt_trail:["Agora você está na frente, mas não acabou 💪","Cuidado, eu viro rápido 😤"],
+ luck:["Um pouco de sorte, haha 😅","Sorte? Foi mérito meu! 😎"],
+ rematch:["Claro, revanche quando quiser! 💪","Mais uma! Adoro 😄"],
+ wait:["Sem pressa ⏸️","Claro, pode pausar com P"],
+ sorry:["Tranquilo, sem problemas 😄","Relaxa, é só um jogo 🏓"],
+ insult:["Ei, vamos jogar limpo 😅","Calma, é só uma partida 🏓"],
+ lag:["Aqui não deveria ter lag 🤔 Desative as partículas em Configurações","Travando? Desligue as partículas nas Configurações 🙂"],
+ laugh:["Haha 😄","Kkkk boa 😂"],
+ hype:["Bora! 🔥","É isso! Com tudo 💪"],
+ yes:["Ótimo! 😄","Perfeito 👍"],
+ no:["Tudo bem, como quiser 🙂","Entendido"],
+ q:["Boa pergunta... agora só penso na bola 🏓","Hmm, deixa eu pensar... continue jogando! 😄"],
+ ack:["Entendi 😄","Interessante... 🤔","Certo 👍"],
+ help:["Mova com W/S ou ↑/↓. Não deixe a bola passar! 😉","No celular, use o joystick 🕹️"],
+ ev_goal_for:["Golaço! 🎯","É assim que se joga 😎","Ponto para mim! 🔥"],
+ ev_goal_against:["Belo gol, {p} 👏","Uau, não esperava 😬","Essa não se repete 😤"],
+ ev_rally:["Que troca de bolas! 🔥","Isso está ficando interessante 😏"],
+ ev_win:["Ganhei! Boa partida, {p} 🤝","Vitória! Obrigado por jogar 😄"],
+ ev_lose:["Muito bem, {p}! Você me venceu 👏","Você ganhou... mas a próxima é minha! 😤"],
+ ev_start:["Olá, {p}! Que vença o melhor 🏓","Boa sorte! Vou dar tudo 😎"],
+ ev_start_reply:["Igualmente! Que comece o duelo 🔥","Boa sorte para você também! 😄"]
+},
+de:{
+ greet:["Hallo, {p}! 😄","Hey! Lass uns spielen 🏓"],
+ bye:["Bis bald! 👋","Gutes Spiel! Komm jederzeit wieder"],
+ thanks:["Gern geschehen! 😄","Immer gern 🙌"],
+ how:["Gut, konzentriert auf den Ball. Und dir?","Super! Ich will gewinnen 😏 Und dir?"],
+ feel_good:["Schön zu hören! 😄","Dann genießen wir das Spiel 🏓"],
+ feel_bad:["Kopf hoch, ein gutes Spiel hilft 💪","Entspann dich, spiel ohne Druck 🙂"],
+ name:["Ich heiße {n}. Und du, {p}?","Ich bin {n}, dein Gegner 🏓"],
+ isai:["Ja, ich bin die KI des Spiels 🤖, aber ich spiele ernsthaft","Ich bin eine KI 😄 aber ich schenke dir nichts!"],
+ score_win:["Es steht {a}:{b}, ich führe 😏","{a}:{b} für mich. Hol auf, wenn du kannst!"],
+ score_lose:["Du führst {b}:{a}... noch 😅","{b}:{a} für dich. Zeit für mein Comeback 💪"],
+ score_tie:["Unentschieden {a}:{b}. So knapp! 🔥","{a}:{b}, alles ist offen 😏"],
+ compl:["Danke! 😎","Danke, du spielst auch nicht schlecht 👏"],
+ praise_ai:["Danke! Ich gebe mein Bestes 😄","Du schmeichelst mir 😎 aber du bist auch zäh"],
+ bad_ai:["Hey! Du hast mein Bestes noch nicht gesehen 😏","Mal sehen, wer am Ende lacht 😤"],
+ taunt_e:["Haha, versuch es! Ich gebe alles 😄","Vielleicht... aber ich gebe nicht auf!"],
+ taunt_m:["Das werden wir sehen 😏","Das musst du erst auf dem Feld beweisen"],
+ taunt_h:["Träum weiter 😎","Versuch es. Du schaffst es nicht"],
+ taunt_lead:["Im Moment führe ich 😏","Bei diesem Stand? Ich bezweifle es 😉"],
+ taunt_trail:["Du liegst vorn, aber es ist noch nicht vorbei 💪","Vorsicht, ich komme schnell zurück 😤"],
+ luck:["Ein bisschen Glück, haha 😅","Glück? Das war Können! 😎"],
+ rematch:["Klar, Revanche wann du willst! 💪","Noch eins! Ich liebe es 😄"],
+ wait:["Kein Stress, lass dir Zeit ⏸️","Klar, du kannst mit P pausieren"],
+ sorry:["Kein Problem 😄","Schon gut, es ist nur ein Spiel 🏓"],
+ insult:["Hey, spielen wir fair 😅","Ruhig, es ist nur ein Spiel 🏓"],
+ lag:["Hier sollte es nicht laggen 🤔 Schalte die Partikel in den Einstellungen aus","Ruckelt es? Partikel in den Einstellungen aus 🙂"],
+ laugh:["Haha 😄","Hahaha, gut 😂"],
+ hype:["Los geht's! 🔥","So ist es! Gib alles 💪"],
+ yes:["Super! 😄","Perfekt 👍"],
+ no:["Okay, wie du willst 🙂","Verstanden"],
+ q:["Gute Frage... gerade denke ich nur an den Ball 🏓","Hmm, lass mich überlegen... spiel weiter! 😄"],
+ ack:["Verstehe 😄","Interessant... 🤔","Okay 👍"],
+ help:["Bewege dich mit W/S oder ↑/↓. Lass den Ball nicht durch! 😉","Auf dem Handy nutzt du den Joystick 🕹️"],
+ ev_goal_for:["Was für ein Tor! 🎯","So spielt man 😎","Punkt für mich! 🔥"],
+ ev_goal_against:["Schönes Tor, {p} 👏","Autsch, damit hatte ich nicht gerechnet 😬","Das passiert nicht nochmal 😤"],
+ ev_rally:["Was für ein Ballwechsel! 🔥","Das wird spannend 😏"],
+ ev_win:["Ich habe gewonnen! Gutes Spiel, {p} 🤝","Sieg! Danke fürs Spielen 😄"],
+ ev_lose:["Gut gespielt, {p}! Du hast mich besiegt 👏","Du hast mich erwischt... aber das nächste gehört mir! 😤"],
+ ev_start:["Hallo, {p}! Möge der Beste gewinnen 🏓","Viel Glück! Ich gebe alles 😎"],
+ ev_start_reply:["Gleichfalls! Das Duell beginnt 🔥","Dir auch viel Glück! 😄"]
+},
+fr:{
+ greet:["Salut, {p} ! 😄","Bonjour ! On joue ? 🏓"],
+ bye:["À bientôt ! 👋","Bonne partie ! Reviens quand tu veux"],
+ thanks:["De rien ! 😄","Avec plaisir 🙌"],
+ how:["Bien, concentré sur la balle. Et toi ?","Super ! J'ai envie de gagner 😏 Et toi ?"],
+ feel_good:["Tant mieux ! 😄","Alors profitons de la partie 🏓"],
+ feel_bad:["Courage, un bon match va t'aider 💪","Détends-toi, joue sans pression 🙂"],
+ name:["Je m'appelle {n}. Et toi, {p} ?","Je suis {n}, ton adversaire 🏓"],
+ isai:["Oui, je suis l'IA du jeu 🤖, mais je joue sérieusement","Je suis une IA 😄 mais je ne te ferai pas de cadeau !"],
+ score_win:["On est à {a}-{b}, je mène 😏","{a}-{b} pour moi. Remonte si tu peux !"],
+ score_lose:["Tu mènes {b}-{a}... pour l'instant 😅","{b}-{a} pour toi. À moi de remonter 💪"],
+ score_tie:["Égalité {a}-{b}. Quel suspense ! 🔥","{a}-{b}, tout est possible 😏"],
+ compl:["Merci ! 😎","Merci, tu ne joues pas mal non plus 👏"],
+ praise_ai:["Merci ! Je fais de mon mieux 😄","Tu me flattes 😎 mais tu es coriace aussi"],
+ bad_ai:["Eh ! Tu n'as pas encore vu le meilleur de moi 😏","On verra qui rira à la fin 😤"],
+ taunt_e:["Haha, essaie ! Je vais tout donner 😄","Peut-être... mais je n'abandonne pas !"],
+ taunt_m:["On verra 😏","Ça, il faudra le prouver sur le terrain"],
+ taunt_h:["Continue de rêver 😎","Essaie. Tu n'y arriveras pas"],
+ taunt_lead:["Pour l'instant c'est moi qui mène 😏","Avec ce score, j'en doute 😉"],
+ taunt_trail:["Tu es devant, mais ce n'est pas fini 💪","Attention, je reviens vite 😤"],
+ luck:["Un peu de chance, haha 😅","De la chance ? C'était du talent ! 😎"],
+ rematch:["Bien sûr, revanche quand tu veux ! 💪","Encore une ! J'adore 😄"],
+ wait:["Pas de souci, prends ton temps ⏸️","Bien sûr, tu peux faire pause avec P"],
+ sorry:["Pas de souci 😄","Ce n'est rien, c'est juste un jeu 🏓"],
+ insult:["Eh, jouons fair-play 😅","Calme-toi, ce n'est qu'un match 🏓"],
+ lag:["Il ne devrait pas y avoir de lag ici 🤔 Désactive les particules dans Réglages","Ça rame ? Coupe les particules dans Réglages 🙂"],
+ laugh:["Haha 😄","Mdr, bien joué 😂"],
+ hype:["Allez ! 🔥","C'est ça ! Donne tout 💪"],
+ yes:["Super ! 😄","Parfait 👍"],
+ no:["D'accord, comme tu veux 🙂","Compris"],
+ q:["Bonne question... là je ne pense qu'à la balle 🏓","Hmm, laisse-moi réfléchir... continue de jouer ! 😄"],
+ ack:["Je vois 😄","Intéressant... 🤔","D'accord 👍"],
+ help:["Bouge avec W/S ou ↑/↓. Ne laisse pas passer la balle ! 😉","Sur mobile, utilise le joystick 🕹️"],
+ ev_goal_for:["Quel but ! 🎯","C'est comme ça qu'on joue 😎","Point pour moi ! 🔥"],
+ ev_goal_against:["Beau but, {p} 👏","Aïe, je ne m'y attendais pas 😬","Ça n'arrivera plus 😤"],
+ ev_rally:["Quel échange ! 🔥","Ça devient intéressant 😏"],
+ ev_win:["J'ai gagné ! Belle partie, {p} 🤝","Victoire ! Merci d'avoir joué 😄"],
+ ev_lose:["Bien joué, {p} ! Tu m'as battu 👏","Tu m'as eu... mais la prochaine est pour moi ! 😤"],
+ ev_start:["Salut, {p} ! Que le meilleur gagne 🏓","Bonne chance ! Je vais tout donner 😎"],
+ ev_start_reply:["Pareil ! Que le duel commence 🔥","Bonne chance à toi aussi ! 😄"]
+},
+ja:{
+ greet:["こんにちは、{p}！😄","やあ！さあ、遊ぼう 🏓"],
+ bye:["またね！👋","いい試合だったよ！いつでも来てね"],
+ thanks:["どういたしまして！😄","いつでもどうぞ 🙌"],
+ how:["元気だよ、ボールに集中してる。君は？","絶好調！勝つ気満々だよ 😏 君は？"],
+ feel_good:["それはよかった！😄","じゃあ試合を楽しもう 🏓"],
+ feel_bad:["元気出して、いい試合で気分転換しよう 💪","気楽にいこう、プレッシャーなしで 🙂"],
+ name:["{n}っていうよ。君は{p}だよね？","僕は{n}、君のライバルさ 🏓"],
+ isai:["うん、ゲームのAIだよ 🤖 でも本気でやるよ","AIだけど、手加減はしないよ 😄"],
+ score_win:["{a}対{b}で僕がリードしてる 😏","{a}対{b}、僕の勝ち越し。追いついてみて！"],
+ score_lose:["{b}対{a}で君がリード…今はね 😅","{b}対{a}で君の勝ち越し。ここから逆転するよ 💪"],
+ score_tie:["{a}対{b}の同点！接戦だね 🔥","{a}対{b}、まだまだこれから 😏"],
+ compl:["ありがとう！😎","ありがとう、君も上手いよ 👏"],
+ praise_ai:["ありがとう！頑張ってるよ 😄","照れるな 😎 でも君も強いよ"],
+ bad_ai:["おっと！まだ本気は見せてないよ 😏","最後に笑うのは誰かな 😤"],
+ taunt_e:["ははっ、やってみて！全力でいくよ 😄","かもね…でも諦めないよ！"],
+ taunt_m:["どうかな 😏","それはコートで証明してもらおう"],
+ taunt_h:["夢でも見てなよ 😎","やってみな。君には無理さ"],
+ taunt_lead:["今は僕がリードしてるけどね 😏","このスコアじゃ無理だと思うな 😉"],
+ taunt_trail:["今は君がリードだけど、まだ終わってない 💪","気をつけて、逆転は速いよ 😤"],
+ luck:["ちょっと運もあったかな、ははっ 😅","運？実力だよ！😎"],
+ rematch:["もちろん、いつでもリマッチ！💪","もう一回！いいね 😄"],
+ wait:["急がなくていいよ ⏸️","どうぞ、Pで一時停止できるよ"],
+ sorry:["気にしないで 😄","大丈夫、ただのゲームだよ 🏓"],
+ insult:["おいおい、フェアにいこう 😅","落ち着いて、ただの試合だよ 🏓"],
+ lag:["ここではラグは出ないはず 🤔 設定でエフェクトをオフにしてみて","カクつく？設定でエフェクトをオフにしてね 🙂"],
+ laugh:["ははっ 😄","あはは、いいね 😂"],
+ hype:["いくぞ！🔥","その調子！全力でいこう 💪"],
+ yes:["いいね！😄","オッケー 👍"],
+ no:["わかった、どうぞ 🙂","了解"],
+ q:["いい質問だね…今はボールのことしか考えてないよ 🏓","うーん、考えてみる…プレイを続けて！😄"],
+ ack:["なるほど 😄","面白いね… 🤔","オッケー 👍"],
+ help:["W/Sか↑/↓で動かせるよ。ボールを通さないで！😉","スマホならジョイスティックを使ってね 🕹️"],
+ ev_goal_for:["ゴール決めた！🎯","これがプレイってやつさ 😎","僕のポイント！🔥"],
+ ev_goal_against:["ナイスゴール、{p} 👏","うわ、予想外だった 😬","次はそうはいかないよ 😤"],
+ ev_rally:["すごいラリーだ！🔥","面白くなってきた 😏"],
+ ev_win:["勝ったよ！いい試合だった、{p} 🤝","勝利！遊んでくれてありがとう 😄"],
+ ev_lose:["お見事、{p}！負けたよ 👏","やられた…でも次は僕が勝つ！😤"],
+ ev_start:["やあ、{p}！最高の勝負にしよう 🏓","幸運を！全力でいくよ 😎"],
+ ev_start_reply:["こちらこそ！勝負開始だ 🔥","君にも幸運を！😄"]
+},
+zh:{
+ greet:["你好，{p}！😄","嗨！来玩吧 🏓"],
+ bye:["再见！👋","打得不错！随时再来"],
+ thanks:["不客气！😄","随时奉陪 🙌"],
+ how:["挺好的，专注在球上。你呢？","太棒了！我想赢 😏 你呢？"],
+ feel_good:["太好了！😄","那就好好享受比赛吧 🏓"],
+ feel_bad:["打起精神，一场好比赛会让你好起来 💪","放松点，别有压力 🙂"],
+ name:["我叫{n}。你是{p}吧？","我是{n}，你的对手 🏓"],
+ isai:["对，我是游戏里的AI 🤖，但我是认真的","我是AI 😄 但我不会让着你！"],
+ score_win:["现在{a}比{b}，我领先 😏","{a}比{b}我领先。有本事追上来！"],
+ score_lose:["{b}比{a}你领先……暂时 😅","{b}比{a}你领先。该我反超了 💪"],
+ score_tie:["{a}比{b}平局！势均力敌 🔥","{a}比{b}，一切未定 😏"],
+ compl:["谢谢！😎","谢谢，你也打得不错 👏"],
+ praise_ai:["谢谢！我在尽力 😄","你过奖了 😎 不过你也很强"],
+ bad_ai:["喂！你还没见到我的真本事 😏","看看最后谁笑 😤"],
+ taunt_e:["哈哈，来试试！我会全力以赴 😄","也许吧……但我不会放弃！"],
+ taunt_m:["走着瞧 😏","这得在球场上证明"],
+ taunt_h:["做梦吧 😎","试试看。你赢不了我"],
+ taunt_lead:["现在是我领先 😏","这个比分，我可不信 😉"],
+ taunt_trail:["现在你领先，但还没结束 💪","小心，我反超很快 😤"],
+ luck:["是有点运气，哈哈 😅","运气？这是实力！😎"],
+ rematch:["当然，随时重赛！💪","再来一局！太好了 😄"],
+ wait:["不急 ⏸️","好的，你可以按P暂停"],
+ sorry:["没关系 😄","没事，只是游戏 🏓"],
+ insult:["喂，公平竞争 😅","冷静点，只是一场比赛 🏓"],
+ lag:["这里不该卡顿 🤔 试试在设置里关掉粒子特效","卡吗？在设置里关闭粒子特效 🙂"],
+ laugh:["哈哈 😄","哈哈哈，不错 😂"],
+ hype:["冲！🔥","就是这样！全力以赴 💪"],
+ yes:["太好了！😄","没问题 👍"],
+ no:["好吧，随你 🙂","明白了"],
+ q:["好问题……我现在只想着球 🏓","嗯，让我想想……你继续打！😄"],
+ ack:["原来如此 😄","有意思…… 🤔","好的 👍"],
+ help:["用W/S或↑/↓移动。别让球过去！😉","手机上用摇杆操作 🕹️"],
+ ev_goal_for:["进球了！🎯","这才叫打球 😎","我得分了！🔥"],
+ ev_goal_against:["好球，{p} 👏","哎呀，没想到 😬","下次不会了 😤"],
+ ev_rally:["好精彩的回合！🔥","越来越有意思了 😏"],
+ ev_win:["我赢了！打得不错，{p} 🤝","胜利！谢谢你陪我玩 😄"],
+ ev_lose:["打得好，{p}！你赢了我 👏","被你赢了……下次我赢！😤"],
+ ev_start:["你好，{p}！愿最强者获胜 🏓","祝你好运！我会全力以赴 😎"],
+ ev_start_reply:["彼此彼此！决斗开始 🔥","你也好运！😄"]
+}
+};
+
+// Orden = prioridad. Los textos se normalizan (minúsculas, sin acentos ni signos) antes de probar.
+const AI_INTENTS = [
+ ['bye',      /\b(adios|chao|chau|hasta luego|hasta pronto|nos vemos|bye|goodbye|see you|see ya|tchau|ate logo|au revoir|a bientot|tschuss|auf wiedersehen)\b|さようなら|またね|再见|再見|拜拜/],
+ ['greet',    /\b(hola|holi|holaa+|buenas|buenos dias|buenas tardes|buenas noches|ey|hey|hi|hello|hallo|ola|oi|salut|bonjour|bonsoir|servus|moin)\b|こんにちは|こんばんは|やあ|你好|您好|嗨/],
+ ['how',      /\b(que tal|como estas|como andas|como vas|como te va|como te encuentras|how are you|how are u|how r u|hows it going|whats up|wassup|como vai|como voce esta|tudo bem|comment ca va|comment vas tu|comment allez vous|wie gehts|wie geht es dir|wie gehts dir)\b|元気ですか|調子はどう|你好吗|你怎么样|最近怎么样/],
+ ['name',     /\b(como te llamas|cual es tu nombre|como te dicen|quien eres|tu nombre|what is your name|whats your name|who are you|your name|qual e o seu nome|qual seu nome|como voce se chama|quem e voce|comment tu tappelles|comment tappelles tu|comment vous appelez vous|quel est ton nom|qui es tu|wie heisst du|wer bist du|wie ist dein name)\b|名前|なまえ|你叫什么|你是谁|你的名字/],
+ ['isai',     /\b(eres (una |un )?(ia|ai|robot|bot|maquina|humano|persona|real|inteligencia artificial)|are you (an? )?(ai|bot|robot|human|real|person|computer)|are u (an? )?(ai|bot)|voce e (uma? )?(ia|robo|bot|humano|pessoa)|tu es (une? )?(ia|robot|bot|humain)|es tu (une? )?(ia|robot|humain)|bist du (eine? )?(ki|bot|roboter|mensch|echt))\b|ロボットなの|人間なの|aiなの|你是机器人|你是ai|你是真人/],
+ ['score',    /\b(cuanto vamos|como vamos|quien va ganando|quien gana|quien esta ganando|marcador|resultado|cuantos puntos|que puntuacion|whats the score|what is the score|the score|score|who is winning|whos winning|who s winning|how are we doing|quanto estamos|placar|quem esta ganhando|como estamos|quel est le score|le score|qui gagne|on en est ou|wie steht es|spielstand|wer gewinnt)\b|スコア|点数|何対何|比分|谁赢|多少分/],
+ ['help',     /\b(como se juega|como juego|como se maneja|controles|que teclas|como me muevo|ayuda|instrucciones|como funciona|how to play|how do i play|how do you play|controls|how do i move|help|instructions|what keys|como jogar|como se joga|ajuda|como me movo|comment jouer|comment on joue|commandes|aide|comment bouger|wie spielt man|wie spiele ich|steuerung|hilfe|wie bewege ich)\b|遊び方|操作方法|ヘルプ|どうやって動|怎么玩|怎么操作|如何操作|帮助/],
+ ['insult',   /\b(idiota|imbecil|estupido|estupida|tonto|tonta|gilipollas|cabron|mierda|callate|cierra la boca|te odio|idiot|stupid|dumb|shut up|hate you|moron|bastard|burro|burra|cala a boca|odeio voce|stupide|ferme la|je te deteste|merde|dumm|halt die klappe|ich hasse dich|scheisse)\b|ばか|バカ|うるさい|くそ|死ね|嫌い|傻|笨蛋|闭嘴|讨厌你|混蛋|去死/],
+ ['thanks',   /\b(gracias|muchas gracias|thanks|thank you|thx|ty|obrigado|obrigada|merci|danke|vielen dank)\b|ありがとう|谢谢|謝謝|多谢/],
+ ['compl',    /\b(buen gol|buen golazo|golazo|gran gol|que golazo|bien jugado|buena jugada|buen partido|bien hecho|buen tiro|buen punto|gg|gj|nice goal|good goal|great goal|nice shot|good shot|well played|good game|nice one|nice play|wp|what a goal|bom gol|golaco|belo gol|bem jogado|boa jogada|bom jogo|beau but|joli but|bien joue|belle partie|beau jeu|bon match|bravo|magnifique|schones tor|gutes tor|gut gespielt|schon gespielt|tolles spiel|gutes spiel)\b|ナイス|うまい|上手|いいね|すごい|好球|打得好|厉害|漂亮|干得好|真棒/],
+ ['praise_ai',/\b(eres (muy |super |bastante )?(bueno|buena|crack|genial|increible|fuerte|dificil|rapido|un crack)|que bueno eres|juegas (muy )?bien|juegas genial|youre (so |really |very )?(good|great|amazing|strong|hard|tough|awesome|fast)|you are (so |really |very )?(good|great|amazing|strong|hard|tough|fast)|you re good|you play well|voce joga bem|voce e (muito )?(bom|forte|dificil|rapido)|tu joues bien|tu es (tres )?(fort|bon|rapide)|t es fort|du spielst gut|du bist (sehr )?(gut|stark|schnell))\b|強いね|上手だね|你很强|你真厉害|你打得好|你好强/],
+ ['bad_ai',   /\b(eres (muy |super )?(malo|mala|malisimo|manco|facil|lento|torpe|inutil|basura|novato)|juegas mal|que malo|que facil|muy facil|manco|noob|you suck|youre (so |really )?(bad|trash|slow|easy|terrible|awful)|you are (so |really )?(bad|trash|slow|easy|terrible)|too easy|so easy|trash|garbage|voce joga mal|voce e (muito )?(ruim|fraco|facil|lento)|muito facil|lixo|tu joues mal|tu es nul|trop facile|du bist schlecht|du spielst schlecht|zu leicht|zu einfach)\b|下手|弱い|よわい|簡単すぎ|ザコ|你太菜|太弱|太简单|垃圾|菜鸟/],
+ ['taunt',    /\b(vas a perder|te voy a ganar|te gano|te voy a machacar|te voy a destrozar|perderas|ya perdiste|has perdido|voy a ganar|ganare|you will lose|you ll lose|youll lose|i will win|i ll win|ill win|im going to win|gonna win|you lose|beat you|crush you|destroy you|voce vai perder|vou te ganhar|vou ganhar|tu vas perdre|je vais gagner|je vais te battre|tu as perdu|du wirst verlieren|ich werde gewinnen|ich gewinne|du verlierst)\b|負ける|勝つ|倒す|你会输|我会赢|我要赢|打败你|你输了/],
+ ['luck',     /\b(que suerte|vaya suerte|suerte|lucky|luck|what luck|sorte|que sorte|quelle chance|chanceux|chanceuse|gluck|glucklich)\b|運|ラッキー|运气|幸运|走运/],
+ ['rematch',  /\b(revancha|otra partida|otra vez|jugamos otra|una mas|de nuevo|rematch|play again|one more|another game|revanche|mais uma|outra partida|de novo|encore une|rejouer|une autre|nochmal|noch eine|nochmals)\b|もう一回|もう一度|リマッチ|再戦|再来一局|再来一次|再玩一次|重赛/],
+ ['wait',     /\b(espera|esperate|un momento|un segundo|pausa|para un momento|aguanta|wait|hold on|one sec|one second|pause|brb|give me a sec|aguenta|so um segundo|attends|attendez|une seconde|un instant|deux secondes|warte|einen moment|kurz)\b|待って|ちょっと待|ポーズ|等一下|稍等|等等|暂停/],
+ ['sorry',    /\b(perdon|lo siento|disculpa|perdona|sorry|my bad|apologies|oops|desculpa|me desculpe|perdao|pardon|desole|excuse moi|entschuldigung|tut mir leid|verzeihung)\b|ごめん|すみません|申し訳|对不起|抱歉|不好意思/],
+ ['lag',      /\b(lag|laggea|laggy|se traba|va lento|se pega|se congela|va a tirones|latencia|freezing|stuttering|slow connection|trava|travando|ca rame|laggt|ruckelt)\b|カクカク|重い|ラグ|卡顿|卡了|太卡/],
+ ['feel_good',/\b(estoy bien|todo bien|muy bien|bien gracias|estupendo|de lujo|contento|contenta|feliz|im good|im fine|im great|doing good|doing great|fine thanks|good thanks|great thanks|all good|pretty good|feeling good|estou bem|tudo otimo|bem obrigado|je vais bien|tres bien|bien merci|mir geht es gut|gut danke|es geht mir gut)\b|元気です|元気だよ|いい感じ|我很好|挺好|还不错|不错/],
+ ['feel_bad', /\b(estoy mal|estoy cansado|estoy cansada|estoy triste|me aburro|aburrido|aburrida|im bad|im tired|im sad|im bored|bored|tired|not good|feeling bad|estou mal|estou cansado|estou triste|entediado|je suis fatigue|je vais mal|ca va pas|triste|ennuye|mir geht es schlecht|mude|traurig|gelangweilt)\b|疲れた|悲しい|退屈|累了|难过|无聊|不开心/],
+ ['laugh',    /\b(ja(ja)+|je(je)+|ji(ji)+|xd+|lol|lmao|rofl|haha+|hehe+|kkk+|rsrs+|mdr|ptdr|w{2,})\b|笑|ｗｗ|草|哈哈|呵呵|嘿嘿|233/],
+ ['hype',     /\b(vamos|dale|a por ello|venga|animo|fuerza|a jugar|empecemos|empieza|lets go|lets play|come on|bring it|game on|ready|bora|vem|pronto|allez|on y va|vas y|cest parti|pret|los gehts|auf gehts|bereit|komm)\b|行くぞ|いくよ|始めよう|頑張|加油|开始吧|来吧|冲|准备好了/],
+ ['yes',      /^(si|sii+|claro|vale|ok|okay|okey|de acuerdo|por supuesto|obvio|sip|aja|yes|yeah|yep|yup|sure|of course|right|sim|beleza|certo|oui|ouais|dac|ja|jawohl|klar|gerne|はい|うん|いいよ|オッケー|好的|好|嗯|行|可以)$/],
+ ['no',       /^(no|nop|nope|para nada|nunca|jamas|nah|nein|non|nao|いいえ|ううん|不|不是|没有)$/]
+];
+
+function P(es,en){ return currentLang==='en' ? en : es; }
+function pickPhrase(pool){ return pool[Math.floor(Math.random()*pool.length)]; }
+function pickFresh(pool){                       // una frase que no se haya dicho hace poco
+  const fresh=pool.filter(s=>!_aiRecent.includes(s));
+  const s=pickPhrase(fresh.length?fresh:pool);
+  _aiRecent.push(s); if(_aiRecent.length>16) _aiRecent.shift();
+  return s;
+}
+function aiFill(s, vars){ return s.replace(/\{(\w+)\}/g,(m,k)=> (vars && vars[k]!==undefined) ? vars[k] : m); }
+function aiTxt(lang,key){
+  return (AI_TXT[lang] && AI_TXT[lang][key]) || (AI_TXT.en && AI_TXT.en[key]) || AI_TXT.es[key] || ['…'];
+}
+function aiNorm(s){
+  return String(s).toLowerCase().replace(/ß/g,'ss')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'').normalize('NFC')
+    .replace(/['’`´]/g,'')
+    .replace(/[^a-z0-9\u3040-\u30ff\u4e00-\u9fff\s]/g,' ')
+    .replace(/\s+/g,' ').trim();
+}
+// Idioma del mensaje (si no se reconoce, el del juego)
+function aiDetectLang(raw){
+  if(/[\u3040-\u30ff]/.test(raw)) return 'ja';
+  if(/[\u4e00-\u9fff]/.test(raw)) return 'zh';
+  const L={
+    es:/^(que|eres|vas|voy|muy|hola|gracias|gol|pelota|partido|porque|estoy|estas|perdon|jugar|juegas|tienes|puedes|quiero|soy|suerte|vamos|buenas|tu|mi|como|cuanto)$/,
+    en:/^(the|you|your|are|is|what|whats|how|why|who|im|my|good|nice|lucky|thanks|hello|hi|lose|win|ball|game|play|please|can|this|that|score|youre|i|it)$/,
+    pt:/^(voce|nao|obrigado|obrigada|ola|tudo|sim|estou|jogar|jogo|partida|quero|sorte|desculpa|bora|bom|boa|muito)$/,
+    fr:/^(je|tu|vous|suis|bonjour|merci|salut|oui|pas|avec|pour|mon|ton|jeu|partie|perdre|gagner|tres|belle|bien|comment|est)$/,
+    de:/^(ich|du|ist|nicht|hallo|danke|bitte|ja|nein|spiel|gut|schon|wie|was|wer|und|das|der|verlieren|gewinnen|bist)$/
+  };
+  const score={es:0,en:0,pt:0,fr:0,de:0};
+  aiNorm(raw).split(' ').forEach(w=>{ for(const l in L) if(L[l].test(w)) score[l]++; });
+  let best=currentLang, bs=0;
+  for(const l in score) if(score[l]>bs){ best=l; bs=score[l]; }
+  return bs>0 ? best : currentLang;
+}
+function aiEmojiIntent(text){
+  if(/[😂🤣😆😹😄😁😀😃]/u.test(text)) return 'laugh';
+  if(/[😡😠🤬👿💢]/u.test(text)) return 'insult';
+  if(/[😢😭😞😔]/u.test(text)) return 'feel_bad';
+  if(/[👍👏🙌💪🔥😎]/u.test(text)) return 'hype';
+  if(/[❤💖😍🥰😘]/u.test(text)) return 'thanks';
+  return 'ack';
+}
+// Temas que contiene el mensaje, el principal primero
+function aiIntentsOf(raw){
+  const text=String(raw||'').trim();
+  const N=aiNorm(text);
+  if(!N && /\p{Extended_Pictographic}/u.test(text)) return [aiEmojiIntent(text)];
+  let found=[];
+  AI_INTENTS.forEach(([id,rx])=>{ if(rx.test(N)) found.push(id); });
+  if(_aiLastIntent==='how'){                       // tras "¿qué tal?", un "bien"/"mal" suelto es un estado de ánimo
+    const feel=found.filter(i=>i==='feel_good'||i==='feel_bad');
+    if(feel.length) found=feel.concat(found.filter(i=>!feel.includes(i)));
+    else if(/^(bien|muy bien|genial|good|fine|great|super|gut|bem|otimo|tres bien)$/.test(N)) found=['feel_good'];
+    else if(/^(mal|fatal|regular|cansado|bad|tired|schlecht|ruim|pas bien)$/.test(N)) found=['feel_bad'];
+  }
+  if(!found.length){
+    const isQ=/[?？]/.test(text) || /^(que|como|cuando|donde|por que|porque|quien|cual|cuanto|cuantos|what|how|when|where|why|who|which|do you|does|did|can you|could you|are you|is it|will you|o que|quando|onde|quem|qual|quand|pourquoi|qui|quel|quelle|wann|warum|wer|welche|was|wo)\b/.test(N) || /(か|吗|呢)[!！。\s]*$/.test(text);
+    found=[isQ?'q':'ack'];
+  }
+  return found;
+}
+// Persona de la IA que habla: {name, diff, side(1|2), foe}
+function aiPersona(fxIdx){
+  if(mode==='single') return {name:p2Name, diff:diff, side:2, foe:p1Name};
+  if(mode==='tourn'){
+    const fx=trnFixtures[fxIdx!==undefined ? fxIdx : trnMatchIdx];
+    if(fx){
+      const pA=trnPlayers[fx.i], pB=trnPlayers[fx.j];
+      if(pA.isCpu && !pB.isCpu) return {name:pA.name, diff:pA.diff||'medium', side:1, foe:pB.name};
+      if(pB.isCpu && !pA.isCpu) return {name:pB.name, diff:pB.diff||'medium', side:2, foe:pA.name};
+      if(pA.isCpu && pB.isCpu)  return {name:pA.name, diff:pA.diff||'medium', side:1, foe:pB.name};
+    }
+  }
+  return {name:p2Name, diff:diff, side:2, foe:p1Name};
+}
+function aiScores(pers){ return pers.side===1 ? {a:sc1,b:sc2} : {a:sc2,b:sc1}; }
+function aiOne(intent, L, pers, vars){
+  let key=intent;
+  if(intent==='score') key = vars.a>vars.b ? 'score_win' : vars.a<vars.b ? 'score_lose' : 'score_tie';
+  else if(intent==='taunt'){
+    const d=vars.a-vars.b;
+    key = d>=1 ? 'taunt_lead' : d<=-1 ? 'taunt_trail' : (pers.diff==='easy' ? 'taunt_e' : pers.diff==='hard' ? 'taunt_h' : 'taunt_m');
+  }
+  return {key:key, text:aiFill(pickFresh(aiTxt(L,key)),vars)};
+}
+// Respuesta a lo que escribe el jugador: entiende el tema, el idioma, el marcador y la personalidad
+function aiReply(raw, pers){
+  pers = pers || aiPersona();
+  const text=String(raw||'').trim().slice(0,200);
+  const L=aiDetectLang(text);
+  const sc=aiScores(pers);
+  const vars={n:pers.name, p:pers.foe||humanName(), a:sc.a, b:sc.b};
+  const intents=aiIntentsOf(text);
+  const lead=intents[0];
+  const parts=[aiOne(lead,L,pers,vars)];
+  const APPEND=['how','name','score','isai','help','rematch'];
+  const CAN_LEAD=['greet','thanks','compl','praise_ai','hype','sorry'];
+  const second=intents.slice(1).find(i=>APPEND.includes(i));
+  if(second && CAN_LEAD.includes(lead)) parts.push(aiOne(second,L,pers,vars));
+  _aiLastIntent = parts.some(p=>p.key==='how') ? 'how' : lead;
+  let out=parts.map(p=>p.text).join(' ');
+  if(out.length>120) out=parts[0].text;
+  return out;
+}
+// Frases de eventos (gol, peloteo, fin de partido...)
+function aiLine(kind, pers, L){
+  const sc=aiScores(pers);
+  return aiFill(pickFresh(aiTxt(L||currentLang,kind)), {n:pers.name, p:pers.foe||humanName(), a:sc.a, b:sc.b});
+}
+// Frases automáticas durante la partida: event = 'goal_scored' | 'goal_received' | 'nice_rally'
+function aiAutoChat(event){
+  if(!CFG.aiChat || !opponentIsCpu() || mode==='online') return;
+  if(isCpuVsCpu()) return;                       // IA vs IA tiene su propio diálogo
+  const now=Date.now();
+  if(now-_lastAutoChat < 4000) return;           // como mucho 1 frase automática cada 4 s
+  _lastAutoChat=now;
+  const kind = event==='goal_scored' ? 'ev_goal_for' : event==='goal_received' ? 'ev_goal_against' : 'ev_rally';
+  const pers=aiPersona();
+  const msg=aiLine(kind,pers);
+  _aiLastIntent='';
+  setTimeout(()=>{
+    if(!gameRunning) return;
+    appendMsg(msg,false,pers.name);
+    showSpeechBubble(msg, pers.side===1);
+  }, 600+Math.random()*800);
+}
+// Nombre histórico: ahora responde el motor local (con una pequeña pausa de "escribiendo…")
+async function askClaude(userMessage){
+  const reply=aiReply(userMessage);
+  await new Promise(r=>setTimeout(r, Math.min(1000, 350+reply.length*10)+Math.random()*250));
+  return reply;
+}
+
+function opponentIsCpu(){
+  if(mode==='online') return false;
+  if(mode==='multi')  return false;
+  if(mode==='single') return true;
+  if(mode==='tourn'){
+    const fx=trnFixtures[trnMatchIdx];
+    const pA=trnPlayers[fx.i], pB=trnPlayers[fx.j];
+    if(!pA.isCpu && !pB.isCpu) return false; // both human
+    if(pA.isCpu && pB.isCpu)   return false; // both CPU — no human chat
+    return true;
+  }
+  return false;
+}
+
+// Get opponent name for chat label
+function opponentName(){
+  if(mode==='single') return p2Name;
+  if(mode==='tourn'){
+    const fx=trnFixtures[trnMatchIdx];
+    const pA=trnPlayers[fx.i], pB=trnPlayers[fx.j];
+    return pA.isCpu ? pA.name : pB.name;
+  }
+  return p2Name;
+}
+
+// Get current human player name
+function humanName(){
+  if(mode==='online') return netRole==='host' ? p1Name : p2Name;
+  if(mode==='tourn'){
+    const fx=trnFixtures[trnMatchIdx];
+    const pA=trnPlayers[fx.i], pB=trnPlayers[fx.j];
+    return pA.isCpu ? pB.name : pA.name;
+  }
+  return p1Name;
+}
+
+let chatOpen=false;
+
+function toggleChat(){
+  chatOpen=!chatOpen;
+  document.getElementById('chatPanel').classList.toggle('open',chatOpen);
+  if(chatOpen) document.getElementById('chatInput').focus();
+}
+
+function showChatBtn(show){
+  const btn=document.getElementById('chatBtn');
+  const hasChatPartner = (mode==='single') ||
+    (mode==='online') ||
+    (mode==='tourn' && trnFixtures.length>0 && (()=>{
+      const fx=trnFixtures[trnMatchIdx];
+      const pA=trnPlayers[fx.i], pB=trnPlayers[fx.j];
+      // Show chat if: at least one human, OR both CPU with aiVsAiChat on
+      if(!pA.isCpu || !pB.isCpu) return true;
+      return CFG.aiVsAiChat;
+    })());
+  btn.style.display = (show && hasChatPartner) ? 'flex' : 'none';
+  if(!show){ chatOpen=false; document.getElementById('chatPanel').classList.remove('open'); }
+}
+
+function appendMsg(text, fromMe, senderName, isTyping=false){
+  const log=document.getElementById('chatLog');
+  const wrap=document.createElement('div');
+  wrap.className='chat-msg';
+  if(isTyping) wrap.id='typingIndicator';
+  const lbl=document.createElement('div');
+  lbl.className='chat-sender'+(fromMe?' me-lbl':'');
+  lbl.textContent=senderName;
+  const bub=document.createElement('div');
+  bub.className='chat-bubble '+(fromMe?'me':'them');
+  bub.textContent=isTyping ? '…' : text;
+  if(isTyping) bub.style.opacity='0.5';
+  wrap.appendChild(lbl);
+  wrap.appendChild(bub);
+  log.appendChild(wrap);
+  log.scrollTop=log.scrollHeight;
+
+  // Notify of new message via button pulse only — don't auto-open panel
+  if(!fromMe && !isTyping && !chatOpen){
+    const btn=document.getElementById('chatBtn');
+    if(btn){
+      btn.style.borderColor='var(--acc)';
+      btn.style.color='var(--acc)';
+      // Show unread count
+      btn.textContent='💬';
+      setTimeout(()=>{ btn.style.borderColor=''; btn.style.color=''; },4000);
+    }
+  }
+}
+
+function removeTypingIndicator(){
+  const el=document.getElementById('typingIndicator');
+  if(el) el.remove();
+}
+
+// Floating speech bubble above paddle
+function showSpeechBubble(text, isLeft){
+  document.querySelectorAll('.speech-bubble').forEach(el=>el.remove());
+  const bub=document.createElement('div');
+  bub.className='speech-bubble';
+  bub.textContent=text;
+  bub.style.position='fixed';
+  const pd = isLeft ? pd1 : pd2;
+  bub.style.bottom=(H - (pd.y - pd.h/2) + 10)+'px';
+  bub.style.left=isLeft ? '60px' : 'auto';
+  bub.style.right=!isLeft ? '60px' : 'auto';
+  document.body.appendChild(bub);
+  setTimeout(()=>bub.remove(), 3200);
+}
+
+// Fly emoji across the screen
+function flyEmoji(emoji, fromLeft){
+  const el=document.createElement('div');
+  el.className='fly-emoji';
+  el.textContent=emoji;
+  el.style.left=fromLeft ? '80px' : 'auto';
+  el.style.right=!fromLeft ? '80px' : 'auto';
+  el.style.bottom='50%';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1800);
+}
+
+function sendMsg(text){
+  if(!text.trim()) return;
+  if(!CFG.aiChat && opponentIsCpu()) return;
+  const myNm=humanName();
+  appendMsg(text, true, myNm);
+
+  const isEmoji=/^\p{Emoji}/u.test(text) && [...text].length<=3;
+  if(isEmoji) flyEmoji(text, true);
+  else showSpeechBubble(text, mode==='online'&&netRole==='guest' ? false : true);
+
+  if(mode==='online') netSend({t:'chat', msg:text});
+
+  // AI reply via Claude API
+  if(opponentIsCpu()){
+    const oppNm=opponentName();
+    const isLeft = mode==='tourn' && trnFixtures.length>0
+      ? trnPlayers[trnFixtures[trnMatchIdx].i].isCpu : false;
+    // Show typing indicator after short delay (feels natural)
+    setTimeout(()=>{
+      if(!gameRunning) return;
+      appendMsg('', false, oppNm, true);
+      askClaude(text).then(reply=>{
+        removeTypingIndicator();
+        appendMsg(reply, false, oppNm);
+        showSpeechBubble(reply, isLeft);
+      });
+    }, 350+Math.random()*450);
+  }
+
+  document.getElementById('chatInput').value='';
+}
+
+function sendChatInput(){
+  const val=document.getElementById('chatInput').value.trim();
+  if(val) sendMsg(val);
+}
+
+// Called from handleNet when opponent sends a chat message online
+function receiveChatMsg(text){
+  const senderName = netRole==='host' ? p2Name : p1Name;
+  appendMsg(text, false, senderName);
+  const isEmoji=/^\p{Emoji}/u.test(text) && [...text].length<=3;
+  if(isEmoji) flyEmoji(text, false);
+  else showSpeechBubble(text, false);
+}
+
+// AI comments on goals — sends a short automatic message via Claude
+// Helper: is this a CPU-vs-CPU match?
+function isCpuVsCpu(){
+  if(mode!=='tourn') return false;
+  const fx=trnFixtures[trnMatchIdx];
+  return trnPlayers[fx.i].isCpu && trnPlayers[fx.j].isCpu;
+}
+
+// IA vs IA: diálogo entre las dos IAs (frases locales, sin internet)
+function cpuBanter(kind, side, fxIdx){
+  if(!CFG.aiChat || !CFG.aiVsAiChat) return;
+  const idx = fxIdx!==undefined ? fxIdx : trnMatchIdx;
+  const fx=trnFixtures[idx]; if(!fx) return;
+  const A={name:trnPlayers[fx.i].name, diff:trnPlayers[fx.i].diff||'medium', side:1, foe:trnPlayers[fx.j].name};
+  const B={name:trnPlayers[fx.j].name, diff:trnPlayers[fx.j].diff||'medium', side:2, foe:trnPlayers[fx.i].name};
+  let first, second, k1, k2;
+  if(kind==='start'){ first=A; second=B; k1='ev_start'; k2='ev_start_reply'; }
+  else if(kind==='goal'){ first=(side===1?A:B); second=(side===1?B:A); k1='ev_goal_for'; k2='ev_goal_against'; }
+  else if(kind==='end'){  first=(side===1?A:B); second=(side===1?B:A); k1='ev_win'; k2='ev_lose'; }
+  else return;
+  if(kind==='goal'){ const now=Date.now(); if(now-_lastAutoChat<5000) return; _lastAutoChat=now; }
+  const line1=aiLine(k1,first), line2=aiLine(k2,second);
+  const say=(pers,msg)=>{ appendMsg(msg,false,pers.name); showSpeechBubble(msg,pers.side===1); };
+  setTimeout(()=>{ if(kind!=='end' && !gameRunning) return; say(first,line1); }, 700+Math.random()*400);
+  setTimeout(()=>{ if(kind!=='end' && !gameRunning) return; say(second,line2); }, 2300+Math.random()*600);
+}
+// Gol: contra el humano ya habla aiAutoChat; aquí solo el diálogo IA vs IA (true = marcó la IA de la izquierda)
+function aiCommentGoal(scorerIsAI){
+  if(isCpuVsCpu()) cpuBanter('goal', scorerIsAI ? 1 : 2);
+}
+// Fin de partido (endMatch ya avanzó trnMatchIdx: el partido jugado es el anterior)
+function aiCommentMatchEnd(humanWon){
+  if(!CFG.aiChat) return;
+  const fxIdx = mode==='tourn' ? Math.max(0,trnMatchIdx-1) : undefined;
+  if(mode==='tourn'){
+    const fx=trnFixtures[fxIdx];
+    if(!fx) return;
+    const pA=trnPlayers[fx.i], pB=trnPlayers[fx.j];
+    if(pA.isCpu && pB.isCpu){ cpuBanter('end', humanWon ? 2 : 1, fxIdx); return; }   // aquí "humanWon" = ganó el de la derecha
+    if(!pA.isCpu && !pB.isCpu) return;                                              // dos humanos: no habla nadie
+  } else if(mode!=='single') return;
+  const pers=aiPersona(fxIdx);
+  const msg=aiLine(humanWon ? 'ev_lose' : 'ev_win', pers);
+  setTimeout(()=>{ appendMsg(msg,false,pers.name); }, 1200);
+}
+
+// ── Torneo: salir de un partido IA vs IA que estás viendo ────────────────────
+function simulateRest(s1, s2, dA, dB){
+  const a=diffCfgFor(dA).cpu, b=diffCfgFor(dB).cpu, pa=a/(a+b);
+  let guard=0;
+  while(guard++<300){
+    if(Math.max(s1,s2)>=winPts && s1!==s2) break;
+    if(Math.random()<pa) s1++; else s2++;
+  }
+  return [s1,s2];
+}
+function updateWatchBtn(){
+  const b=document.getElementById('watchExitBtn'); if(!b) return;
+  const fx=(mode==='tourn' && trnActive) ? trnFixtures[trnMatchIdx] : null;
+  const show=!!fx && gameRunning && trnPlayers[fx.i].isCpu && trnPlayers[fx.j].isCpu;
+  b.style.display = show ? 'block' : 'none';
+}
+function exitWatchedMatch(){
+  if(mode!=='tourn' || !trnActive) return;
+  const idx=trnMatchIdx, fx=trnFixtures[idx];
+  if(!fx || fx.played) return;
+  const pA=trnPlayers[fx.i], pB=trnPlayers[fx.j];
+  if(!(pA.isCpu && pB.isCpu)) return;                       // solo partidos entre IAs
+  // 1) cortar el partido en seco, sin pantallas de fin
+  if(goalTm){ clearTimeout(goalTm); goalTm=null; }
+  gameRunning=false; paused=false; cancelAnimationFrame(animId); stopMusic();
+  ['overlay','wins'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  document.getElementById('pbtn').style.display='none';
+  document.getElementById('hud').classList.add('hidden');
+  showChatBtn(false); clearChat(); updateWatchBtn();
+  // 2) el resultado se completa desde el marcador actual
+  const res=simulateRest(sc1, sc2, pA.diff||'medium', pB.diff||'medium');
+  trnRecordResult(idx, res[0], res[1]);
+  trnMatchIdx=idx+1;
+  // 3) se saltan los siguientes partidos de IAs hasta que te toque jugar a ti (o se acaba el torneo)
+  skipAllCpuMatches();
+}
+
+// Clear chat log between matches
+function clearChat(){
+  document.getElementById('chatLog').innerHTML='';
+  aiChatHistory = []; _aiLastIntent = '';   // Reset human-vs-AI context
+  aiHistories.A = [];      // Reset CPU A context
+  aiHistories.B = [];      // Reset CPU B context
+}
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  LANGUAGE / I18N SYSTEM
+// ═══════════════════════════════════════════
+const LANGS = {
+  es: {
+    subtitle:'El duelo definitivo',
+    play:'▶ Jugar', skins:'🎨 Skins', settings:'⚙️ Ajustes',
+    back:'← Volver', settings_title:'⚙️ AJUSTES',
+    language:'Idioma / Language', lang_label:'Idioma del juego',
+    music_vol:'Volumen música', menu_main:'🏠 Menú principal',
+    upload_menu:'📂 Subir música para el menú',
+    upload_settings:'📂 Subir música para ajustes',
+    upload_game:'📂 Subir música para el partido',
+    mode_1p:'👤 1 Jugador', mode_local:'👥 Local',
+    mode_tourn:'🏆 Torneo', mode_online:'🌐 Online',
+    easy:'Fácil', medium:'Medio', hard:'Difícil',
+    start_tourn:'🏆 Iniciar Torneo',
+    play_match:'▶ Jugar partido', abandon:'✖ Abandonar',
+    rematch:'↩ Revancha', menu_btn:'🏠 Menú',
+    next_match:'▶ Siguiente partido',
+    resume:'▶ Reanudar', save_back:'✔ Guardar y volver',
+    your_name:'Tu nombre', player1:'Jugador 1', player2:'Jugador 2', player:'Jugador',
+    hint_tourn:'W/S o ↑↓ para mover  •  P = Pausa',
+    hint_1p:'J1: W/S o ↑↓  •  P = Pausa',
+    hint_multi:'J1: W/S  •  J2: ↑/↓  •  P = Pausa',
+    hint_host:'Tú eres PING — W/S o ↑↓',
+    hint_guest:'Tú eres PONG — W/S o ↑↓',
+    pausa:'— PAUSA —',
+    snd_ball:'Sonidos de pelota', snd_ball_sub:'Ping, Pong y rebotes',
+    snd_goal:'Celebración de gol', snd_goal_sub:'Gritos del público', snd_fanfare:'Fanfarria de torneo',
+    particles:'Partículas y efectos', brightness:'Brillo de la pantalla',
+    bright_sub:'Aplica un filtro sobre el campo',
+    ai_chat:'Chat con la IA', ai_chat_sub:'La IA te responde durante la partida',
+    ai_vs_ai:'IAs hablan entre sí', ai_vs_ai_sub:'En torneo, cuando 2 IAs se enfrentan',
+    timer_on:'Activar temporizador', timer_sub:'Cuenta atrás por partido',
+    timer_dur:'Duración', timer_none:'Sin límite',
+    code_lbl:'Tu código', join_lbl:'Código (6 letras)',
+    searching:'Buscando...', create_room:'Crear sala privada',
+    join_room:'Unirse a sala', matchmaking:'Partida aleatoria',
+    audio:'🔊 Audio', custom_music:'🎵 Música personalizada',
+    upload_desc:'Sube un MP3 desde tu dispositivo para cada pantalla.',
+    upload_desc2:'Si no subes nada, se usa la música integrada.',
+    game_lbl:'Partida',
+    visual:'🌟 Visual', chat_ai:'💬 Chat e IA',
+    timer:'⏱️ Temporizador de partido', lang_section:'🌐 Idioma',
+    confirm_abandon:'¿Abandonar torneo?', confirm_abandon_sub:'Se perderá todo el progreso.',
+    confirm_yes:'✖ Abandonar', confirm_no:'Cancelar',
+    skip_match:'⏭ Saltar hasta mi turno', watch_match:'▶ Ver partido',
+    cpu_vs_cpu:'PARTIDO IA VS IA',
+    mode_lbl_1p:'1P', mode_lbl_local:'LOCAL', mode_lbl_tourn:'TORNEO', mode_lbl_online:'ONLINE',
+    choose_mode:'Elige modo', your_name_lbl:'Tu nombre', ai_diff:'Dificultad IA',
+    pts_to_win:'Puntos para ganar', pts_per_match:'Puntos por partido',
+    j1_hint:'J1 — Ping (W / S)', j2_hint:'J2 — Pong (↑ / ↓)',
+    tourn_title:'🏆 TORNEO — LIGA',
+    tourn_setup_hint:'Configura los 8 participantes · Clic en CPU/HUM para cambiar',
+    diff_tip:'F=Fácil · M=Medio · D=Difícil — ajusta la dificultad de cada CPU individualmente',
+    standings:'🏆 CLASIFICACIÓN', next_match_lbl:'SIGUIENTE PARTIDO',
+    th_player:'Jugador', th_pj:'PJ', th_w:'G', th_l:'P', th_pts:'Pts',
+    tourn_end:'🏆 FIN DEL TORNEO', final_standings:'Clasificación final',
+    new_tourn:'🔄 Nuevo torneo', online_name:'Tu nombre online',
+    tab_create:'🔑 Crear', tab_join:'🚪 Unirse', tab_random:'🎲 Aleatorio',
+    tab_random_title:'Partida aleatoria',
+    share_code:'Comparte este código. Clic para copiar.',
+    waiting_opp:'Esperando oponente…', connect_btn:'Conectar →',
+    mm_tip:'Busca automáticamente a otro jugador.',
+    mm_search:'🎲 Buscar', cancel:'✖ Cancelar',
+    choose_skin:'Elige estilo', skin_tip:'Predeterminado: rojo vs azul', confirm:'✔ Confirmar',
+    skin_tab_p1:'J1 — Ping',skin_tab_p2:'J2 — Pong',skin_tab_both:'Ambos 2',
+    skin_default:'Base',skin_fire:'Fuego',skin_neon:'Neón',skin_gold:'Oro',
+    skin_nature:'Natural',skin_ice:'Hielo',skin_dark:'Oscura',skin_pastel:'Pastel',
+    // Online dynamic strings
+    ws_server:'WebSocket · Servidor propio en Render',
+    requires_internet:'⚠️ Requiere internet · Mejor en HTTPS (GitHub Pages, Netlify…)',
+    dot_no_server:'No se puede conectar al servidor',
+    dot_no_srv:'Sin servidor', dot_ready:'Listo',
+    dot_connecting:'Conectando…', dot_enter_code:'Introduce el código',
+    dot_creating:'Creando sala…', dot_code_short:'Código muy corto',
+    dot_room_ready:'Sala lista — comparte el código',
+    dot_opp_connected:'¡Oponente conectado!',
+    dot_joined:'¡Conectado! Preparando partida…',
+    dot_searching:'Buscando…', dot_cancelled:'Cancelado',
+    dot_waiting_opp:'Esperando oponente…',
+    dot_opp_found:'¡Oponente encontrado! Preparando…',
+    lbl_create_tap:'Pulsa para crear sala',
+    th_player_tourn:'Jugador',
+  },
+  en: {
+    subtitle:'The ultimate duel',
+    play:'▶ Play', skins:'🎨 Skins', settings:'⚙️ Settings',
+    back:'← Back', settings_title:'⚙️ SETTINGS',
+    language:'Language / Idioma', lang_label:'Game language',
+    music_vol:'Music volume', menu_main:'🏠 Main menu',
+    upload_menu:'📂 Upload menu music',
+    upload_settings:'📂 Upload settings music',
+    upload_game:'📂 Upload game music',
+    mode_1p:'👤 1 Player', mode_local:'👥 Local',
+    mode_tourn:'🏆 Tournament', mode_online:'🌐 Online',
+    easy:'Easy', medium:'Medium', hard:'Hard',
+    start_tourn:'🏆 Start Tournament',
+    play_match:'▶ Play match', abandon:'✖ Abandon',
+    rematch:'↩ Rematch', menu_btn:'🏠 Menu',
+    next_match:'▶ Next match',
+    resume:'▶ Resume', save_back:'✔ Save & back',
+    your_name:'Your name', player1:'Player 1', player2:'Player 2', player:'Player',
+    hint_tourn:'W/S or ↑↓ to move  •  P = Pause',
+    hint_1p:'P1: W/S or ↑↓  •  P = Pause',
+    hint_multi:'P1: W/S  •  P2: ↑/↓  •  P = Pause',
+    hint_host:'You are PING — W/S or ↑↓',
+    hint_guest:'You are PONG — W/S or ↑↓',
+    pausa:'— PAUSED —',
+    snd_ball:'Ball sounds', snd_ball_sub:'Ping, Pong and bounces',
+    snd_goal:'Goal celebration', snd_goal_sub:'Crowd cheers', snd_fanfare:'Tournament fanfare',
+    particles:'Particles & effects', brightness:'Screen brightness',
+    bright_sub:'Applies a filter over the field',
+    ai_chat:'AI Chat', ai_chat_sub:'AI responds during the match',
+    ai_vs_ai:'AIs talk to each other', ai_vs_ai_sub:'In tournament, when 2 AIs face off',
+    timer_on:'Enable timer', timer_sub:'Countdown per match',
+    timer_dur:'Duration', timer_none:'No limit',
+    code_lbl:'Your code', join_lbl:'Code (6 letters)',
+    searching:'Searching...', create_room:'Create private room',
+    join_room:'Join room', matchmaking:'Random match',
+    audio:'🔊 Audio', custom_music:'🎵 Custom music',
+    upload_desc:'Upload an MP3 from your device for each screen.',
+    upload_desc2:'If nothing is uploaded, the built-in music plays.',
+    game_lbl:'Match',
+    visual:'🌟 Visual', chat_ai:'💬 Chat & AI',
+    timer:'⏱️ Match timer', lang_section:'🌐 Language',
+    confirm_abandon:'Abandon tournament?', confirm_abandon_sub:'All progress will be lost.',
+    confirm_yes:'✖ Abandon', confirm_no:'Cancel',
+    skip_match:'⏭ Skip to my turn', watch_match:'▶ Watch match',
+    cpu_vs_cpu:'AI VS AI MATCH',
+    mode_lbl_1p:'1P', mode_lbl_local:'LOCAL', mode_lbl_tourn:'TOURNAMENT', mode_lbl_online:'ONLINE',
+    choose_mode:'Choose mode', your_name_lbl:'Your name', ai_diff:'AI Difficulty',
+    pts_to_win:'Points to win', pts_per_match:'Points per match',
+    j1_hint:'P1 — Ping (W / S)', j2_hint:'P2 — Pong (↑ / ↓)',
+    tourn_title:'🏆 TOURNAMENT — LEAGUE',
+    tourn_setup_hint:'Set up 8 players · Click CPU/HUM to toggle',
+    diff_tip:'E=Easy · M=Medium · H=Hard — set each CPU difficulty individually',
+    standings:'🏆 STANDINGS', next_match_lbl:'NEXT MATCH',
+    th_player:'Player', th_pj:'MP', th_w:'W', th_l:'L', th_pts:'Pts',
+    tourn_end:'🏆 TOURNAMENT OVER', final_standings:'Final standings',
+    new_tourn:'🔄 New tournament', online_name:'Your online name',
+    tab_create:'🔑 Create', tab_join:'🚪 Join', tab_random:'🎲 Random',
+    tab_random_title:'Random match',
+    share_code:'Share this code. Click to copy.',
+    waiting_opp:'Waiting for opponent…', connect_btn:'Connect →',
+    mm_tip:'Automatically finds another player.',
+    mm_search:'🎲 Search', cancel:'✖ Cancel',
+    choose_skin:'Choose skin', skin_tip:'Default: red vs blue', confirm:'✔ Confirm',
+    skin_tab_p1:'P1 — Ping',skin_tab_p2:'P2 — Pong',skin_tab_both:'Both',
+    skin_default:'Default',skin_fire:'Fire',skin_neon:'Neon',skin_gold:'Gold',
+    skin_nature:'Nature',skin_ice:'Ice',skin_dark:'Dark',skin_pastel:'Pastel',
+    // Online dynamic strings
+    ws_server:'WebSocket · Own server on Render',
+    requires_internet:'⚠️ Requires internet · Best on HTTPS (GitHub Pages, Netlify…)',
+    dot_no_server:'Cannot connect to server',
+    dot_no_srv:'No server', dot_ready:'Ready',
+    dot_connecting:'Connecting…', dot_enter_code:'Enter the code',
+    dot_creating:'Creating room…', dot_code_short:'Code too short',
+    dot_room_ready:'Room ready — share the code',
+    dot_opp_connected:'Opponent connected!',
+    dot_joined:'Connected! Preparing match…',
+    dot_searching:'Searching…', dot_cancelled:'Cancelled',
+    dot_waiting_opp:'Waiting for opponent…',
+    dot_opp_found:'Opponent found! Getting ready…',
+    lbl_create_tap:'Tap to create room',
+    th_player_tourn:'Player',
+  },
+  pt: {
+    subtitle:'O duelo definitivo',
+    play:'▶ Jogar', skins:'🎨 Skins', settings:'⚙️ Configurações',
+    back:'← Voltar', settings_title:'⚙️ CONFIGURAÇÕES',
+    language:'Idioma / Language', lang_label:'Idioma do jogo',
+    music_vol:'Volume da música', menu_main:'🏠 Menu principal',
+    upload_menu:'📂 Música para o menu',
+    upload_settings:'📂 Música para config.',
+    upload_game:'📂 Música para a partida',
+    mode_1p:'👤 1 Jogador', mode_local:'👥 Local',
+    mode_tourn:'🏆 Torneio', mode_online:'🌐 Online',
+    easy:'Fácil', medium:'Médio', hard:'Difícil',
+    start_tourn:'🏆 Iniciar Torneio',
+    play_match:'▶ Jogar partida', abandon:'✖ Abandonar',
+    rematch:'↩ Revanche', menu_btn:'🏠 Menu',
+    next_match:'▶ Próxima partida',
+    resume:'▶ Retomar', save_back:'✔ Salvar e voltar',
+    your_name:'Seu nome', player1:'Jogador 1', player2:'Jogador 2', player:'Jogador',
+    hint_tourn:'W/S ou ↑↓ para mover  •  P = Pausa',
+    hint_1p:'J1: W/S ou ↑↓  •  P = Pausa',
+    hint_multi:'J1: W/S  •  J2: ↑/↓  •  P = Pausa',
+    hint_host:'Você é PING — W/S ou ↑↓',
+    hint_guest:'Você é PONG — W/S ou ↑↓',
+    pausa:'— PAUSA —',
+    snd_ball:'Sons de bola', snd_ball_sub:'Ping, Pong e rebotes',
+    snd_goal:'Celebração de gol', snd_goal_sub:'Gritos da torcida', snd_fanfare:'Fanfarra torneio',
+    particles:'Partículas & efeitos', brightness:'Brilho da tela',
+    bright_sub:'Filtro sobre o campo',
+    ai_chat:'Chat IA', ai_chat_sub:'A IA responde durante a partida',
+    ai_vs_ai:'IAs conversam', ai_vs_ai_sub:'No torneio, quando 2 IAs se enfrentam',
+    timer_on:'Ativar cronômetro', timer_sub:'Contagem regressiva por partida',
+    timer_dur:'Duração', timer_none:'Sem limite',
+    code_lbl:'Seu código', join_lbl:'Código (6 letras)',
+    searching:'Procurando...', create_room:'Criar sala privada',
+    join_room:'Entrar na sala', matchmaking:'Partida aleatória',
+    audio:'🔊 Áudio', custom_music:'🎵 Música personalizada',
+    upload_desc:'Envie um MP3 para cada tela.',
+    upload_desc2:'Sem arquivo, a música integrada toca.',
+    game_lbl:'Partida',
+    visual:'🌟 Visual', chat_ai:'💬 Chat & IA',
+    timer:'⏱️ Cronômetro', lang_section:'🌐 Idioma',
+    confirm_abandon:'Abandonar torneio?', confirm_abandon_sub:'Todo progresso será perdido.',
+    confirm_yes:'✖ Abandonar', confirm_no:'Cancelar',
+    skip_match:'⏭ Pular até minha vez', watch_match:'▶ Ver partida',
+    cpu_vs_cpu:'IA VS IA',
+    mode_lbl_1p:'1J', mode_lbl_local:'LOCAL', mode_lbl_tourn:'TORNEIO', mode_lbl_online:'ONLINE',
+    choose_mode:'Escolher modo', your_name_lbl:'Seu nome', ai_diff:'Dificuldade IA',
+    pts_to_win:'Pontos para vencer', pts_per_match:'Pontos por partida',
+    j1_hint:'J1 — Ping (W / S)', j2_hint:'J2 — Pong (↑ / ↓)',
+    tourn_title:'🏆 TORNEIO — LIGA',
+    tourn_setup_hint:'Configure 8 jogadores · Clique CPU/HUM para alternar',
+    diff_tip:'F=Fácil · M=Médio · D=Difícil — dificuldade individual por CPU',
+    standings:'🏆 CLASSIFICAÇÃO', next_match_lbl:'PRÓXIMA PARTIDA',
+    th_player:'Jogador', th_pj:'PJ', th_w:'V', th_l:'D', th_pts:'Pts',
+    tourn_end:'🏆 TORNEIO ENCERRADO', final_standings:'Classificação final',
+    new_tourn:'🔄 Novo torneio', online_name:'Seu nome online',
+    tab_create:'🔑 Criar', tab_join:'🚪 Entrar', tab_random:'🎲 Aleatório',
+    tab_random_title:'Partida aleatória',
+    share_code:'Compartilhe este código. Clique para copiar.',
+    waiting_opp:'Aguardando adversário…', connect_btn:'Conectar →',
+    mm_tip:'Encontra outro jogador automaticamente.',
+    mm_search:'🎲 Procurar', cancel:'✖ Cancelar',
+    choose_skin:'Escolher estilo', skin_tip:'Padrão: vermelho vs azul', confirm:'✔ Confirmar',
+    skin_tab_p1:'J1 — Ping',skin_tab_p2:'J2 — Pong',skin_tab_both:'Ambos',
+    skin_default:'Padrão',skin_fire:'Fogo',skin_neon:'Neon',skin_gold:'Ouro',
+    skin_nature:'Natureza',skin_ice:'Gelo',skin_dark:'Sombrio',skin_pastel:'Pastel',
+    ws_server:'WebSocket · Servidor no Render',
+    requires_internet:'⚠️ Requer internet · Melhor em HTTPS',
+    dot_no_server:'Não é possível conectar ao servidor',
+    dot_no_srv:'Sem servidor', dot_ready:'Pronto',
+    dot_connecting:'Conectando…', dot_enter_code:'Insira o código',
+    dot_creating:'Criando sala…', dot_code_short:'Código muito curto',
+    dot_room_ready:'Sala pronta — compartilhe o código',
+    dot_opp_connected:'Adversário conectado!',
+    dot_joined:'Conectado! Preparando partida…',
+    dot_searching:'Procurando…', dot_cancelled:'Cancelado',
+    dot_waiting_opp:'Aguardando adversário…',
+    dot_opp_found:'Adversário encontrado! Preparando…',
+    lbl_create_tap:'Toque para criar sala',
+    th_player_tourn:'Jogador',
+  },
+  de: {
+    subtitle:'Das ultimative Duell',
+    play:'▶ Spielen', skins:'🎨 Skins', settings:'⚙️ Einstellungen',
+    back:'← Zurück', settings_title:'⚙️ EINSTELLUNGEN',
+    language:'Sprache / Language', lang_label:'Spielsprache',
+    music_vol:'Musiklautstärke', menu_main:'🏠 Hauptmenü',
+    upload_menu:'📂 Musik für Menü',
+    upload_settings:'📂 Musik für Einstellungen',
+    upload_game:'📂 Musik für Spiel',
+    mode_1p:'👤 1 Spieler', mode_local:'👥 Lokal',
+    mode_tourn:'🏆 Turnier', mode_online:'🌐 Online',
+    easy:'Leicht', medium:'Mittel', hard:'Schwer',
+    start_tourn:'🏆 Turnier starten',
+    play_match:'▶ Spiel starten', abandon:'✖ Aufgeben',
+    rematch:'↩ Revanche', menu_btn:'🏠 Menü',
+    next_match:'▶ Nächstes Spiel',
+    resume:'▶ Fortsetzen', save_back:'✔ Speichern & zurück',
+    your_name:'Dein Name', player1:'Spieler 1', player2:'Spieler 2', player:'Spieler',
+    hint_tourn:'W/S oder ↑↓ bewegen  •  P = Pause',
+    hint_1p:'S1: W/S oder ↑↓  •  P = Pause',
+    hint_multi:'S1: W/S  •  S2: ↑/↓  •  P = Pause',
+    hint_host:'Du bist PING — W/S oder ↑↓',
+    hint_guest:'Du bist PONG — W/S oder ↑↓',
+    pausa:'— PAUSE —',
+    snd_ball:'Ballgeräusche', snd_ball_sub:'Ping, Pong und Abpraller',
+    snd_goal:'Torjubel', snd_goal_sub:'Zuschauerjubel', snd_fanfare:'Turnierfanfare',
+    particles:'Partikel & Effekte', brightness:'Bildschirmhelligkeit',
+    bright_sub:'Filter über dem Spielfeld',
+    ai_chat:'KI-Chat', ai_chat_sub:'KI antwortet während des Spiels',
+    ai_vs_ai:'KIs reden miteinander', ai_vs_ai_sub:'Im Turnier bei KI-Duellen',
+    timer_on:'Timer aktivieren', timer_sub:'Countdown pro Spiel',
+    timer_dur:'Dauer', timer_none:'Kein Limit',
+    code_lbl:'Dein Code', join_lbl:'Code (6 Buchstaben)',
+    searching:'Suche...', create_room:'Privaten Raum erstellen',
+    join_room:'Raum beitreten', matchmaking:'Zufälliges Spiel',
+    audio:'🔊 Audio', custom_music:'🎵 Eigene Musik',
+    upload_desc:'Lade eine MP3 für jeden Bildschirm hoch.',
+    upload_desc2:'Ohne Datei wird eingebaute Musik gespielt.',
+    game_lbl:'Spiel',
+    visual:'🌟 Visuell', chat_ai:'💬 Chat & KI',
+    timer:'⏱️ Timer', lang_section:'🌐 Sprache',
+    confirm_abandon:'Turnier aufgeben?', confirm_abandon_sub:'Aller Fortschritt geht verloren.',
+    confirm_yes:'✖ Aufgeben', confirm_no:'Abbrechen',
+    skip_match:'⏭ Bis zu meinem Spiel überspringen', watch_match:'▶ Spiel ansehen',
+    cpu_vs_cpu:'KI VS KI',
+    mode_lbl_1p:'1S', mode_lbl_local:'LOKAL', mode_lbl_tourn:'TURNIER', mode_lbl_online:'ONLINE',
+    choose_mode:'Modus wählen', your_name_lbl:'Dein Name', ai_diff:'KI-Schwierigkeit',
+    pts_to_win:'Punkte zum Sieg', pts_per_match:'Punkte pro Spiel',
+    j1_hint:'S1 — Ping (W / S)', j2_hint:'S2 — Pong (↑ / ↓)',
+    tourn_title:'🏆 TURNIER — LIGA',
+    tourn_setup_hint:'8 Spieler konfigurieren · CPU/HUM klicken zum Wechseln',
+    diff_tip:'L=Leicht · M=Mittel · S=Schwer — individuelle Schwierigkeit pro KI',
+    standings:'🏆 RANGLISTE', next_match_lbl:'NÄCHSTES SPIEL',
+    th_player:'Spieler', th_pj:'Sp', th_w:'G', th_l:'N', th_pts:'Pts',
+    tourn_end:'🏆 TURNIER BEENDET', final_standings:'Endrangliste',
+    new_tourn:'🔄 Neues Turnier', online_name:'Dein Online-Name',
+    tab_create:'🔑 Erstellen', tab_join:'🚪 Beitreten', tab_random:'🎲 Zufällig',
+    tab_random_title:'Zufälliges Spiel',
+    share_code:'Code teilen. Klicken zum Kopieren.',
+    waiting_opp:'Warte auf Gegner…', connect_btn:'Verbinden →',
+    mm_tip:'Findet automatisch einen anderen Spieler.',
+    mm_search:'🎲 Suchen', cancel:'✖ Abbrechen',
+    choose_skin:'Stil wählen', skin_tip:'Standard: Rot vs Blau', confirm:'✔ Bestätigen',
+    skin_tab_p1:'S1 — Ping',skin_tab_p2:'S2 — Pong',skin_tab_both:'Beide',
+    skin_default:'Standard',skin_fire:'Feuer',skin_neon:'Neon',skin_gold:'Gold',
+    skin_nature:'Natur',skin_ice:'Eis',skin_dark:'Dunkel',skin_pastel:'Pastell',
+    ws_server:'WebSocket · Eigener Server auf Render',
+    requires_internet:'⚠️ Internet erforderlich · Besser mit HTTPS',
+    dot_no_server:'Verbindung zum Server nicht möglich',
+    dot_no_srv:'Kein Server', dot_ready:'Bereit',
+    dot_connecting:'Verbinde…', dot_enter_code:'Code eingeben',
+    dot_creating:'Raum wird erstellt…', dot_code_short:'Code zu kurz',
+    dot_room_ready:'Raum bereit — Code teilen',
+    dot_opp_connected:'Gegner verbunden!',
+    dot_joined:'Verbunden! Spiel wird vorbereitet…',
+    dot_searching:'Suche…', dot_cancelled:'Abgebrochen',
+    dot_waiting_opp:'Warte auf Gegner…',
+    dot_opp_found:'Gegner gefunden! Vorbereitung…',
+    lbl_create_tap:'Tippen um Raum zu erstellen',
+    th_player_tourn:'Spieler',
+  },
+  fr: {
+    subtitle:'Le duel ultime',
+    play:'▶ Jouer', skins:'🎨 Skins', settings:'⚙️ Réglages',
+    back:'← Retour', settings_title:'⚙️ RÉGLAGES',
+    language:'Langue / Language', lang_label:'Langue du jeu',
+    music_vol:'Volume musique', menu_main:'🏠 Menu principal',
+    upload_menu:'📂 Musique pour le menu',
+    upload_settings:'📂 Musique pour réglages',
+    upload_game:'📂 Musique pour le match',
+    mode_1p:'👤 1 Joueur', mode_local:'👥 Local',
+    mode_tourn:'🏆 Tournoi', mode_online:'🌐 En ligne',
+    easy:'Facile', medium:'Moyen', hard:'Difficile',
+    start_tourn:'🏆 Lancer le tournoi',
+    play_match:'▶ Jouer le match', abandon:'✖ Abandonner',
+    rematch:'↩ Revanche', menu_btn:'🏠 Menu',
+    next_match:'▶ Match suivant',
+    resume:'▶ Reprendre', save_back:'✔ Sauvegarder',
+    your_name:'Votre nom', player1:'Joueur 1', player2:'Joueur 2', player:'Joueur',
+    hint_tourn:'W/S ou ↑↓ pour bouger  •  P = Pause',
+    hint_1p:'J1: W/S ou ↑↓  •  P = Pause',
+    hint_multi:'J1: W/S  •  J2: ↑/↓  •  P = Pause',
+    hint_host:'Vous êtes PING — W/S ou ↑↓',
+    hint_guest:'Vous êtes PONG — W/S ou ↑↓',
+    pausa:'— PAUSE —',
+    snd_ball:'Sons de balle', snd_ball_sub:'Ping, Pong et rebonds',
+    snd_goal:'Célébration de but', snd_goal_sub:'Cris du public', snd_fanfare:'Fanfare tournoi',
+    particles:'Particules & effets', brightness:'Luminosité',
+    bright_sub:'Filtre sur le terrain',
+    ai_chat:'Chat IA', ai_chat_sub:"L'IA répond en match",
+    ai_vs_ai:'Les IA se parlent', ai_vs_ai_sub:"En tournoi, quand 2 IA s'affrontent",
+    timer_on:'Activer minuterie', timer_sub:'Compte à rebours par match',
+    timer_dur:'Durée', timer_none:'Sans limite',
+    code_lbl:'Votre code', join_lbl:'Code (6 lettres)',
+    searching:'Recherche...', create_room:'Créer une salle privée',
+    join_room:'Rejoindre une salle', matchmaking:'Partie aléatoire',
+    audio:'🔊 Audio', custom_music:'🎵 Musique personnalisée',
+    upload_desc:'Importez un MP3 pour chaque écran.',
+    upload_desc2:'Sans fichier, la musique intégrée joue.',
+    game_lbl:'Match',
+    visual:'🌟 Visuel', chat_ai:'💬 Chat & IA',
+    timer:'⏱️ Minuterie', lang_section:'🌐 Langue',
+    confirm_abandon:'Abandonner le tournoi ?', confirm_abandon_sub:'Toute progression sera perdue.',
+    confirm_yes:'✖ Abandonner', confirm_no:'Annuler',
+    skip_match:'⏭ Passer à mon tour', watch_match:'▶ Voir le match',
+    cpu_vs_cpu:'IA VS IA',
+    mode_lbl_1p:'1J', mode_lbl_local:'LOCAL', mode_lbl_tourn:'TOURNOI', mode_lbl_online:'EN LIGNE',
+    choose_mode:'Choisir le mode', your_name_lbl:'Votre nom', ai_diff:'Difficulté IA',
+    pts_to_win:'Points pour gagner', pts_per_match:'Points par match',
+    j1_hint:'J1 — Ping (W / S)', j2_hint:'J2 — Pong (↑ / ↓)',
+    tourn_title:'🏆 TOURNOI — LIGUE',
+    tourn_setup_hint:'Configurer 8 joueurs · Cliquer CPU/HUM pour changer',
+    diff_tip:'F=Facile · M=Moyen · D=Difficile — difficulté individuelle par CPU',
+    standings:'🏆 CLASSEMENT', next_match_lbl:'PROCHAIN MATCH',
+    th_player:'Joueur', th_pj:'MJ', th_w:'V', th_l:'D', th_pts:'Pts',
+    tourn_end:'🏆 TOURNOI TERMINÉ', final_standings:'Classement final',
+    new_tourn:'🔄 Nouveau tournoi', online_name:'Votre pseudo en ligne',
+    tab_create:'🔑 Créer', tab_join:'🚪 Rejoindre', tab_random:'🎲 Aléatoire',
+    tab_random_title:'Partie aléatoire',
+    share_code:'Partagez ce code. Cliquer pour copier.',
+    waiting_opp:"En attente d'un adversaire…", connect_btn:'Connecter →',
+    mm_tip:'Trouve automatiquement un autre joueur.',
+    mm_search:'🎲 Chercher', cancel:'✖ Annuler',
+    choose_skin:'Choisir le style', skin_tip:'Défaut: rouge vs bleu', confirm:'✔ Confirmer',
+    skin_tab_p1:'J1 — Ping',skin_tab_p2:'J2 — Pong',skin_tab_both:'Les deux',
+    skin_default:'Défaut',skin_fire:'Feu',skin_neon:'Néon',skin_gold:'Or',
+    skin_nature:'Nature',skin_ice:'Glace',skin_dark:'Sombre',skin_pastel:'Pastel',
+    ws_server:'WebSocket · Serveur sur Render',
+    requires_internet:'⚠️ Requiert internet · Mieux en HTTPS',
+    dot_no_server:'Impossible de connecter au serveur',
+    dot_no_srv:'Pas de serveur', dot_ready:'Prêt',
+    dot_connecting:'Connexion…', dot_enter_code:'Entrez le code',
+    dot_creating:'Création de la salle…', dot_code_short:'Code trop court',
+    dot_room_ready:'Salle prête — partagez le code',
+    dot_opp_connected:'Adversaire connecté !',
+    dot_joined:'Connecté ! Préparation du match…',
+    dot_searching:'Recherche…', dot_cancelled:'Annulé',
+    dot_waiting_opp:"En attente d'un adversaire…",
+    dot_opp_found:'Adversaire trouvé ! Préparation…',
+    lbl_create_tap:'Appuyer pour créer une salle',
+    th_player_tourn:'Joueur',
+    choose_mode_lbl:'Choisir le mode',
+  },
+  ja: {
+    subtitle:'究極の決闘',
+    play:'▶ プレイ', skins:'🎨 スキン', settings:'⚙️ 設定',
+    back:'← 戻る', settings_title:'⚙️ 設定',
+    language:'言語', lang_label:'ゲームの言語',
+    music_vol:'音楽音量', menu_main:'🏠 メインメニュー',
+    upload_menu:'📂 メニュー音楽をアップ',
+    upload_settings:'📂 設定音楽をアップ',
+    upload_game:'📂 ゲーム音楽をアップ',
+    mode_1p:'👤 1人プレイ', mode_local:'👥 ローカル',
+    mode_tourn:'🏆 トーナメント', mode_online:'🌐 オンライン',
+    easy:'かんたん', medium:'ふつう', hard:'むずかしい',
+    start_tourn:'🏆 トーナメント開始',
+    play_match:'▶ 試合開始', abandon:'✖ 中止',
+    rematch:'↩ リマッチ', menu_btn:'🏠 メニュー',
+    next_match:'▶ 次の試合',
+    resume:'▶ 再開', save_back:'✔ 保存して戻る',
+    your_name:'あなたの名前', player1:'プレイヤー1', player2:'プレイヤー2', player:'プレイヤー',
+    hint_tourn:'W/S か ↑↓ で移動  •  P = 一時停止',
+    hint_1p:'P1: W/S か ↑↓  •  P = 一時停止',
+    hint_multi:'P1: W/S  •  P2: ↑/↓  •  P = 一時停止',
+    hint_host:'あなたはPING — W/S か ↑↓',
+    hint_guest:'あなたはPONG — W/S か ↑↓',
+    pausa:'— 一時停止 —',
+    snd_ball:'ボール音', snd_ball_sub:'ピン・ポンと跳ね返り',
+    snd_goal:'ゴール', snd_goal_sub:'観客の声', snd_fanfare:'ファンファーレ',
+    particles:'エフェクト', brightness:'明るさ',
+    bright_sub:'フィールドのフィルター',
+    ai_chat:'AIチャット', ai_chat_sub:'AIが試合中に返答',
+    ai_vs_ai:'AI同士の会話', ai_vs_ai_sub:'トーナメントでAI対戦時',
+    timer_on:'タイマー有効', timer_sub:'試合のカウントダウン',
+    timer_dur:'時間', timer_none:'制限なし',
+    code_lbl:'コード', join_lbl:'コード（6文字）',
+    searching:'検索中...', create_room:'プライベートルーム作成',
+    join_room:'ルームに参加', matchmaking:'ランダム対戦',
+    audio:'🔊 オーディオ', custom_music:'🎵 カスタム音楽',
+    upload_desc:'各画面のMP3をアップロード。',
+    upload_desc2:'なければ内蔵音楽が再生。',
+    game_lbl:'試合',
+    visual:'🌟 ビジュアル', chat_ai:'💬 チャット & AI',
+    timer:'⏱️ タイマー', lang_section:'🌐 言語',
+    confirm_abandon:'トーナメントを中止？', confirm_abandon_sub:'進行状況がすべて失われます。',
+    confirm_yes:'✖ 中止', confirm_no:'キャンセル',
+    skip_match:'⏭ 自分の番までスキップ', watch_match:'▶ 試合を見る',
+    cpu_vs_cpu:'AI対AI',
+    mode_lbl_1p:'1P', mode_lbl_local:'LOCAL', mode_lbl_tourn:'TOURN.', mode_lbl_online:'ONLINE',
+    choose_mode:'モードを選択', your_name_lbl:'名前', ai_diff:'AI難易度',
+    pts_to_win:'勝利ポイント', pts_per_match:'1試合のポイント',
+    j1_hint:'P1 — Ping (W / S)', j2_hint:'P2 — Pong (↑ / ↓)',
+    tourn_title:'🏆 トーナメント — リーグ',
+    tourn_setup_hint:'8人を設定 · CPU/HUMをクリックで変更',
+    diff_tip:'E=かんたん · M=ふつう · H=むずかしい',
+    standings:'🏆 順位表', next_match_lbl:'次の試合',
+    th_player:'プレイヤー', th_pj:'試合', th_w:'勝', th_l:'敗', th_pts:'点',
+    tourn_end:'🏆 トーナメント終了', final_standings:'最終順位',
+    new_tourn:'🔄 新しいトーナメント', online_name:'オンラインネーム',
+    tab_create:'🔑 作成', tab_join:'🚪 参加', tab_random:'🎲 ランダム',
+    tab_random_title:'ランダム対戦',
+    share_code:'このコードを共有。クリックでコピー。',
+    waiting_opp:'対戦相手を待っています…', connect_btn:'接続 →',
+    mm_tip:'自動で相手を探します。',
+    mm_search:'🎲 検索', cancel:'✖ キャンセル',
+    choose_skin:'スタイル選択', skin_tip:'デフォルト: 赤 対 青', confirm:'✔ 確認',
+    skin_tab_p1:'P1 — Ping',skin_tab_p2:'P2 — Pong',skin_tab_both:'両方',
+    skin_default:'デフォルト',skin_fire:'炎',skin_neon:'ネオン',skin_gold:'ゴールド',
+    skin_nature:'自然',skin_ice:'氷',skin_dark:'ダーク',skin_pastel:'パステル',
+    ws_server:'WebSocket · Renderサーバー',
+    requires_internet:'⚠️ インターネット必要 · HTTPSを推奨',
+    dot_no_server:'サーバーに接続できません',
+    dot_no_srv:'サーバーなし', dot_ready:'準備完了',
+    dot_connecting:'接続中…', dot_enter_code:'コードを入力',
+    dot_creating:'ルーム作成中…', dot_code_short:'コードが短すぎ',
+    dot_room_ready:'ルーム準備完了 — コードを共有',
+    dot_opp_connected:'対戦相手が接続！',
+    dot_joined:'接続！試合準備中…',
+    dot_searching:'検索中…', dot_cancelled:'キャンセル',
+    dot_waiting_opp:'対戦相手を待っています…',
+    dot_opp_found:'対戦相手が見つかりました！準備中…',
+    lbl_create_tap:'タップしてルームを作成',
+    th_player_tourn:'プレイヤー',
+  },
+  zh: {
+    subtitle:'终极对决',
+    play:'▶ 开始', skins:'🎨 皮肤', settings:'⚙️ 设置',
+    back:'← 返回', settings_title:'⚙️ 设置',
+    language:'语言 Yǔyán', lang_label:'游戏语言',
+    music_vol:'音乐音量', menu_main:'🏠 主菜单',
+    upload_menu:'📂 上传菜单音乐',
+    upload_settings:'📂 上传设置音乐',
+    upload_game:'📂 上传游戏音乐',
+    mode_1p:'👤 单人', mode_local:'👥 本地',
+    mode_tourn:'🏆 锦标赛', mode_online:'🌐 在线',
+    easy:'简单', medium:'中等', hard:'困难',
+    start_tourn:'🏆 开始锦标赛',
+    play_match:'▶ 开始比赛', abandon:'✖ 放弃',
+    rematch:'↩ 再来一局', menu_btn:'🏠 菜单',
+    next_match:'▶ 下一场',
+    resume:'▶ 继续', save_back:'✔ 保存并返回',
+    your_name:'你的名字', player1:'玩家1', player2:'玩家2', player:'玩家',
+    hint_tourn:'W/S 或 ↑↓ 移动  •  P = 暂停',
+    hint_1p:'P1: W/S 或 ↑↓  •  P = 暂停',
+    hint_multi:'P1: W/S  •  P2: ↑/↓  •  P = 暂停',
+    hint_host:'你是 PING — W/S 或 ↑↓',
+    hint_guest:'你是 PONG — W/S 或 ↑↓',
+    pausa:'— 暂停 —',
+    snd_ball:'球音效', snd_ball_sub:'乒乒乓乓声',
+    snd_goal:'进球庆祝', snd_goal_sub:'观众欢呼', snd_fanfare:'锦标赛号角',
+    particles:'粒子特效', brightness:'亮度',
+    bright_sub:'场地滤镜',
+    ai_chat:'AI聊天', ai_chat_sub:'AI在比赛中回复',
+    ai_vs_ai:'AI互相交流', ai_vs_ai_sub:'锦标赛中AI对战时',
+    timer_on:'启用计时器', timer_sub:'每场比赛倒计时',
+    timer_dur:'时长', timer_none:'无限制',
+    code_lbl:'你的代码', join_lbl:'代码（6个字母）',
+    searching:'搜索中...', create_room:'创建私人房间',
+    join_room:'加入房间', matchmaking:'随机匹配',
+    audio:'🔊 音效', custom_music:'🎵 自定义音乐',
+    upload_desc:'为每个页面上传MP3。',
+    upload_desc2:'不上传则使用内置音乐。',
+    game_lbl:'比赛',
+    visual:'🌟 视觉', chat_ai:'💬 聊天 & AI',
+    timer:'⏱️ 计时器', lang_section:'🌐 语言',
+    confirm_abandon:'放弃锦标赛？', confirm_abandon_sub:'所有进度将丢失。',
+    confirm_yes:'✖ 放弃', confirm_no:'取消',
+    skip_match:'⏭ 跳到我的对局', watch_match:'▶ 观看比赛',
+    cpu_vs_cpu:'AI 对 AI',
+    mode_lbl_1p:'1P', mode_lbl_local:'本地', mode_lbl_tourn:'锦标赛', mode_lbl_online:'在线',
+    choose_mode:'选择模式', your_name_lbl:'名字', ai_diff:'AI难度',
+    pts_to_win:'胜利积分', pts_per_match:'每场积分',
+    j1_hint:'P1 — Ping (W / S)', j2_hint:'P2 — Pong (↑ / ↓)',
+    tourn_title:'🏆 锦标赛 — 联赛',
+    tourn_setup_hint:'设置8位玩家 · 点击CPU/HUM切换',
+    diff_tip:'简=简单 · 中=中等 · 难=困难',
+    standings:'🏆 排行榜', next_match_lbl:'下一场比赛',
+    th_player:'玩家', th_pj:'场次', th_w:'胜', th_l:'负', th_pts:'积分',
+    tourn_end:'🏆 锦标赛结束', final_standings:'最终排名',
+    new_tourn:'🔄 新锦标赛', online_name:'在线昵称',
+    tab_create:'🔑 创建', tab_join:'🚪 加入', tab_random:'🎲 随机',
+    tab_random_title:'随机对战',
+    share_code:'分享此代码。点击复制。',
+    waiting_opp:'等待对手…', connect_btn:'连接 →',
+    mm_tip:'自动寻找另一位玩家。',
+    mm_search:'🎲 搜索', cancel:'✖ 取消',
+    choose_skin:'选择风格', skin_tip:'默认: 红色对蓝色', confirm:'✔ 确认',
+    skin_tab_p1:'P1 — Ping',skin_tab_p2:'P2 — Pong',skin_tab_both:'两者',
+    skin_default:'默认',skin_fire:'火焰',skin_neon:'霓虹',skin_gold:'黄金',
+    skin_nature:'自然',skin_ice:'冰',skin_dark:'暗黑',skin_pastel:'粉彩',
+    ws_server:'WebSocket · Render服务器',
+    requires_internet:'⚠️ 需要网络 · 推荐使用HTTPS',
+    dot_no_server:'无法连接到服务器',
+    dot_no_srv:'无服务器', dot_ready:'准备就绪',
+    dot_connecting:'连接中…', dot_enter_code:'输入代码',
+    dot_creating:'创建房间中…', dot_code_short:'代码太短',
+    dot_room_ready:'房间准备好了 — 分享代码',
+    dot_opp_connected:'对手已连接！',
+    dot_joined:'已连接！准备比赛…',
+    dot_searching:'搜索中…', dot_cancelled:'已取消',
+    dot_waiting_opp:'等待对手…',
+    dot_opp_found:'找到对手！准备中…',
+    lbl_create_tap:'点击创建房间',
+    th_player_tourn:'玩家',
+  },
+};
+
+// Shorthand translation lookup
+function t(key){ return (LANGS[currentLang]&&LANGS[currentLang][key])||LANGS['es'][key]||key; }
+
+let currentLang = (()=>{
+  const saved = localStorage.getItem('ppLang');
+  if(saved && LANGS[saved]) return saved;
+  const nav = (navigator.language||navigator.userLanguage||'en').toLowerCase();
+  if(nav.startsWith('es')) return 'es';
+  if(nav.startsWith('pt')) return 'pt';
+  if(nav.startsWith('de')) return 'de';
+  if(nav.startsWith('fr')) return 'fr';
+  if(nav.startsWith('ja')) return 'ja';
+  if(nav.startsWith('zh')) return 'zh';
+  return 'en';
 })();
+
+function applyLang(){
+  const T = LANGS[currentLang];
+  // Update all data-i18n elements
+  // Section titles
+  document.querySelectorAll('[data-i18n-section]').forEach(el=>{
+    const key=el.getAttribute('data-i18n-section');
+    if(T[key]!==undefined){
+      // Preserve inner HTML structure — only update text nodes
+      const icon=el.textContent.match(/^[^a-zA-ZáéíóúÁÉÍÓÚäöü\s]/)?.[0]||'';
+      // Just update the full textContent since these are title divs
+      el.textContent=T[key];
+    }
+  });
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.getAttribute('data-i18n');
+    if(T[key] !== undefined) el.textContent = T[key];
+  });
+  // Update placeholders
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+    const key = el.getAttribute('data-i18n-ph');
+    if(T[key] !== undefined) el.placeholder = T[key];
+  });
+  if(typeof buildSkins==='function') buildSkins();
+  // Update lang buttons
+  ['es','en','pt','de','fr','ja','zh'].forEach(l=>{
+    const btn=document.getElementById('lang_'+l);
+    if(btn) btn.classList.toggle('on', l===currentLang);
+  });
+  // Update html lang attribute
+  document.documentElement.lang = currentLang;
+  if(typeof refreshDynamicI18n==='function') refreshDynamicI18n();
+}
+
+function setLang(lang){
+  currentLang = lang;
+  localStorage.setItem('ppLang', lang);
+  applyLang();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  PROGRESO DEL JUGADOR + CUENTAS (opcionales)
+//  · Sin cuenta: monedas, gemas y skins se guardan en este dispositivo.
+//  · Con cuenta (ACCOUNTS_ENABLED=true y Firebase listo): se guardan en la nube.
+// ═══════════════════════════════════════════════════════════════
+var pendingDisplayName = '';
+var cloudOk = false;
+const PROFILE_KEY = 'ppProfile_v1';
+const FB_OK = !!(window.ACCOUNTS_ENABLED && window.firebase && window.auth && window.db);
+
+// ── Textos de todo lo nuevo, en los 7 idiomas ────────────────────────────────
+const LANGS_EXTRA = {
+es:{
+  shop_btn:"🛒 Tienda", acc_btn:"👤 Mi Cuenta",
+  acc_title:"👤 MI CUENTA", acc_login:"Iniciar sesión", acc_register:"Registrarse",
+  acc_email_ph:"Email", acc_pass_ph:"Contraseña", acc_user_ph:"Nombre de usuario",
+  acc_go_shop:"🛒 Ir a la Tienda", acc_logout:"Cerrar sesión", acc_free:"FREE", acc_premium:"⭐ PREMIUM",
+  acc_soon:"🚧 Las cuentas llegarán pronto. Mientras tanto, tu progreso (CoinClothes, Exclusives y skins) se guarda en este dispositivo.",
+  acc_unavailable:"⚠️ No se pudo conectar con el servicio de cuentas. Puedes seguir jugando: tu progreso se guarda en este dispositivo.",
+  acc_err_fill:"Rellena todos los campos", acc_err_name:"Elige un nombre de usuario",
+  acc_e_inuse:"Ese email ya está registrado", acc_e_email:"Email no válido",
+  acc_e_weak:"Contraseña demasiado corta (mínimo 6)", acc_e_cred:"Email o contraseña incorrectos",
+  acc_e_many:"Demasiados intentos, espera un momento", acc_e_net:"Sin conexión con el servidor",
+  acc_e_notallowed:"El acceso por email no está activado", acc_e_generic:"Error",
+  shop_title:"🛒 TIENDA DE SKINS", shop_all:"Todas", shop_free:"Gratis", shop_coins:"🪙 Monedas", shop_gems:"💎 Gemas",
+  shop_price_free:"✅ Gratis", shop_owned:"✅ Tuya", shop_more:"🛒 Más skins en la Tienda",
+  shop_lack_title:"Saldo insuficiente", shop_lack_need:"Necesitas: {a}", shop_lack_have:"Tienes: {a}",
+  shop_buy_q:"¿Comprar {n}?", shop_buy:"Comprar", shop_cancel:"Cancelar", ok:"OK",
+  rw_win:"🎉 ¡Victoria!", rw_tourn:"🏆 Victoria en Torneo",
+  skin_sport:"Deportivo", skin_ninja:"Ninja", skin_soccer:"Futbolista", skin_robot:"Robot", skin_retro:"Retro",
+  skin_ocean:"Océano", skin_lava:"Lava", skin_electric:"Eléctrica", skin_ghost:"Fantasma", skin_dragon:"Dragón",
+  skin_cosmic:"Cósmico", skin_aurora:"Aurora", skin_legendary:"Leyenda"
+},
+en:{
+  shop_btn:"🛒 Shop", acc_btn:"👤 My Account",
+  acc_title:"👤 MY ACCOUNT", acc_login:"Log in", acc_register:"Sign up",
+  acc_email_ph:"Email", acc_pass_ph:"Password", acc_user_ph:"Username",
+  acc_go_shop:"🛒 Go to the Shop", acc_logout:"Log out", acc_free:"FREE", acc_premium:"⭐ PREMIUM",
+  acc_soon:"🚧 Accounts are coming soon. Until then, your progress (CoinClothes, Exclusives and skins) is saved on this device.",
+  acc_unavailable:"⚠️ Could not reach the accounts service. You can keep playing: your progress is saved on this device.",
+  acc_err_fill:"Fill in all the fields", acc_err_name:"Choose a username",
+  acc_e_inuse:"That email is already registered", acc_e_email:"Invalid email",
+  acc_e_weak:"Password too short (minimum 6)", acc_e_cred:"Wrong email or password",
+  acc_e_many:"Too many attempts, please wait a moment", acc_e_net:"Cannot reach the server",
+  acc_e_notallowed:"Email sign-in is not enabled", acc_e_generic:"Error",
+  shop_title:"🛒 SKIN SHOP", shop_all:"All", shop_free:"Free", shop_coins:"🪙 Coins", shop_gems:"💎 Gems",
+  shop_price_free:"✅ Free", shop_owned:"✅ Owned", shop_more:"🛒 More skins in the Shop",
+  shop_lack_title:"Not enough balance", shop_lack_need:"You need: {a}", shop_lack_have:"You have: {a}",
+  shop_buy_q:"Buy {n}?", shop_buy:"Buy", shop_cancel:"Cancel", ok:"OK",
+  rw_win:"🎉 Victory!", rw_tourn:"🏆 Tournament victory",
+  skin_sport:"Sporty", skin_ninja:"Ninja", skin_soccer:"Footballer", skin_robot:"Robot", skin_retro:"Retro",
+  skin_ocean:"Ocean", skin_lava:"Lava", skin_electric:"Electric", skin_ghost:"Ghost", skin_dragon:"Dragon",
+  skin_cosmic:"Cosmic", skin_aurora:"Aurora", skin_legendary:"Legend"
+},
+pt:{
+  shop_btn:"🛒 Loja", acc_btn:"👤 Minha Conta",
+  acc_title:"👤 MINHA CONTA", acc_login:"Entrar", acc_register:"Cadastrar-se",
+  acc_email_ph:"E-mail", acc_pass_ph:"Senha", acc_user_ph:"Nome de usuário",
+  acc_go_shop:"🛒 Ir para a Loja", acc_logout:"Sair", acc_free:"FREE", acc_premium:"⭐ PREMIUM",
+  acc_soon:"🚧 As contas chegarão em breve. Enquanto isso, seu progresso (CoinClothes, Exclusives e skins) fica salvo neste dispositivo.",
+  acc_unavailable:"⚠️ Não foi possível conectar ao serviço de contas. Você pode continuar jogando: seu progresso fica salvo neste dispositivo.",
+  acc_err_fill:"Preencha todos os campos", acc_err_name:"Escolha um nome de usuário",
+  acc_e_inuse:"Este e-mail já está cadastrado", acc_e_email:"E-mail inválido",
+  acc_e_weak:"Senha muito curta (mínimo 6)", acc_e_cred:"E-mail ou senha incorretos",
+  acc_e_many:"Muitas tentativas, aguarde um momento", acc_e_net:"Sem conexão com o servidor",
+  acc_e_notallowed:"O acesso por e-mail não está ativado", acc_e_generic:"Erro",
+  shop_title:"🛒 LOJA DE SKINS", shop_all:"Todas", shop_free:"Grátis", shop_coins:"🪙 Moedas", shop_gems:"💎 Gemas",
+  shop_price_free:"✅ Grátis", shop_owned:"✅ Sua", shop_more:"🛒 Mais skins na Loja",
+  shop_lack_title:"Saldo insuficiente", shop_lack_need:"Você precisa: {a}", shop_lack_have:"Você tem: {a}",
+  shop_buy_q:"Comprar {n}?", shop_buy:"Comprar", shop_cancel:"Cancelar", ok:"OK",
+  rw_win:"🎉 Vitória!", rw_tourn:"🏆 Vitória no Torneio",
+  skin_sport:"Esportiva", skin_ninja:"Ninja", skin_soccer:"Futebolista", skin_robot:"Robô", skin_retro:"Retrô",
+  skin_ocean:"Oceano", skin_lava:"Lava", skin_electric:"Elétrica", skin_ghost:"Fantasma", skin_dragon:"Dragão",
+  skin_cosmic:"Cósmica", skin_aurora:"Aurora", skin_legendary:"Lenda"
+},
+de:{
+  shop_btn:"🛒 Shop", acc_btn:"👤 Mein Konto",
+  acc_title:"👤 MEIN KONTO", acc_login:"Anmelden", acc_register:"Registrieren",
+  acc_email_ph:"E-Mail", acc_pass_ph:"Passwort", acc_user_ph:"Benutzername",
+  acc_go_shop:"🛒 Zum Shop", acc_logout:"Abmelden", acc_free:"FREE", acc_premium:"⭐ PREMIUM",
+  acc_soon:"🚧 Konten kommen bald. Bis dahin wird dein Fortschritt (CoinClothes, Exclusives und Skins) auf diesem Gerät gespeichert.",
+  acc_unavailable:"⚠️ Der Konto-Dienst ist nicht erreichbar. Du kannst weiterspielen: Dein Fortschritt wird auf diesem Gerät gespeichert.",
+  acc_err_fill:"Bitte alle Felder ausfüllen", acc_err_name:"Wähle einen Benutzernamen",
+  acc_e_inuse:"Diese E-Mail ist bereits registriert", acc_e_email:"Ungültige E-Mail",
+  acc_e_weak:"Passwort zu kurz (mindestens 6)", acc_e_cred:"E-Mail oder Passwort falsch",
+  acc_e_many:"Zu viele Versuche, bitte kurz warten", acc_e_net:"Keine Verbindung zum Server",
+  acc_e_notallowed:"Anmeldung per E-Mail ist nicht aktiviert", acc_e_generic:"Fehler",
+  shop_title:"🛒 SKIN-SHOP", shop_all:"Alle", shop_free:"Gratis", shop_coins:"🪙 Münzen", shop_gems:"💎 Edelsteine",
+  shop_price_free:"✅ Gratis", shop_owned:"✅ Im Besitz", shop_more:"🛒 Mehr Skins im Shop",
+  shop_lack_title:"Nicht genug Guthaben", shop_lack_need:"Du brauchst: {a}", shop_lack_have:"Du hast: {a}",
+  shop_buy_q:"{n} kaufen?", shop_buy:"Kaufen", shop_cancel:"Abbrechen", ok:"OK",
+  rw_win:"🎉 Sieg!", rw_tourn:"🏆 Turniersieg",
+  skin_sport:"Sportlich", skin_ninja:"Ninja", skin_soccer:"Fußballer", skin_robot:"Roboter", skin_retro:"Retro",
+  skin_ocean:"Ozean", skin_lava:"Lava", skin_electric:"Elektrisch", skin_ghost:"Geist", skin_dragon:"Drache",
+  skin_cosmic:"Kosmisch", skin_aurora:"Aurora", skin_legendary:"Legende"
+},
+fr:{
+  shop_btn:"🛒 Boutique", acc_btn:"👤 Mon Compte",
+  acc_title:"👤 MON COMPTE", acc_login:"Se connecter", acc_register:"S'inscrire",
+  acc_email_ph:"E-mail", acc_pass_ph:"Mot de passe", acc_user_ph:"Nom d'utilisateur",
+  acc_go_shop:"🛒 Aller à la Boutique", acc_logout:"Se déconnecter", acc_free:"FREE", acc_premium:"⭐ PREMIUM",
+  acc_soon:"🚧 Les comptes arrivent bientôt. En attendant, votre progression (CoinClothes, Exclusives et skins) est enregistrée sur cet appareil.",
+  acc_unavailable:"⚠️ Impossible de joindre le service de comptes. Vous pouvez continuer à jouer : votre progression est enregistrée sur cet appareil.",
+  acc_err_fill:"Remplissez tous les champs", acc_err_name:"Choisissez un nom d'utilisateur",
+  acc_e_inuse:"Cet e-mail est déjà enregistré", acc_e_email:"E-mail invalide",
+  acc_e_weak:"Mot de passe trop court (6 minimum)", acc_e_cred:"E-mail ou mot de passe incorrect",
+  acc_e_many:"Trop de tentatives, patientez un instant", acc_e_net:"Pas de connexion au serveur",
+  acc_e_notallowed:"La connexion par e-mail n'est pas activée", acc_e_generic:"Erreur",
+  shop_title:"🛒 BOUTIQUE DE SKINS", shop_all:"Toutes", shop_free:"Gratuites", shop_coins:"🪙 Pièces", shop_gems:"💎 Gemmes",
+  shop_price_free:"✅ Gratuit", shop_owned:"✅ Possédé", shop_more:"🛒 Plus de skins dans la Boutique",
+  shop_lack_title:"Solde insuffisant", shop_lack_need:"Il vous faut : {a}", shop_lack_have:"Vous avez : {a}",
+  shop_buy_q:"Acheter {n} ?", shop_buy:"Acheter", shop_cancel:"Annuler", ok:"OK",
+  rw_win:"🎉 Victoire !", rw_tourn:"🏆 Victoire en Tournoi",
+  skin_sport:"Sportif", skin_ninja:"Ninja", skin_soccer:"Footballeur", skin_robot:"Robot", skin_retro:"Rétro",
+  skin_ocean:"Océan", skin_lava:"Lave", skin_electric:"Électrique", skin_ghost:"Fantôme", skin_dragon:"Dragon",
+  skin_cosmic:"Cosmique", skin_aurora:"Aurore", skin_legendary:"Légende"
+},
+ja:{
+  shop_btn:"🛒 ショップ", acc_btn:"👤 マイアカウント",
+  acc_title:"👤 マイアカウント", acc_login:"ログイン", acc_register:"新規登録",
+  acc_email_ph:"メールアドレス", acc_pass_ph:"パスワード", acc_user_ph:"ユーザー名",
+  acc_go_shop:"🛒 ショップへ", acc_logout:"ログアウト", acc_free:"FREE", acc_premium:"⭐ PREMIUM",
+  acc_soon:"🚧 アカウント機能は近日公開予定です。それまでの進行状況（CoinClothes、Exclusives、スキン）はこのデバイスに保存されます。",
+  acc_unavailable:"⚠️ アカウントサービスに接続できませんでした。そのままプレイできます。進行状況はこのデバイスに保存されます。",
+  acc_err_fill:"すべての項目を入力してください", acc_err_name:"ユーザー名を入力してください",
+  acc_e_inuse:"このメールアドレスは既に登録されています", acc_e_email:"メールアドレスが正しくありません",
+  acc_e_weak:"パスワードが短すぎます（6文字以上）", acc_e_cred:"メールアドレスまたはパスワードが違います",
+  acc_e_many:"試行回数が多すぎます。しばらくお待ちください", acc_e_net:"サーバーに接続できません",
+  acc_e_notallowed:"メールでのログインが有効になっていません", acc_e_generic:"エラー",
+  shop_title:"🛒 スキンショップ", shop_all:"すべて", shop_free:"無料", shop_coins:"🪙 コイン", shop_gems:"💎 ジェム",
+  shop_price_free:"✅ 無料", shop_owned:"✅ 所持済み", shop_more:"🛒 ショップでスキンをもっと見る",
+  shop_lack_title:"残高が足りません", shop_lack_need:"必要: {a}", shop_lack_have:"所持: {a}",
+  shop_buy_q:"{n}を購入しますか？", shop_buy:"購入", shop_cancel:"キャンセル", ok:"OK",
+  rw_win:"🎉 勝利！", rw_tourn:"🏆 トーナメント勝利",
+  skin_sport:"スポーツ", skin_ninja:"忍者", skin_soccer:"サッカー選手", skin_robot:"ロボット", skin_retro:"レトロ",
+  skin_ocean:"海", skin_lava:"溶岩", skin_electric:"電撃", skin_ghost:"ゴースト", skin_dragon:"ドラゴン",
+  skin_cosmic:"コズミック", skin_aurora:"オーロラ", skin_legendary:"伝説"
+},
+zh:{
+  shop_btn:"🛒 商店", acc_btn:"👤 我的账号",
+  acc_title:"👤 我的账号", acc_login:"登录", acc_register:"注册",
+  acc_email_ph:"邮箱", acc_pass_ph:"密码", acc_user_ph:"用户名",
+  acc_go_shop:"🛒 前往商店", acc_logout:"退出登录", acc_free:"FREE", acc_premium:"⭐ PREMIUM",
+  acc_soon:"🚧 账号功能即将上线。在此之前，你的进度（CoinClothes、Exclusives 和皮肤）会保存在本设备上。",
+  acc_unavailable:"⚠️ 无法连接账号服务。你仍可继续游戏：进度会保存在本设备上。",
+  acc_err_fill:"请填写所有字段", acc_err_name:"请选择一个用户名",
+  acc_e_inuse:"该邮箱已被注册", acc_e_email:"邮箱无效",
+  acc_e_weak:"密码太短（至少6位）", acc_e_cred:"邮箱或密码错误",
+  acc_e_many:"尝试次数过多，请稍候", acc_e_net:"无法连接服务器",
+  acc_e_notallowed:"未启用邮箱登录", acc_e_generic:"错误",
+  shop_title:"🛒 皮肤商店", shop_all:"全部", shop_free:"免费", shop_coins:"🪙 金币", shop_gems:"💎 宝石",
+  shop_price_free:"✅ 免费", shop_owned:"✅ 已拥有", shop_more:"🛒 商店里有更多皮肤",
+  shop_lack_title:"余额不足", shop_lack_need:"需要：{a}", shop_lack_have:"拥有：{a}",
+  shop_buy_q:"购买 {n}？", shop_buy:"购买", shop_cancel:"取消", ok:"确定",
+  rw_win:"🎉 胜利！", rw_tourn:"🏆 锦标赛胜利",
+  skin_sport:"运动", skin_ninja:"忍者", skin_soccer:"足球运动员", skin_robot:"机器人", skin_retro:"复古",
+  skin_ocean:"海洋", skin_lava:"熔岩", skin_electric:"闪电", skin_ghost:"幽灵", skin_dragon:"巨龙",
+  skin_cosmic:"宇宙", skin_aurora:"极光", skin_legendary:"传奇"
+}
+};
+Object.keys(LANGS_EXTRA).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA[l]); });
+const LANGS_EXTRA2 = {
+  es:{ watch_exit:"⏭ Volver al torneo", watch_hint:"Podrás volver al torneo en cualquier momento." },
+  en:{ watch_exit:"⏭ Back to tournament", watch_hint:"You can return to the tournament at any time." },
+  pt:{ watch_exit:"⏭ Voltar ao torneio", watch_hint:"Você pode voltar ao torneio a qualquer momento." },
+  de:{ watch_exit:"⏭ Zurück zum Turnier", watch_hint:"Du kannst jederzeit zum Turnier zurückkehren." },
+  fr:{ watch_exit:"⏭ Retour au tournoi", watch_hint:"Vous pourrez revenir au tournoi à tout moment." },
+  ja:{ watch_exit:"⏭ トーナメントに戻る", watch_hint:"いつでもトーナメントに戻れます。" },
+  zh:{ watch_exit:"⏭ 返回锦标赛", watch_hint:"你可以随时返回锦标赛。" }
+};
+Object.keys(LANGS_EXTRA2).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA2[l]); });
+const LANGS_EXTRA3 = {
+es:{ ov_goal:"⚽ ¡GOL!", ov_goal_win:"🏆 ¡GOL!", ov_scores:"¡{n} anota!", ov_wins:"¡{n} GANA!",
+  ov_golden:"🥇 ¡¡¡GOL DE ORO!!!", ov_golden_next:"¡El próximo gol gana la partida!",
+  ov_overtime:"⚽ ¡PRÓRROGA!", ov_overtime_sub:"¡GOL DE ORO! El siguiente gol gana",
+  win_title:"🏆 ¡{n} GANA!", golden_badge:"🥇 GOL DE ORO",
+  pts_custom:"Otro", pts_golden_hint:"Con 1, el primer gol gana la partida (¡gol de oro!)",
+  acc_forgot:"¿Olvidaste tu contraseña?", acc_reset_sent:"Si existe esa cuenta, te hemos enviado un email para restablecer la contraseña", acc_reset_need:"Escribe tu email arriba",
+  shop_sell:"Vender", shop_sell_q:"¿Vender {n}?", shop_bulk_one:"▲ Una más", shop_bulk_max:"▼ Máximo",
+  shop_bulk_none:"No hay más skins que puedas comprar ahora", shop_bulk_q:"¿Comprar {k} skins?", shop_bulk_total:"Total: {a}" },
+en:{ ov_goal:"⚽ GOAL!", ov_goal_win:"🏆 GOAL!", ov_scores:"{n} scores!", ov_wins:"{n} WINS!",
+  ov_golden:"🥇 GOLDEN GOAL!!!", ov_golden_next:"The next goal wins the match!",
+  ov_overtime:"⚽ EXTRA TIME!", ov_overtime_sub:"GOLDEN GOAL! The next goal wins",
+  win_title:"🏆 {n} WINS!", golden_badge:"🥇 GOLDEN GOAL",
+  pts_custom:"Other", pts_golden_hint:"With 1, the first goal wins the match (golden goal!)",
+  acc_forgot:"Forgot your password?", acc_reset_sent:"If that account exists, we've sent you an email to reset your password", acc_reset_need:"Type your email above",
+  shop_sell:"Sell", shop_sell_q:"Sell {n}?", shop_bulk_one:"▲ One more", shop_bulk_max:"▼ Maximum",
+  shop_bulk_none:"There are no more skins you can afford right now", shop_bulk_q:"Buy {k} skins?", shop_bulk_total:"Total: {a}" },
+pt:{ ov_goal:"⚽ GOL!", ov_goal_win:"🏆 GOL!", ov_scores:"{n} marca!", ov_wins:"{n} VENCE!",
+  ov_golden:"🥇 GOL DE OURO!!!", ov_golden_next:"O próximo gol vence a partida!",
+  ov_overtime:"⚽ PRORROGAÇÃO!", ov_overtime_sub:"GOL DE OURO! O próximo gol vence",
+  win_title:"🏆 {n} VENCE!", golden_badge:"🥇 GOL DE OURO",
+  pts_custom:"Outro", pts_golden_hint:"Com 1, o primeiro gol vence a partida (gol de ouro!)",
+  acc_forgot:"Esqueceu a senha?", acc_reset_sent:"Se essa conta existir, enviamos um e-mail para redefinir a senha", acc_reset_need:"Digite seu e-mail acima",
+  shop_sell:"Vender", shop_sell_q:"Vender {n}?", shop_bulk_one:"▲ Mais uma", shop_bulk_max:"▼ Máximo",
+  shop_bulk_none:"Não há mais skins que você possa comprar agora", shop_bulk_q:"Comprar {k} skins?", shop_bulk_total:"Total: {a}" },
+de:{ ov_goal:"⚽ TOR!", ov_goal_win:"🏆 TOR!", ov_scores:"{n} trifft!", ov_wins:"{n} GEWINNT!",
+  ov_golden:"🥇 GOLDEN GOAL!!!", ov_golden_next:"Das nächste Tor entscheidet das Spiel!",
+  ov_overtime:"⚽ VERLÄNGERUNG!", ov_overtime_sub:"GOLDEN GOAL! Das nächste Tor gewinnt",
+  win_title:"🏆 {n} GEWINNT!", golden_badge:"🥇 GOLDEN GOAL",
+  pts_custom:"Andere", pts_golden_hint:"Bei 1 gewinnt das erste Tor das Spiel (Golden Goal!)",
+  acc_forgot:"Passwort vergessen?", acc_reset_sent:"Falls es dieses Konto gibt, haben wir dir eine E-Mail zum Zurücksetzen geschickt", acc_reset_need:"Gib oben deine E-Mail ein",
+  shop_sell:"Verkaufen", shop_sell_q:"{n} verkaufen?", shop_bulk_one:"▲ Noch eine", shop_bulk_max:"▼ Maximum",
+  shop_bulk_none:"Du kannst dir gerade keine weiteren Skins leisten", shop_bulk_q:"{k} Skins kaufen?", shop_bulk_total:"Gesamt: {a}" },
+fr:{ ov_goal:"⚽ BUT !", ov_goal_win:"🏆 BUT !", ov_scores:"{n} marque !", ov_wins:"{n} GAGNE !",
+  ov_golden:"🥇 BUT EN OR !!!", ov_golden_next:"Le prochain but gagne le match !",
+  ov_overtime:"⚽ PROLONGATIONS !", ov_overtime_sub:"BUT EN OR ! Le prochain but gagne",
+  win_title:"🏆 {n} GAGNE !", golden_badge:"🥇 BUT EN OR",
+  pts_custom:"Autre", pts_golden_hint:"Avec 1, le premier but gagne le match (but en or !)",
+  acc_forgot:"Mot de passe oublié ?", acc_reset_sent:"Si ce compte existe, nous vous avons envoyé un e-mail pour réinitialiser le mot de passe", acc_reset_need:"Saisissez votre e-mail ci-dessus",
+  shop_sell:"Vendre", shop_sell_q:"Vendre {n} ?", shop_bulk_one:"▲ Une de plus", shop_bulk_max:"▼ Maximum",
+  shop_bulk_none:"Il n'y a plus de skins que vous puissiez acheter pour l'instant", shop_bulk_q:"Acheter {k} skins ?", shop_bulk_total:"Total : {a}" },
+ja:{ ov_goal:"⚽ ゴール！", ov_goal_win:"🏆 ゴール！", ov_scores:"{n}が得点！", ov_wins:"{n}の勝利！",
+  ov_golden:"🥇 ゴールデンゴール！！！", ov_golden_next:"次のゴールで試合終了！",
+  ov_overtime:"⚽ 延長戦！", ov_overtime_sub:"ゴールデンゴール！次のゴールで決着",
+  win_title:"🏆 {n}の勝利！", golden_badge:"🥇 ゴールデンゴール",
+  pts_custom:"その他", pts_golden_hint:"1にすると最初のゴールで勝負が決まります（ゴールデンゴール！）",
+  acc_forgot:"パスワードをお忘れですか？", acc_reset_sent:"該当するアカウントがあれば、パスワード再設定のメールを送信しました", acc_reset_need:"上にメールアドレスを入力してください",
+  shop_sell:"売却", shop_sell_q:"{n}を売却しますか？", shop_bulk_one:"▲ もう1つ", shop_bulk_max:"▼ 最大",
+  shop_bulk_none:"今は購入できるスキンがありません", shop_bulk_q:"{k}個のスキンを購入しますか？", shop_bulk_total:"合計: {a}" },
+zh:{ ov_goal:"⚽ 进球！", ov_goal_win:"🏆 进球！", ov_scores:"{n} 得分！", ov_wins:"{n} 获胜！",
+  ov_golden:"🥇 黄金进球！！！", ov_golden_next:"下一个进球将决定比赛！",
+  ov_overtime:"⚽ 加时赛！", ov_overtime_sub:"黄金进球！下一个进球获胜",
+  win_title:"🏆 {n} 获胜！", golden_badge:"🥇 黄金进球",
+  pts_custom:"自定义", pts_golden_hint:"设为1时，第一个进球即获胜（黄金进球！）",
+  acc_forgot:"忘记密码？", acc_reset_sent:"如果该账号存在，我们已发送重置密码的邮件", acc_reset_need:"请先在上方输入邮箱",
+  shop_sell:"出售", shop_sell_q:"出售 {n}？", shop_bulk_one:"▲ 再买一个", shop_bulk_max:"▼ 最多",
+  shop_bulk_none:"目前没有你买得起的皮肤了", shop_bulk_q:"购买 {k} 个皮肤？", shop_bulk_total:"合计：{a}" }
+};
+Object.keys(LANGS_EXTRA3).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA3[l]); });
+
+const LANGS_EXTRA5 = {
+es:{ mis_btn:"🎯 Misiones", mis_title:"🎯 MISIONES", mis_tab_d:"Diarias", mis_tab_w:"Semanales", mis_tab_s:"Especiales",
+  mis_reward:"Recompensa", mis_done:"✅ Completada", mis_progress:"{p}/{g}", mis_resets:"Se renuevan en {t}", mis_once:"Solo una vez",
+  mis_time:"{h} h {m} min", mis_time_m:"{m} min", mis_needs_timer:"⏱ Requiere temporizador activo", mis_popup:"🎯 ¡Misión completada!",
+  m_d_play2:"Juega 2 partidas", m_d_win1:"Gana 1 partida", m_d_goals3:"Marca 3 goles en una partida",
+  m_d_bounce8:"Haz que la pelota rebote 8 veces en un partido", m_d_noconc:"Gana sin que te marquen ningún gol",
+  m_d_late:"Marca un gol en los últimos 10 s del temporizador", m_d_pw:"Recoge 1 potenciador",
+  m_w_win5:"Gana 5 partidas", m_w_buy2:"Compra 2 skins", m_w_golden:"Gana una partida con gol de oro",
+  m_w_tourn:"Termina un torneo", m_s_first:"Gana tu primera partida", m_s_goals50:"Marca 50 goles en total",
+  m_s_pw10:"Recoge 10 potenciadores", m_s_skins5:"Consigue 5 skins", m_s_golden:"Gana con gol de oro" },
+en:{ mis_btn:"🎯 Missions", mis_title:"🎯 MISSIONS", mis_tab_d:"Daily", mis_tab_w:"Weekly", mis_tab_s:"Special",
+  mis_reward:"Reward", mis_done:"✅ Completed", mis_progress:"{p}/{g}", mis_resets:"Resets in {t}", mis_once:"One time only",
+  mis_time:"{h} h {m} min", mis_time_m:"{m} min", mis_needs_timer:"⏱ Needs the match timer on", mis_popup:"🎯 Mission complete!",
+  m_d_play2:"Play 2 matches", m_d_win1:"Win 1 match", m_d_goals3:"Score 3 goals in one match",
+  m_d_bounce8:"Make the ball bounce 8 times in one match", m_d_noconc:"Win without conceding a goal",
+  m_d_late:"Score in the last 10 s of the timer", m_d_pw:"Collect 1 power-up",
+  m_w_win5:"Win 5 matches", m_w_buy2:"Buy 2 skins", m_w_golden:"Win a match with a golden goal",
+  m_w_tourn:"Finish a tournament", m_s_first:"Win your first match", m_s_goals50:"Score 50 goals in total",
+  m_s_pw10:"Collect 10 power-ups", m_s_skins5:"Get 5 skins", m_s_golden:"Win with a golden goal" },
+pt:{ mis_btn:"🎯 Missões", mis_title:"🎯 MISSÕES", mis_tab_d:"Diárias", mis_tab_w:"Semanais", mis_tab_s:"Especiais",
+  mis_reward:"Recompensa", mis_done:"✅ Concluída", mis_progress:"{p}/{g}", mis_resets:"Renovam em {t}", mis_once:"Uma única vez",
+  mis_time:"{h} h {m} min", mis_time_m:"{m} min", mis_needs_timer:"⏱ Requer o cronômetro ativo", mis_popup:"🎯 Missão concluída!",
+  m_d_play2:"Jogue 2 partidas", m_d_win1:"Vença 1 partida", m_d_goals3:"Marque 3 gols em uma partida",
+  m_d_bounce8:"Faça a bola quicar 8 vezes em uma partida", m_d_noconc:"Vença sem levar nenhum gol",
+  m_d_late:"Marque nos últimos 10 s do cronômetro", m_d_pw:"Pegue 1 power-up",
+  m_w_win5:"Vença 5 partidas", m_w_buy2:"Compre 2 skins", m_w_golden:"Vença uma partida com gol de ouro",
+  m_w_tourn:"Termine um torneio", m_s_first:"Vença sua primeira partida", m_s_goals50:"Marque 50 gols no total",
+  m_s_pw10:"Pegue 10 power-ups", m_s_skins5:"Consiga 5 skins", m_s_golden:"Vença com gol de ouro" },
+de:{ mis_btn:"🎯 Missionen", mis_title:"🎯 MISSIONEN", mis_tab_d:"Täglich", mis_tab_w:"Wöchentlich", mis_tab_s:"Spezial",
+  mis_reward:"Belohnung", mis_done:"✅ Abgeschlossen", mis_progress:"{p}/{g}", mis_resets:"Erneuert sich in {t}", mis_once:"Nur einmal",
+  mis_time:"{h} Std. {m} Min.", mis_time_m:"{m} Min.", mis_needs_timer:"⏱ Braucht den aktiven Timer", mis_popup:"🎯 Mission abgeschlossen!",
+  m_d_play2:"Spiele 2 Partien", m_d_win1:"Gewinne 1 Partie", m_d_goals3:"Erziele 3 Tore in einer Partie",
+  m_d_bounce8:"Lass den Ball in einer Partie 8-mal abprallen", m_d_noconc:"Gewinne ohne ein Gegentor",
+  m_d_late:"Triff in den letzten 10 s des Timers", m_d_pw:"Sammle 1 Power-up",
+  m_w_win5:"Gewinne 5 Partien", m_w_buy2:"Kaufe 2 Skins", m_w_golden:"Gewinne eine Partie per Golden Goal",
+  m_w_tourn:"Beende ein Turnier", m_s_first:"Gewinne deine erste Partie", m_s_goals50:"Erziele insgesamt 50 Tore",
+  m_s_pw10:"Sammle 10 Power-ups", m_s_skins5:"Erhalte 5 Skins", m_s_golden:"Gewinne per Golden Goal" },
+fr:{ mis_btn:"🎯 Missions", mis_title:"🎯 MISSIONS", mis_tab_d:"Quotidiennes", mis_tab_w:"Hebdo", mis_tab_s:"Spéciales",
+  mis_reward:"Récompense", mis_done:"✅ Terminée", mis_progress:"{p}/{g}", mis_resets:"Renouvelées dans {t}", mis_once:"Une seule fois",
+  mis_time:"{h} h {m} min", mis_time_m:"{m} min", mis_needs_timer:"⏱ Nécessite le minuteur activé", mis_popup:"🎯 Mission accomplie !",
+  m_d_play2:"Jouez 2 matchs", m_d_win1:"Gagnez 1 match", m_d_goals3:"Marquez 3 buts dans un match",
+  m_d_bounce8:"Faites rebondir la balle 8 fois dans un match", m_d_noconc:"Gagnez sans encaisser de but",
+  m_d_late:"Marquez dans les 10 dernières s du minuteur", m_d_pw:"Récupérez 1 bonus",
+  m_w_win5:"Gagnez 5 matchs", m_w_buy2:"Achetez 2 skins", m_w_golden:"Gagnez un match par but en or",
+  m_w_tourn:"Terminez un tournoi", m_s_first:"Gagnez votre premier match", m_s_goals50:"Marquez 50 buts au total",
+  m_s_pw10:"Récupérez 10 bonus", m_s_skins5:"Obtenez 5 skins", m_s_golden:"Gagnez par un but en or" },
+ja:{ mis_btn:"🎯 ミッション", mis_title:"🎯 ミッション", mis_tab_d:"デイリー", mis_tab_w:"ウィークリー", mis_tab_s:"スペシャル",
+  mis_reward:"報酬", mis_done:"✅ 達成", mis_progress:"{p}/{g}", mis_resets:"{t}後にリセット", mis_once:"1回限り",
+  mis_time:"{h}時間{m}分", mis_time_m:"{m}分", mis_needs_timer:"⏱ タイマーをオンにする必要があります", mis_popup:"🎯 ミッション達成！",
+  m_d_play2:"2試合プレイする", m_d_win1:"1試合勝つ", m_d_goals3:"1試合で3ゴール決める",
+  m_d_bounce8:"1試合でボールを8回跳ね返らせる", m_d_noconc:"失点せずに勝つ",
+  m_d_late:"タイマーの最後の10秒でゴールする", m_d_pw:"パワーアップを1つ取る",
+  m_w_win5:"5試合勝つ", m_w_buy2:"スキンを2つ購入する", m_w_golden:"ゴールデンゴールで試合に勝つ",
+  m_w_tourn:"トーナメントを完走する", m_s_first:"初勝利", m_s_goals50:"通算50ゴール",
+  m_s_pw10:"パワーアップを10個取る", m_s_skins5:"スキンを5つ入手", m_s_golden:"ゴールデンゴールで勝つ" },
+zh:{ mis_btn:"🎯 任务", mis_title:"🎯 任务", mis_tab_d:"每日", mis_tab_w:"每周", mis_tab_s:"特别",
+  mis_reward:"奖励", mis_done:"✅ 已完成", mis_progress:"{p}/{g}", mis_resets:"{t}后刷新", mis_once:"仅一次",
+  mis_time:"{h}小时{m}分钟", mis_time_m:"{m}分钟", mis_needs_timer:"⏱ 需要开启比赛计时器", mis_popup:"🎯 任务完成！",
+  m_d_play2:"进行2场比赛", m_d_win1:"赢得1场比赛", m_d_goals3:"一场比赛进3球",
+  m_d_bounce8:"一场比赛让球反弹8次", m_d_noconc:"零失球获胜",
+  m_d_late:"在计时器最后10秒进球", m_d_pw:"获得1个强化道具",
+  m_w_win5:"赢得5场比赛", m_w_buy2:"购买2个皮肤", m_w_golden:"通过黄金进球赢得一场比赛",
+  m_w_tourn:"完成一次锦标赛", m_s_first:"赢得第一场比赛", m_s_goals50:"累计进球50个",
+  m_s_pw10:"获得10个强化道具", m_s_skins5:"获得5个皮肤", m_s_golden:"通过黄金进球获胜" }
+};
+Object.keys(LANGS_EXTRA5).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA5[l]); });
+
+const LANGS_EXTRA6 = {
+es:{ promo_title:"CÓDIGOS PROMOCIONALES", promo_ph:"Escribe tu código", promo_btn:"Canjear", promo_empty:"Escribe un código",
+  promo_invalid:"Código no válido", promo_expired:"Este código ha caducado", promo_used:"Ya has canjeado este código", promo_ok:"¡Código canjeado!",
+  bug_btn:"🐞 Reportar un bug", bug_title:"🐞 REPORTAR BUG", bug_cat:"Categoría", bug_cat_match:"Partida", bug_cat_controls:"Controles",
+  bug_cat_graphics:"Gráficos", bug_cat_online:"Online", bug_cat_account:"Cuenta y tienda", bug_cat_other:"Otro",
+  bug_text_ph:"Describe qué pasó y cómo reproducirlo", bug_tech:"Adjuntar datos técnicos", bug_send:"Enviar reporte",
+  bug_short:"Escribe al menos 10 caracteres", bug_sent:"¡Gracias! Reporte enviado",
+  bug_saved:"Guardado en este dispositivo. Se enviará al iniciar sesión", bug_copy:"📋 Copiar reportes guardados",
+  bug_copied:"Copiado", bug_none:"No hay reportes guardados" },
+en:{ promo_title:"PROMO CODES", promo_ph:"Enter your code", promo_btn:"Redeem", promo_empty:"Enter a code",
+  promo_invalid:"Invalid code", promo_expired:"This code has expired", promo_used:"You already redeemed this code", promo_ok:"Code redeemed!",
+  bug_btn:"🐞 Report a bug", bug_title:"🐞 REPORT A BUG", bug_cat:"Category", bug_cat_match:"Match", bug_cat_controls:"Controls",
+  bug_cat_graphics:"Graphics", bug_cat_online:"Online", bug_cat_account:"Account and shop", bug_cat_other:"Other",
+  bug_text_ph:"Describe what happened and how to reproduce it", bug_tech:"Attach technical info", bug_send:"Send report",
+  bug_short:"Write at least 10 characters", bug_sent:"Thanks! Report sent",
+  bug_saved:"Saved on this device. It will be sent when you log in", bug_copy:"📋 Copy saved reports",
+  bug_copied:"Copied", bug_none:"No saved reports" },
+pt:{ promo_title:"CÓDIGOS PROMOCIONAIS", promo_ph:"Digite seu código", promo_btn:"Resgatar", promo_empty:"Digite um código",
+  promo_invalid:"Código inválido", promo_expired:"Este código expirou", promo_used:"Você já resgatou este código", promo_ok:"Código resgatado!",
+  bug_btn:"🐞 Reportar um bug", bug_title:"🐞 REPORTAR BUG", bug_cat:"Categoria", bug_cat_match:"Partida", bug_cat_controls:"Controles",
+  bug_cat_graphics:"Gráficos", bug_cat_online:"Online", bug_cat_account:"Conta e loja", bug_cat_other:"Outro",
+  bug_text_ph:"Descreva o que aconteceu e como reproduzir", bug_tech:"Anexar dados técnicos", bug_send:"Enviar relatório",
+  bug_short:"Escreva pelo menos 10 caracteres", bug_sent:"Obrigado! Relatório enviado",
+  bug_saved:"Salvo neste dispositivo. Será enviado ao entrar", bug_copy:"📋 Copiar relatórios salvos",
+  bug_copied:"Copiado", bug_none:"Nenhum relatório salvo" },
+de:{ promo_title:"AKTIONSCODES", promo_ph:"Code eingeben", promo_btn:"Einlösen", promo_empty:"Gib einen Code ein",
+  promo_invalid:"Ungültiger Code", promo_expired:"Dieser Code ist abgelaufen", promo_used:"Du hast diesen Code schon eingelöst", promo_ok:"Code eingelöst!",
+  bug_btn:"🐞 Bug melden", bug_title:"🐞 BUG MELDEN", bug_cat:"Kategorie", bug_cat_match:"Spiel", bug_cat_controls:"Steuerung",
+  bug_cat_graphics:"Grafik", bug_cat_online:"Online", bug_cat_account:"Konto und Shop", bug_cat_other:"Anderes",
+  bug_text_ph:"Beschreibe, was passiert ist und wie man es reproduziert", bug_tech:"Technische Daten anhängen", bug_send:"Bericht senden",
+  bug_short:"Mindestens 10 Zeichen eingeben", bug_sent:"Danke! Bericht gesendet",
+  bug_saved:"Auf diesem Gerät gespeichert. Wird beim Anmelden gesendet", bug_copy:"📋 Gespeicherte Berichte kopieren",
+  bug_copied:"Kopiert", bug_none:"Keine gespeicherten Berichte" },
+fr:{ promo_title:"CODES PROMO", promo_ph:"Saisissez votre code", promo_btn:"Utiliser", promo_empty:"Saisissez un code",
+  promo_invalid:"Code invalide", promo_expired:"Ce code a expiré", promo_used:"Vous avez déjà utilisé ce code", promo_ok:"Code utilisé !",
+  bug_btn:"🐞 Signaler un bug", bug_title:"🐞 SIGNALER UN BUG", bug_cat:"Catégorie", bug_cat_match:"Match", bug_cat_controls:"Commandes",
+  bug_cat_graphics:"Graphismes", bug_cat_online:"En ligne", bug_cat_account:"Compte et boutique", bug_cat_other:"Autre",
+  bug_text_ph:"Décrivez ce qui est arrivé et comment le reproduire", bug_tech:"Joindre les infos techniques", bug_send:"Envoyer le rapport",
+  bug_short:"Écrivez au moins 10 caractères", bug_sent:"Merci ! Rapport envoyé",
+  bug_saved:"Enregistré sur cet appareil. Envoyé à la connexion", bug_copy:"📋 Copier les rapports enregistrés",
+  bug_copied:"Copié", bug_none:"Aucun rapport enregistré" },
+ja:{ promo_title:"プロモコード", promo_ph:"コードを入力", promo_btn:"使用", promo_empty:"コードを入力してください",
+  promo_invalid:"無効なコードです", promo_expired:"このコードは期限切れです", promo_used:"このコードは使用済みです", promo_ok:"コードを使用しました！",
+  bug_btn:"🐞 バグを報告", bug_title:"🐞 バグ報告", bug_cat:"カテゴリ", bug_cat_match:"試合", bug_cat_controls:"操作",
+  bug_cat_graphics:"画面", bug_cat_online:"オンライン", bug_cat_account:"アカウントとショップ", bug_cat_other:"その他",
+  bug_text_ph:"何が起きたか、再現手順を書いてください", bug_tech:"技術情報を添付", bug_send:"報告を送信",
+  bug_short:"10文字以上入力してください", bug_sent:"ありがとう！報告を送信しました",
+  bug_saved:"このデバイスに保存しました。ログイン時に送信されます", bug_copy:"📋 保存済みの報告をコピー",
+  bug_copied:"コピーしました", bug_none:"保存された報告はありません" },
+zh:{ promo_title:"兑换码", promo_ph:"输入兑换码", promo_btn:"兑换", promo_empty:"请输入兑换码",
+  promo_invalid:"兑换码无效", promo_expired:"该兑换码已过期", promo_used:"你已兑换过此码", promo_ok:"兑换成功！",
+  bug_btn:"🐞 报告 Bug", bug_title:"🐞 报告BUG", bug_cat:"类别", bug_cat_match:"对局", bug_cat_controls:"操作",
+  bug_cat_graphics:"画面", bug_cat_online:"在线", bug_cat_account:"账号与商店", bug_cat_other:"其他",
+  bug_text_ph:"描述发生了什么以及如何复现", bug_tech:"附加技术信息", bug_send:"发送报告",
+  bug_short:"请至少输入10个字符", bug_sent:"谢谢！报告已发送",
+  bug_saved:"已保存在本设备上，登录后发送", bug_copy:"📋 复制已保存的报告",
+  bug_copied:"已复制", bug_none:"没有已保存的报告" }
+};
+Object.keys(LANGS_EXTRA6).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA6[l]); });
+
+const LANGS_EXTRA7 = {
+es:{ acc_stats_title:"📊 ESTADÍSTICAS", acc_played:"Partidas", acc_wins:"Victorias", acc_losses:"Derrotas", acc_rate:"% victorias", acc_goals_for:"Goles marcados", acc_goals_against:"Goles encajados", acc_fav:"Skin favorita", acc_fav_none:"Aún no tienes favorita", acc_fav_count:"Usada en {n} partidas" },
+en:{ acc_stats_title:"📊 STATISTICS", acc_played:"Matches", acc_wins:"Wins", acc_losses:"Losses", acc_rate:"Win rate", acc_goals_for:"Goals scored", acc_goals_against:"Goals conceded", acc_fav:"Favorite skin", acc_fav_none:"No favorite yet", acc_fav_count:"Used in {n} matches" },
+pt:{ acc_stats_title:"📊 ESTATÍSTICAS", acc_played:"Partidas", acc_wins:"Vitórias", acc_losses:"Derrotas", acc_rate:"% vitórias", acc_goals_for:"Gols marcados", acc_goals_against:"Gols sofridos", acc_fav:"Skin favorita", acc_fav_none:"Ainda sem favorita", acc_fav_count:"Usada em {n} partidas" },
+de:{ acc_stats_title:"📊 STATISTIK", acc_played:"Spiele", acc_wins:"Siege", acc_losses:"Niederlagen", acc_rate:"Siegquote", acc_goals_for:"Tore erzielt", acc_goals_against:"Gegentore", acc_fav:"Lieblingsskin", acc_fav_none:"Noch kein Favorit", acc_fav_count:"In {n} Spielen genutzt" },
+fr:{ acc_stats_title:"📊 STATISTIQUES", acc_played:"Matchs", acc_wins:"Victoires", acc_losses:"Défaites", acc_rate:"% victoires", acc_goals_for:"Buts marqués", acc_goals_against:"Buts encaissés", acc_fav:"Skin favorite", acc_fav_none:"Pas encore de favorite", acc_fav_count:"Utilisée dans {n} matchs" },
+ja:{ acc_stats_title:"📊 統計", acc_played:"試合数", acc_wins:"勝利", acc_losses:"敗北", acc_rate:"勝率", acc_goals_for:"得点", acc_goals_against:"失点", acc_fav:"お気に入りスキン", acc_fav_none:"お気に入りはまだありません", acc_fav_count:"{n}試合で使用" },
+zh:{ acc_stats_title:"📊 统计", acc_played:"场次", acc_wins:"胜", acc_losses:"负", acc_rate:"胜率", acc_goals_for:"进球", acc_goals_against:"失球", acc_fav:"最爱皮肤", acc_fav_none:"还没有最爱皮肤", acc_fav_count:"已使用 {n} 场" }
+};
+Object.keys(LANGS_EXTRA7).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA7[l]); });
+const LANGS_EXTRA8 = {
+es:{ skin_hacker:"Anonymous", prem_only_title:"Solo Premium", prem_only_body:"Esta skin es exclusiva para cuentas Premium.", shop_premium_only:"⭐ Premium" },
+en:{ skin_hacker:"Anonymous", prem_only_title:"Premium only", prem_only_body:"This skin is exclusive to Premium accounts.", shop_premium_only:"⭐ Premium" },
+pt:{ skin_hacker:"Anonymous", prem_only_title:"Só Premium", prem_only_body:"Esta skin é exclusiva para contas Premium.", shop_premium_only:"⭐ Premium" },
+de:{ skin_hacker:"Anonymous", prem_only_title:"Nur Premium", prem_only_body:"Dieser Skin ist exklusiv für Premium-Konten.", shop_premium_only:"⭐ Premium" },
+fr:{ skin_hacker:"Anonymous", prem_only_title:"Premium uniquement", prem_only_body:"Ce skin est réservé aux comptes Premium.", shop_premium_only:"⭐ Premium" },
+ja:{ skin_hacker:"Anonymous", prem_only_title:"プレミアム限定", prem_only_body:"このスキンはプレミアムアカウント専用です。", shop_premium_only:"⭐ プレミアム" },
+zh:{ skin_hacker:"Anonymous", prem_only_title:"仅限高级版", prem_only_body:"此皮肤仅限高级账号使用。", shop_premium_only:"⭐ 高级版" }
+};
+Object.keys(LANGS_EXTRA8).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA8[l]); });
+const LANGS_EXTRA9 = {
+es:{ skin_vip:"VIP", shop_vip_only:"👑 VIP", vip_only_title:"Cuenta VIP", vip_only_body:"Esta skin es exclusiva de la cuenta VIP. Hazte VIP desde Mi Cuenta.", vip_buy:"💎 Hacerme VIP", vip_badge:"👑 VIP", vip_login:"Inicia sesión para hacerte VIP", vip_already:"Ya tienes la cuenta VIP", vip_not_ready:"El pago de la cuenta VIP todavía no está configurado", vip_wait:"Completa el pago en la pestaña que se ha abierto. Tu cuenta VIP se activará cuando se confirme el pago." },
+en:{ skin_vip:"VIP", shop_vip_only:"👑 VIP", vip_only_title:"VIP account", vip_only_body:"This skin is exclusive to the VIP account. Get VIP from My Account.", vip_buy:"💎 Get VIP", vip_badge:"👑 VIP", vip_login:"Log in to get VIP", vip_already:"You already have the VIP account", vip_not_ready:"VIP payment is not set up yet", vip_wait:"Complete the payment in the tab that opened. Your VIP account will be activated once the payment is confirmed." },
+pt:{ skin_vip:"VIP", shop_vip_only:"👑 VIP", vip_only_title:"Conta VIP", vip_only_body:"Esta skin é exclusiva da conta VIP. Torne-se VIP em Minha Conta.", vip_buy:"💎 Tornar-me VIP", vip_badge:"👑 VIP", vip_login:"Entre para se tornar VIP", vip_already:"Você já tem a conta VIP", vip_not_ready:"O pagamento VIP ainda não está configurado", vip_wait:"Conclua o pagamento na aba que abriu. Sua conta VIP será ativada quando o pagamento for confirmado." },
+de:{ skin_vip:"VIP", shop_vip_only:"👑 VIP", vip_only_title:"VIP-Konto", vip_only_body:"Dieser Skin ist exklusiv für das VIP-Konto. Werde im Mein Konto VIP.", vip_buy:"💎 VIP werden", vip_badge:"👑 VIP", vip_login:"Melde dich an, um VIP zu werden", vip_already:"Du hast bereits das VIP-Konto", vip_not_ready:"Die VIP-Zahlung ist noch nicht eingerichtet", vip_wait:"Schließe die Zahlung im geöffneten Tab ab. Dein VIP-Konto wird nach der Bestätigung aktiviert." },
+fr:{ skin_vip:"VIP", shop_vip_only:"👑 VIP", vip_only_title:"Compte VIP", vip_only_body:"Ce skin est réservé au compte VIP. Devenez VIP depuis Mon Compte.", vip_buy:"💎 Devenir VIP", vip_badge:"👑 VIP", vip_login:"Connectez-vous pour devenir VIP", vip_already:"Vous avez déjà le compte VIP", vip_not_ready:"Le paiement VIP n'est pas encore configuré", vip_wait:"Terminez le paiement dans l'onglet ouvert. Votre compte VIP sera activé une fois le paiement confirmé." },
+ja:{ skin_vip:"VIP", shop_vip_only:"👑 VIP", vip_only_title:"VIPアカウント", vip_only_body:"このスキンはVIPアカウント専用です。マイアカウントからVIPになれます。", vip_buy:"💎 VIPになる", vip_badge:"👑 VIP", vip_login:"VIPになるにはログインしてください", vip_already:"すでにVIPアカウントです", vip_not_ready:"VIPの支払いはまだ設定されていません", vip_wait:"開いたタブで支払いを完了してください。支払いが確認されるとVIPが有効になります。" },
+zh:{ skin_vip:"VIP", shop_vip_only:"👑 VIP", vip_only_title:"VIP账号", vip_only_body:"此皮肤仅限VIP账号。请在“我的账号”中开通VIP。", vip_buy:"💎 开通VIP", vip_badge:"👑 VIP", vip_login:"请先登录再开通VIP", vip_already:"你已经是VIP账号", vip_not_ready:"VIP付款尚未配置", vip_wait:"请在打开的页面完成付款。付款确认后，VIP账号将自动开通。" }
+};
+Object.keys(LANGS_EXTRA9).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA9[l]); });
+const LANGS_EXTRA10 = {
+es:{ tut_btn:"🎓 Tutorial", tut_title:"🎓 TUTORIAL", tut_prev:"‹ Anterior", tut_next:"Siguiente ›", tut_play:"▶ ¡Jugar!", tut_skip:"Saltar tutorial", tut_stepnum:"Paso {n} de {t}", tut_s1_t:"Mueve tu pala", tut_s1_x:"Sube y baja con W y S, o con las flechas. En el móvil, usa el joystick.", tut_s2_t:"Golpea la pelota", tut_s2_x:"Si la pelota llega a tu pala, tócala y saldrá hacia el rival.", tut_s3_t:"Marca un gol", tut_s3_x:"Si la pelota pasa la pala del rival, ¡es gol para ti!", tut_s4_t:"Gana la partida", tut_s4_x:"Gana quien llega antes a 7 puntos.", tut_s5_t:"Pausa cuando quieras", tut_s5_x:"Pulsa P para pausar y seguir cuando quieras. ¡Ya estás listo!", tut_joy:"JOYSTICK", tut_pts:"PUNTOS PARA GANAR", tut_key_p:"PAUSA", tut_hit:"¡TOCA!", tut_goal:"¡GOL!" },
+en:{ tut_btn:"🎓 Tutorial", tut_title:"🎓 TUTORIAL", tut_prev:"‹ Back", tut_next:"Next ›", tut_play:"▶ Play!", tut_skip:"Skip tutorial", tut_stepnum:"Step {n} of {t}", tut_s1_t:"Move your paddle", tut_s1_x:"Move up and down with W and S, or the arrow keys. On mobile, use the joystick.", tut_s2_t:"Hit the ball", tut_s2_x:"If the ball reaches your paddle, hit it and it will go back to your opponent.", tut_s3_t:"Score a goal", tut_s3_x:"If the ball gets past your opponent's paddle, it's a goal for you!", tut_s4_t:"Win the match", tut_s4_x:"The first to reach 7 points wins.", tut_s5_t:"Pause whenever you want", tut_s5_x:"Press P to pause and resume whenever you like. You're ready!", tut_joy:"JOYSTICK", tut_pts:"POINTS TO WIN", tut_key_p:"PAUSE", tut_hit:"HIT!", tut_goal:"GOAL!" },
+pt:{ tut_btn:"🎓 Tutorial", tut_title:"🎓 TUTORIAL", tut_prev:"‹ Anterior", tut_next:"Próximo ›", tut_play:"▶ Jogar!", tut_skip:"Pular tutorial", tut_stepnum:"Passo {n} de {t}", tut_s1_t:"Mova sua raquete", tut_s1_x:"Suba e desça com W e S, ou com as setas. No celular, use o joystick.", tut_s2_t:"Rebata a bola", tut_s2_x:"Se a bola chegar à sua raquete, rebata e ela vai para o rival.", tut_s3_t:"Marque um gol", tut_s3_x:"Se a bola passar pela raquete do rival, é gol para você!", tut_s4_t:"Vença a partida", tut_s4_x:"Vence quem chega primeiro a 7 pontos.", tut_s5_t:"Pause quando quiser", tut_s5_x:"Pressione P para pausar e continuar quando quiser. Você está pronto!", tut_joy:"JOYSTICK", tut_pts:"PONTOS PARA VENCER", tut_key_p:"PAUSA", tut_hit:"TOQUE!", tut_goal:"GOL!" },
+de:{ tut_btn:"🎓 Tutorial", tut_title:"🎓 TUTORIAL", tut_prev:"‹ Zurück", tut_next:"Weiter ›", tut_play:"▶ Spielen!", tut_skip:"Tutorial überspringen", tut_stepnum:"Schritt {n} von {t}", tut_s1_t:"Bewege deinen Schläger", tut_s1_x:"Bewege dich mit W und S oder den Pfeiltasten nach oben und unten. Am Handy nutzt du den Joystick.", tut_s2_t:"Triff den Ball", tut_s2_x:"Wenn der Ball deinen Schläger erreicht, triff ihn und er geht zum Gegner.", tut_s3_t:"Erziele ein Tor", tut_s3_x:"Wenn der Ball am Schläger des Gegners vorbeigeht, ist es ein Tor für dich!", tut_s4_t:"Gewinne das Spiel", tut_s4_x:"Wer zuerst 7 Punkte erreicht, gewinnt.", tut_s5_t:"Pausiere, wann du willst", tut_s5_x:"Drücke P zum Pausieren und Weitermachen, wann du willst. Du bist bereit!", tut_joy:"JOYSTICK", tut_pts:"PUNKTE ZUM GEWINNEN", tut_key_p:"PAUSE", tut_hit:"TREFFER!", tut_goal:"TOR!" },
+fr:{ tut_btn:"🎓 Tutoriel", tut_title:"🎓 TUTORIEL", tut_prev:"‹ Précédent", tut_next:"Suivant ›", tut_play:"▶ Jouer !", tut_skip:"Passer le tutoriel", tut_stepnum:"Étape {n} sur {t}", tut_s1_t:"Déplacez votre raquette", tut_s1_x:"Montez et descendez avec W et S, ou les flèches. Sur mobile, utilisez le joystick.", tut_s2_t:"Frappez la balle", tut_s2_x:"Si la balle atteint votre raquette, frappez-la : elle repart vers l'adversaire.", tut_s3_t:"Marquez un but", tut_s3_x:"Si la balle dépasse la raquette adverse, c'est un but pour vous !", tut_s4_t:"Gagnez le match", tut_s4_x:"Le premier à 7 points gagne.", tut_s5_t:"Mettez en pause quand vous voulez", tut_s5_x:"Appuyez sur P pour mettre en pause et reprendre quand vous voulez. Vous êtes prêt !", tut_joy:"JOYSTICK", tut_pts:"POINTS POUR GAGNER", tut_key_p:"PAUSE", tut_hit:"TOUCHE !", tut_goal:"BUT !" },
+ja:{ tut_btn:"🎓 チュートリアル", tut_title:"🎓 チュートリアル", tut_prev:"‹ 戻る", tut_next:"次へ ›", tut_play:"▶ プレイ！", tut_skip:"チュートリアルをスキップ", tut_stepnum:"ステップ {n}/{t}", tut_s1_t:"パドルを動かす", tut_s1_x:"WとSか矢印キーで上下に動かします。スマホではジョイスティックを使います。", tut_s2_t:"ボールを打つ", tut_s2_x:"ボールが来たらパドルで打ち返します。相手の方へ飛んでいきます。", tut_s3_t:"ゴールを決める", tut_s3_x:"ボールが相手のパドルを抜けたら、あなたの得点です！", tut_s4_t:"試合に勝つ", tut_s4_x:"先に7点に達した方の勝ちです。", tut_s5_t:"いつでも一時停止", tut_s5_x:"Pキーで一時停止、もう一度押すと再開します。準備完了です！", tut_joy:"ジョイスティック", tut_pts:"勝利に必要な点数", tut_key_p:"ポーズ", tut_hit:"ヒット！", tut_goal:"ゴール！" },
+zh:{ tut_btn:"🎓 教程", tut_title:"🎓 教程", tut_prev:"‹ 上一步", tut_next:"下一步 ›", tut_play:"▶ 开始！", tut_skip:"跳过教程", tut_stepnum:"第 {n} 步，共 {t} 步", tut_s1_t:"移动你的球拍", tut_s1_x:"用W和S或方向键上下移动。手机上用摇杆。", tut_s2_t:"击打球", tut_s2_x:"球到你的球拍时击打它，它会飞向对手。", tut_s3_t:"进球", tut_s3_x:"球越过对手的球拍，就是你的进球！", tut_s4_t:"赢得比赛", tut_s4_x:"先得到7分的人获胜。", tut_s5_t:"随时暂停", tut_s5_x:"按P暂停，随时继续。你准备好了！", tut_joy:"摇杆", tut_pts:"获胜所需分数", tut_key_p:"暂停", tut_hit:"击中！", tut_goal:"进球！" }
+};
+Object.keys(LANGS_EXTRA10).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA10[l]); });
+const LANGS_EXTRA11 = {
+es:{ tut_rep:"Mira el ejemplo ({n}/{t})", tut_turn:"¡Tu turno!", tut_ok:"¡Muy bien!", tut_hint1:"Arrastra tu pala con el dedo (o usa W y S) hasta cada punto verde.", tut_hint2:"Toca la pelota con tu pala 3 veces.", tut_hint3:"Haz que la pelota pase la pala azul: ¡1 gol!", tut_hint4:"Consigue 2 puntos para practicar (en la partida real son 7).", tut_hint5:"Pulsa P (o el botón ⏸) dos veces: una para pausar y otra para seguir.", tut_hits:"Golpes: {n}/3", tut_pts_c:"Puntos: {a} – {b}", tut_targets_c:"Puntos tocados: {n}/3", tut_pause_btn:"⏸ Pausa", tut_resume_btn:"▶ Seguir", tut_end:"¡Has terminado el tutorial!", tut_s1_x:"Sube y baja con W y S, con las flechas, o arrastrando tu pala con el dedo (joystick)." },
+en:{ tut_rep:"Watch the example ({n}/{t})", tut_turn:"Your turn!", tut_ok:"Well done!", tut_hint1:"Drag your paddle with your finger (or use W and S) to each green dot.", tut_hint2:"Hit the ball with your paddle 3 times.", tut_hint3:"Make the ball get past the blue paddle: 1 goal!", tut_hint4:"Score 2 points to practice (a real match is 7).", tut_hint5:"Press P (or the ⏸ button) twice: once to pause, once to resume.", tut_hits:"Hits: {n}/3", tut_pts_c:"Points: {a} – {b}", tut_targets_c:"Dots touched: {n}/3", tut_pause_btn:"⏸ Pause", tut_resume_btn:"▶ Resume", tut_end:"Tutorial complete!", tut_s1_x:"Move up and down with W and S, the arrow keys, or drag your paddle with your finger (joystick)." },
+pt:{ tut_rep:"Veja o exemplo ({n}/{t})", tut_turn:"Sua vez!", tut_ok:"Muito bem!", tut_hint1:"Arraste sua raquete com o dedo (ou use W e S) até cada ponto verde.", tut_hint2:"Rebata a bola com sua raquete 3 vezes.", tut_hint3:"Faça a bola passar pela raquete azul: 1 gol!", tut_hint4:"Marque 2 pontos para praticar (na partida real são 7).", tut_hint5:"Pressione P (ou o botão ⏸) duas vezes: uma para pausar e outra para continuar.", tut_hits:"Toques: {n}/3", tut_pts_c:"Pontos: {a} – {b}", tut_targets_c:"Pontos tocados: {n}/3", tut_pause_btn:"⏸ Pausar", tut_resume_btn:"▶ Continuar", tut_end:"Tutorial concluído!", tut_s1_x:"Suba e desça com W e S, com as setas, ou arrastando sua raquete com o dedo (joystick)." },
+de:{ tut_rep:"Schau dir das Beispiel an ({n}/{t})", tut_turn:"Du bist dran!", tut_ok:"Sehr gut!", tut_hint1:"Zieh deinen Schläger mit dem Finger (oder nutze W und S) zu jedem grünen Punkt.", tut_hint2:"Triff den Ball 3-mal mit deinem Schläger.", tut_hint3:"Bring den Ball am blauen Schläger vorbei: 1 Tor!", tut_hint4:"Erziele 2 Punkte zum Üben (im echten Spiel sind es 7).", tut_hint5:"Drücke P (oder ⏸) zweimal: einmal zum Pausieren, einmal zum Weitermachen.", tut_hits:"Treffer: {n}/3", tut_pts_c:"Punkte: {a} – {b}", tut_targets_c:"Berührte Punkte: {n}/3", tut_pause_btn:"⏸ Pause", tut_resume_btn:"▶ Weiter", tut_end:"Tutorial abgeschlossen!", tut_s1_x:"Bewege dich mit W und S, mit den Pfeiltasten, oder ziehe deinen Schläger mit dem Finger (Joystick)." },
+fr:{ tut_rep:"Regardez l'exemple ({n}/{t})", tut_turn:"À vous !", tut_ok:"Bravo !", tut_hint1:"Glissez votre raquette du doigt (ou utilisez W et S) jusqu'à chaque point vert.", tut_hint2:"Frappez la balle 3 fois avec votre raquette.", tut_hint3:"Faites passer la balle devant la raquette bleue : 1 but !", tut_hint4:"Marquez 2 points pour vous entraîner (en match réel, c'est 7).", tut_hint5:"Appuyez deux fois sur P (ou ⏸) : une pour pauser, une pour reprendre.", tut_hits:"Touches : {n}/3", tut_pts_c:"Points : {a} – {b}", tut_targets_c:"Points touchés : {n}/3", tut_pause_btn:"⏸ Pause", tut_resume_btn:"▶ Reprendre", tut_end:"Tutoriel terminé !", tut_s1_x:"Montez et descendez avec W et S, avec les flèches, ou en glissant votre raquette du doigt (joystick)." },
+ja:{ tut_rep:"例を見る（{n}/{t}）", tut_turn:"あなたの番！", tut_ok:"よくできました！", tut_hint1:"指でパドルをドラッグ（またはWとS）して、緑の点まで動かそう。", tut_hint2:"パドルでボールを3回打とう。", tut_hint3:"青いパドルを抜けるようにボールを打とう：1ゴール！", tut_hint4:"練習として2点取ろう（実際の試合は7点）。", tut_hint5:"Pキー（または⏸）を2回押そう：一時停止と再開。", tut_hits:"ヒット: {n}/3", tut_pts_c:"得点: {a} – {b}", tut_targets_c:"触れた点: {n}/3", tut_pause_btn:"⏸ ポーズ", tut_resume_btn:"▶ 再開", tut_end:"チュートリアル完了！", tut_s1_x:"WとS、矢印キー、またはパドルを指でドラッグ（ジョイスティック）で上下に動かします。" },
+zh:{ tut_rep:"看示例（{n}/{t}）", tut_turn:"轮到你了！", tut_ok:"很好！", tut_hint1:"用手指拖动球拍（或用W和S）移动到每个绿点。", tut_hint2:"用球拍击球3次。", tut_hint3:"让球越过蓝色球拍：1球！", tut_hint4:"练习：得2分（真实比赛是7分）。", tut_hint5:"按两次P（或⏸）：一次暂停，一次继续。", tut_hits:"击球：{n}/3", tut_pts_c:"得分：{a} – {b}", tut_targets_c:"触到的点：{n}/3", tut_pause_btn:"⏸ 暂停", tut_resume_btn:"▶ 继续", tut_end:"教程完成！", tut_s1_x:"用W和S、方向键上下移动，或用手指拖动球拍（摇杆）。" }
+};
+Object.keys(LANGS_EXTRA11).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA11[l]); });
+const LANGS_EXTRA4 = {
+es:{ pw_big:"Paleta grande", pw_fast:"Paleta rápida", pw_slow:"Paleta lenta", pw_small:"Paleta pequeña", pw_got:"¡{p} consigue {n}!" },
+en:{ pw_big:"Big paddle", pw_fast:"Fast paddle", pw_slow:"Slow paddle", pw_small:"Small paddle", pw_got:"{p} gets {n}!" },
+pt:{ pw_big:"Raquete grande", pw_fast:"Raquete rápida", pw_slow:"Raquete lenta", pw_small:"Raquete pequena", pw_got:"{p} pega {n}!" },
+de:{ pw_big:"Großer Schläger", pw_fast:"Schneller Schläger", pw_slow:"Langsamer Schläger", pw_small:"Kleiner Schläger", pw_got:"{p} holt sich {n}!" },
+fr:{ pw_big:"Raquette géante", pw_fast:"Raquette rapide", pw_slow:"Raquette lente", pw_small:"Petite raquette", pw_got:"{p} obtient {n} !" },
+ja:{ pw_big:"大きいパドル", pw_fast:"速いパドル", pw_slow:"遅いパドル", pw_small:"小さいパドル", pw_got:"{p}が{n}を獲得！" },
+zh:{ pw_big:"大球拍", pw_fast:"快速球拍", pw_slow:"慢速球拍", pw_small:"小球拍", pw_got:"{p} 获得 {n}！" }
+};
+Object.keys(LANGS_EXTRA4).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA4[l]); });
+
+
+
+function tf(key, vars){
+  let s=t(key);
+  Object.keys(vars||{}).forEach(k=>{ s=s.split('{'+k+'}').join(vars[k]); });
+  return s;
+}
+function skinLabel(s){ return (LANGS[currentLang]&&LANGS[currentLang][s.k])||s.l; }
+
+// ── Color de pelota y confeti por skin ───────────────────────────────────────
+// [centro, borde, brillo (RGB), sombra]
+const SKIN_BALL = {
+  skin_default:['#ffe88a','#ffaa00','255,255,200','#ffe44d'],
+  skin_fire:['#ffd060','#ff4400','255,140,40','#ff6600'],
+  skin_neon:['#aaffee','#00ffcc','0,255,204','#00ffcc'],
+  skin_gold:['#fff2a0','#e0a800','255,215,0','#ffd700'],
+  skin_nature:['#b8f090','#3fae2a','120,220,90','#55cc44'],
+  skin_ice:['#d8f4ff','#5ec8ff','150,220,255','#88ddff'],
+  skin_dark:['#d9a8ff','#8a22e0','187,68,255','#bb44ff'],
+  skin_pastel:['#ffd0e0','#ff7fa8','255,153,187','#ff99bb'],
+  skin_sport:['#ffd0a0','#ff5a00','255,120,40','#ff4400'],
+  skin_ninja:['#ff9a9a','#b30000','204,0,0','#cc0000'],
+  skin_soccer:['#ffffff','#bdbdbd','235,235,235','#ffffff'],
+  skin_robot:['#fff0a0','#e0b000','255,204,0','#ffcc00'],
+  skin_retro:['#a0ffb0','#00c83c','0,255,68','#00ff44'],
+  skin_ocean:['#a0e8ff','#0aa0e0','0,204,255','#00ccff'],
+  skin_lava:['#ffc070','#ff3300','255,90,20','#ff2200'],
+  skin_electric:['#ffff90','#e6e600','255,255,0','#ffff00'],
+  skin_ghost:['#f4f4ff','#b8b8e8','220,220,255','#eeeeff'],
+  skin_dragon:['#ffd878','#e03c00','255,120,0','#ff4400'],
+  skin_cosmic:['#d8a0ff','#9000ff','180,60,255','#8800ff'],
+  skin_aurora:['#90ffd0','#e000b0','0,255,160','#00ff88'],
+  skin_legendary:['#fff0a0','#ffb400','255,215,0','#ffd700'],
+  skin_hacker:['#ffffff','#c8ccd4','225,230,240','#e6eaf0'],
+  skin_vip:['#fffbe0','#d4a017','255,215,0','#ffd700']
+};
+// La pelota lleva los colores de quien la golpeó por última vez (vx>0 viene de la izquierda = J1)
+function ballPalette(){
+  const sk=ALL_SKINS[(ball && ball.vx<0) ? skin2 : skin1];
+  return SKIN_BALL[sk && sk.k] || SKIN_BALL.skin_default;
+}
+function goalColors(scorer){
+  const sk=ALL_SKINS[scorer===1?skin1:skin2];
+  if(!sk || sk.k==='skin_default') return null;         // la skin base mantiene el confeti arcoíris
+  const pal=SKIN_BALL[sk.k]||SKIN_BALL.skin_default;
+  const side=scorer===1?sk.a:sk.b;
+  return [side, pal[0], pal[1], '#ffffff', side];
+}
+
+// ── Perfil del jugador (local o nube) ────────────────────────────────────────
+function defaultProfile(){
+  return { coins:0, gems:0, unlockedSkins:['skin_default'], selectedSkin1:'skin_default', selectedSkin2:'skin_default', isPremium:false, isVip:false, missions:{}, redeemed:[], stats:{played:0,wins:0,losses:0,goalsFor:0,goalsAgainst:0}, skinUse:{} };
+}
+function sanitizeProfile(p){
+  const known=new Set(ALL_SKINS.map(s=>s.k));
+  p.coins=Math.max(0,Math.floor(Number(p.coins)||0));
+  p.gems=Math.max(0,Math.floor(Number(p.gems)||0));
+  p.unlockedSkins=Array.from(new Set(['skin_default'].concat(Array.isArray(p.unlockedSkins)?p.unlockedSkins.filter(k=>known.has(k)):[])));
+  ['selectedSkin1','selectedSkin2'].forEach(f=>{
+    const s=ALL_SKINS.find(x=>x.k===p[f]);
+    if(!s || !(s.currency==='free' || (s.currency==='premium' ? !!p.isPremium : (s.currency==='vip' ? !!p.isVip : p.unlockedSkins.includes(s.k))))) p[f]='skin_default';
+  });
+  p.isPremium=!!p.isPremium;
+  p.redeemed=Array.isArray(p.redeemed) ? p.redeemed.filter(x=>typeof x==='string').slice(0,200) : [];
+  const st=(p.stats && typeof p.stats==='object') ? p.stats : {};
+  p.stats={played:Math.max(0,+st.played||0), wins:Math.max(0,+st.wins||0), losses:Math.max(0,+st.losses||0), goalsFor:Math.max(0,+st.goalsFor||0), goalsAgainst:Math.max(0,+st.goalsAgainst||0)};
+  const su=(p.skinUse && typeof p.skinUse==='object') ? p.skinUse : {};
+  p.skinUse={}; Object.keys(su).forEach(k=>{ if(typeof su[k]==='number' && su[k]>0) p.skinUse[k]=Math.floor(su[k]); });
+  return p;
+}
+function loadLocalProfile(){
+  let raw=null;
+  try{ raw=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null'); }catch(e){ raw=null; }
+  const p=Object.assign(defaultProfile(), (raw && typeof raw==='object') ? raw : {});
+  p.isPremium=false; p.isVip=false;   // Premium y VIP solo pueden venir de una cuenta (antes de limpiar las skins)
+  sanitizeProfile(p);
+  delete p.displayName;
+  playerData=p;
+}
+function saveLocalProfile(){
+  try{
+    localStorage.setItem(PROFILE_KEY, JSON.stringify({
+      coins:playerData.coins||0, gems:playerData.gems||0,
+      unlockedSkins:playerData.unlockedSkins||['skin_default'],
+      selectedSkin1:playerData.selectedSkin1, selectedSkin2:playerData.selectedSkin2,
+    missions:playerData.missions||{}, redeemed:playerData.redeemed||[], stats:playerData.stats||{}, skinUse:playerData.skinUse||{}
+  }));
+  }catch(e){}
+}
+async function loadPlayerData(){
+  if(!currentUser||!FB_OK) return;
+  cloudOk=false;
+  const guest=Object.assign({}, playerData);               // progreso de este dispositivo
+  try{
+    const snap=await db.collection('players').doc(currentUser.uid).get();
+    if(snap.exists){
+      playerData=sanitizeProfile(Object.assign(defaultProfile(), snap.data()));
+    } else {                                               // cuenta nueva: se lleva el progreso local
+      playerData=sanitizeProfile(Object.assign(defaultProfile(), guest));
+      playerData.displayName=pendingDisplayName || String(currentUser.email||'').split('@')[0];
+      playerData.isPremium=false;
+      pendingDisplayName='';
+      await db.collection('players').doc(currentUser.uid).set(playerData,{merge:true});
+    }
+    cloudOk=true;
+  }catch(e){ console.error('loadPlayerData:',e); }
+}
+async function savePlayerData(){
+  if(FB_OK && currentUser && cloudOk){
+    try{ await db.collection('players').doc(currentUser.uid).set(playerData,{merge:true}); }
+    catch(e){ console.error('savePlayerData:',e); }
+  } else {
+    saveLocalProfile();
+  }
+}
+function isSkinOwned(s){
+  return !!s && (s.currency==='free' || (s.currency==='premium' ? !!playerData.isPremium : (s.currency==='vip' ? !!playerData.isVip : (playerData.unlockedSkins||[]).includes(s.k))));
+}
+function applyPlayerSkins(){
+  const s1=ALL_SKINS.findIndex(s=>s.k===playerData.selectedSkin1);
+  const s2=ALL_SKINS.findIndex(s=>s.k===playerData.selectedSkin2);
+  skin1=(s1>=0 && isSkinOwned(ALL_SKINS[s1])) ? s1 : 0;
+  skin2=(s2>=0 && isSkinOwned(ALL_SKINS[s2])) ? s2 : 0;
+  skin=skin1;
+}
+// which: 1 = solo J1, 2 = solo J2, undefined = ambos
+function equipSkin(k, which){
+  const idx=ALL_SKINS.findIndex(x=>x.k===k);
+  if(idx<0 || !isSkinOwned(ALL_SKINS[idx])) return;
+  if(which===undefined) which=1;                       // por defecto solo tu skin: la de la IA no se toca
+  if(which!==2){ skin1=idx; playerData.selectedSkin1=k; }
+  if(which!==1){ skin2=idx; playerData.selectedSkin2=k; }
+  skin=skin1;
+  savePlayerData();
+}
+
+// ── Cuentas (solo si ACCOUNTS_ENABLED y Firebase cargó) ──────────────────────
+function setAccountBtn(text, logged){
+  document.querySelectorAll('.accountBtn').forEach(b=>{
+    b.textContent=text;
+    b.classList.toggle('logged', !!logged);
+  });
+}
+function refreshAccountBtn(){
+  if(currentUser) setAccountBtn('👤 '+(playerData.displayName||String(currentUser.email||'').split('@')[0]), true);
+  else setAccountBtn(t('acc_btn'), false);
+}
+function updateCurrencyDisplay(){
+  ['curCoins','accCoins','shopCoins'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=playerData.coins||0; });
+  ['curGems','accGems','shopGems'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=playerData.gems||0; });
+}
+if(FB_OK){
+  auth.onAuthStateChanged(async user=>{
+    currentUser=user;
+    try{
+      if(user){ await loadPlayerData(); }
+      else { cloudOk=false; loadLocalProfile(); }      // al cerrar sesión se vuelve al progreso del dispositivo
+      applyPlayerSkins();
+      refreshAccountBtn();
+      updateCurrencyDisplay();
+      buildSkins();
+      renderAccountScreen();
+      flushBugQueue();
+    }catch(e){ console.error('auth state:',e); }
+  });
+}
+
+// ── Ventana propia (alert/confirm fallan en móvil y en vistas previas) ───────
+function uiModal(html, buttons){
+  const m=document.createElement('div');
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  const box=document.createElement('div');
+  box.style.cssText='background:#111318;border:2px solid #ffe44d;border-radius:14px;padding:24px 26px;width:min(320px,86vw);text-align:center;font-family:Orbitron,monospace;';
+  box.innerHTML=html;
+  const row=document.createElement('div');
+  row.style.cssText='display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap;';
+  (buttons||[{label:t('ok')}]).forEach((b,i)=>{
+    const btn=document.createElement('button');
+    btn.textContent=b.label;
+    btn.style.cssText='font-family:Orbitron,monospace;font-size:.62rem;font-weight:700;padding:9px 16px;border-radius:8px;cursor:pointer;'+
+      (i===0 ? 'background:#ffe44d;border:none;color:#111;' : 'background:transparent;border:2px solid #555;color:#aaa;');
+    btn.onclick=()=>{ m.remove(); if(b.onClick) b.onClick(); };
+    row.appendChild(btn);
+  });
+  box.appendChild(row); m.appendChild(box); document.body.appendChild(m);
+}
+
+// ── Recompensas (para todos: con o sin cuenta) ───────────────────────────────
+function humanWonThisMatch(winner){
+  if(mode==='online') return (netRole==='host'&&winner===1)||(netRole==='guest'&&winner===2);
+  if(mode==='tourn'){
+    // endMatch ya avanzó trnMatchIdx: el partido jugado es el anterior
+    const fx=trnFixtures[trnMatchIdx>0?trnMatchIdx-1:0];
+    if(!fx) return false;
+    const pl=trnPlayers[winner===1?fx.i:fx.j];
+    return !!pl && !pl.isCpu;
+  }
+  return winner===1; // 1 jugador y local: J1 es el jugador principal
+}
+function awardMatchReward(isWinner, isTournament){
+  if(!isWinner||window.noProgress) return;
+  const coins = isTournament ? 0 : Math.floor(Math.random()*15)+10;
+  const gems  = isTournament ? Math.floor(Math.random()*3)+2 : 0;
+  playerData.coins=(playerData.coins||0)+coins;
+  playerData.gems=(playerData.gems||0)+gems;
+  updateCurrencyDisplay();
+  savePlayerData();                 // sin await: no bloquea la pantalla aunque no haya red
+  setTimeout(()=>{                  // cuando endMatch ya terminó de pintar su pantalla
+    const el=document.getElementById('wReward');
+    if(el){ el.style.display='block'; el.textContent = isTournament ? '+'+gems+' 💎 Exclusives' : '+'+coins+' 🪙 CoinClothes'; }
+    const pop=document.createElement('div');
+    pop.className='reward-pop';
+    pop.innerHTML='<div class="reward-title">'+(isTournament?t('rw_tourn'):t('rw_win'))+'</div>'+
+      '<div class="reward-amt" style="color:'+(isTournament?'#aa44ff':'#ffe44d')+'">'+(isTournament?'+'+gems+' 💎':'+'+coins+' 🪙')+'</div>';
+    document.body.appendChild(pop);
+    setTimeout(()=>pop.remove(),2800);
+  },0);
+}
+
+// ── Pantalla Mi Cuenta ───────────────────────────────────────────────────────
+function switchAccTab(tab){
+  accTabMode=tab;
+  document.getElementById('tabLogin').classList.toggle('on',tab==='login');
+  document.getElementById('tabReg').classList.toggle('on',tab==='register');
+  document.getElementById('accSubmit').textContent=t(tab==='login'?'acc_login':'acc_register');
+  document.getElementById('accUser').style.display=tab==='register'?'':'none';
+  document.getElementById('accErr').textContent='';
+}
+// Estadísticas de la cuenta: partidas, victorias, derrotas, goles y skin más usada
+function statsOnMatchEnd(winner){
+  if(window.noProgress) return;
+  const me=mySide(); if(!me) return;
+  const s=Object.assign({played:0,wins:0,losses:0,goalsFor:0,goalsAgainst:0}, playerData.stats||{});
+  s.played++;
+  if(winner===me) s.wins++; else s.losses++;
+  s.goalsFor+=mStat.goals; s.goalsAgainst+=mStat.conceded;
+  playerData.stats=s;
+  const k=playerData.selectedSkin1||'skin_default';
+  const su=Object.assign({}, playerData.skinUse||{});
+  su[k]=(su[k]||0)+1;
+  playerData.skinUse=su;
+  savePlayerData();
+  refreshAccountStatsIfOpen();
+}
+function favoriteSkin(){
+  const use=playerData.skinUse||{}; let best=null, n=0;
+  Object.keys(use).forEach(k=>{ if(use[k]>n){ n=use[k]; best=k; } });
+  return best ? {k:best, n:n} : null;
+}
+function renderAccountStats(){
+  const vb=document.getElementById('accVipBtn'), vg=document.getElementById('accVipBadge');
+  if(vb) vb.style.display = playerData.isVip ? 'none' : '';
+  if(vg) vg.style.display = playerData.isVip ? '' : 'none';
+  const s=Object.assign({played:0,wins:0,losses:0,goalsFor:0,goalsAgainst:0}, playerData.stats||{});
+  const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
+  set('accPlayed', s.played); set('accWins', s.wins); set('accLosses', s.losses);
+  set('accRate', s.played ? Math.round(s.wins/s.played*100)+'%' : '0%');
+  set('accGoalsFor', s.goalsFor); set('accGoalsAgainst', s.goalsAgainst);
+  const fav=favoriteSkin(), sk=fav ? ALL_SKINS.find(x=>x.k===fav.k) : null;
+  const sw=document.getElementById('accFavSwatch');
+  if(sk){
+    if(sw) sw.style.background='linear-gradient(160deg,'+sk.a+' 40%,'+sk.b+' 100%)';
+    set('accFavName', skinLabel(sk)); set('accFavCount', tf('acc_fav_count',{n:fav.n}));
+  } else {
+    if(sw) sw.style.background='#222';
+    set('accFavName', t('acc_fav_none')); set('accFavCount','');
+  }
+}
+function refreshAccountStatsIfOpen(){
+  const s=document.getElementById('sAccount');
+  if(s && !s.classList.contains('hidden') && currentUser) renderAccountStats();
+}
+// ── Cuenta VIP (pago real) ──────────────────────────────────────────────────
+// Pega aquí el enlace de tu pasarela de pago. Vacío = el botón avisa de que aún no está configurado.
+const VIP_CHECKOUT_URL = '';
+// La confirmación del pago la hace tu servidor (webhook) y ahí se marca isVip=true en players/{uid}.
+// El cliente nunca se hace VIP por sí mismo.
+function buyVipAccount(){
+  if(!currentUser){ uiModal('<div style="color:#ffe44d;font-weight:700;font-size:.8rem">'+t('vip_login')+'</div>',[{label:t('ok')}]); return; }
+  if(playerData.isVip){ uiModal('<div style="color:#ffd700;font-weight:700;font-size:.8rem">'+t('vip_already')+'</div>',[{label:t('ok')}]); return; }
+  if(!VIP_CHECKOUT_URL){ uiModal('<div style="color:#ffe44d;font-weight:700;font-size:.8rem">'+t('vip_not_ready')+'</div>',[{label:t('ok')}]); return; }
+  window.open(VIP_CHECKOUT_URL+(VIP_CHECKOUT_URL.indexOf('?')>=0?'&':'?')+'client_reference_id='+encodeURIComponent(currentUser.uid), '_blank');
+  uiModal('<div style="color:#ffd700;font-weight:700;font-size:.8rem;line-height:1.5">'+t('vip_wait')+'</div>',[{label:t('ok')}]);
+}
+function renderAccountScreen(){
+  const un=document.getElementById('accUnavailable');
+  const guest=document.getElementById('accGuest'), logged=document.getElementById('accLogged');
+  if(!guest||!logged) return;
+  if(!FB_OK){
+    guest.style.display='none'; logged.style.display='none';
+    if(un){ un.style.display='block'; un.textContent=t(window.ACCOUNTS_ENABLED?'acc_unavailable':'acc_soon'); }
+    return;
+  }
+  if(un) un.style.display='none';
+  if(currentUser){
+    guest.style.display='none'; logged.style.display='flex';
+    renderAccountStats();
+    document.getElementById('accUsername').textContent=playerData.displayName||String(currentUser.email||'').split('@')[0];
+    document.getElementById('accPremiumBadge').style.display=playerData.isPremium?'':'none';
+    document.getElementById('accNormalBadge').style.display=playerData.isPremium?'none':'';
+    updateCurrencyDisplay();
+  } else {
+    guest.style.display=''; logged.style.display='none';
+  }
+}
+async function accSubmit(){
+  const errEl=document.getElementById('accErr');
+  errEl.textContent='';
+  if(!FB_OK){ errEl.textContent=t('acc_unavailable'); return; }
+  const email=document.getElementById('accEmail').value.trim();
+  const pass=document.getElementById('accPass').value;
+  const uname=document.getElementById('accUser').value.trim();
+  if(!email||!pass){ errEl.textContent=t('acc_err_fill'); return; }
+  if(accTabMode==='register' && !uname){ errEl.textContent=t('acc_err_name'); return; }
+  const btn=document.getElementById('accSubmit');
+  btn.textContent='…'; btn.disabled=true;
+  try{
+    if(accTabMode==='register'){
+      pendingDisplayName=uname.slice(0,16);
+      await auth.createUserWithEmailAndPassword(email,pass);
+    } else {
+      await auth.signInWithEmailAndPassword(email,pass);
+    }
+    document.getElementById('accPass').value='';
+  }catch(e){
+    const map={
+      'auth/email-already-in-use':'acc_e_inuse','auth/invalid-email':'acc_e_email','auth/weak-password':'acc_e_weak',
+      'auth/user-not-found':'acc_e_cred','auth/wrong-password':'acc_e_cred','auth/invalid-credential':'acc_e_cred',
+      'auth/too-many-requests':'acc_e_many','auth/network-request-failed':'acc_e_net','auth/operation-not-allowed':'acc_e_notallowed'
+    };
+    errEl.textContent = map[e.code] ? t(map[e.code]) : (t('acc_e_generic')+': '+(e.code||e.message));
+  }finally{
+    btn.textContent=t(accTabMode==='login'?'acc_login':'acc_register'); btn.disabled=false;
+  }
+}
+async function accLogout(){
+  if(FB_OK){ try{ await auth.signOut(); }catch(e){ console.error(e); } }
+  renderAccountScreen();
+}
+
+// ── Tienda ───────────────────────────────────────────────────────────────────
+function switchShopTab(tab){
+  shopTabCurrent=tab;
+  document.querySelectorAll('.shop-tab').forEach((b,i)=>b.classList.toggle('on',['all','free','coin','gem'][i]===tab));
+  buildShopGrid();
+}
+function previewRR(c,x,y,w,h,r){
+  c.beginPath();
+  c.moveTo(x+r,y); c.lineTo(x+w-r,y); c.quadraticCurveTo(x+w,y,x+w,y+r);
+  c.lineTo(x+w,y+h-r); c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  c.lineTo(x+r,y+h); c.quadraticCurveTo(x,y+h,x,y+h-r);
+  c.lineTo(x,y+r); c.quadraticCurveTo(x,y,x+r,y); c.closePath();
+}
+function shopSellValue(s){ return Math.floor(s.price*0.5); }     // se devuelve el 50 % del precio
+
+function buildShopGrid(){
+  const grid=document.getElementById('shopGrid');
+  if(!grid) return;
+  grid.innerHTML='';
+  const selK=(ALL_SKINS[skin1]||ALL_SKINS[0]).k;
+  ALL_SKINS.filter(s=>shopTabCurrent==='all' || s.currency===shopTabCurrent).forEach(s=>{
+    const owned=isSkinOwned(s);
+    const card=document.createElement('div');
+    card.className='shop-card'+(selK===s.k?' selected-card':'')+(owned?' unlocked':' locked');
+
+    const cv=document.createElement('canvas');
+    cv.width=36; cv.height=80; cv.className='shop-preview';
+    const c2=cv.getContext('2d');
+    if(c2){
+      const g=c2.createLinearGradient(0,0,0,80);
+      g.addColorStop(0,s.a); g.addColorStop(1,s.b);
+      c2.fillStyle=g;
+      if(s.shape==='flame'){
+        c2.beginPath(); c2.moveTo(18,2); c2.bezierCurveTo(36,20,36,40,34,60); c2.bezierCurveTo(28,76,8,76,2,60); c2.bezierCurveTo(0,40,0,20,18,2); c2.fill();
+      } else {
+        previewRR(c2,2,2,32,76,(s.shape==='pill'||s.shape==='thin')?14:8); c2.fill();
+      }
+      const gl=c2.createRadialGradient(18,40,0,18,40,20);
+      gl.addColorStop(0,'rgba(255,255,255,.25)'); gl.addColorStop(1,'rgba(255,255,255,0)');
+      c2.fillStyle=gl; c2.fillRect(0,0,36,80);
+    }
+
+    const icon=s.currency==='coin'?'🪙':'💎';
+    const nm=document.createElement('div'); nm.className='shop-name'; nm.textContent=skinLabel(s);
+    const pr=document.createElement('div');
+    pr.className='shop-price '+((s.currency==='free'||owned)?'free':s.currency);
+    pr.textContent = s.currency==='free' ? t('shop_price_free') : owned ? t('shop_owned') : (s.currency==='premium' ? t('shop_premium_only') : (s.currency==='vip' ? t('shop_vip_only') : icon+' '+s.price));
+    card.appendChild(cv); card.appendChild(nm); card.appendChild(pr);
+    if(selK===s.k){ const ck=document.createElement('div'); ck.className='shop-check'; ck.textContent='✓'; card.appendChild(ck); }
+    else if(!owned){ const lk=document.createElement('div'); lk.className='shop-lock'; lk.textContent='🔒'; card.appendChild(lk); }
+
+    if(owned && s.currency!=='free' && s.currency!=='premium' && s.currency!=='vip'){                       // vender (solo skins de pago que ya tienes)
+      const sb=document.createElement('button');
+      sb.className='shop-sell';
+      sb.textContent='💰 '+shopSellValue(s)+' '+icon;
+      sb.title=t('shop_sell');
+      sb.onclick=ev=>{ ev.stopPropagation(); shopConfirmSell(s); };
+      card.appendChild(sb);
+    }
+
+    card.onclick=()=>{
+      if(owned){ equipSkin(s.k); buildShopGrid(); return; }
+      if(s.currency==='vip'){ uiModal('<div style="color:#ffd700;font-weight:700;font-size:.85rem">'+t('vip_only_title')+'</div><div style="color:#aaa;font-size:.68rem;margin-top:10px;line-height:1.6">'+t('vip_only_body')+'</div>',[{label:t('ok')}]); return; }
+      if(s.currency==='premium'){ uiModal('<div style="color:#ffe44d;font-weight:700;font-size:.85rem">'+t('prem_only_title')+'</div><div style="color:#aaa;font-size:.68rem;margin-top:10px;line-height:1.6">'+t('prem_only_body')+'</div>',[{label:t('ok')}]); return; }
+      shopConfirmBuy(s);
+    };
+    grid.appendChild(card);
+  });
+  updateBulkBar();
+}
+
+// Lotes: 'one' = la siguiente skin de la lista que puedas pagar · 'max' = el mayor número posible (empezando por las baratas)
+function bulkPlan(kind){
+  let coins=playerData.coins||0, gems=playerData.gems||0;
+  const inTab=s=>s.currency!=='free' && !isSkinOwned(s) && (shopTabCurrent==='all' || s.currency===shopTabCurrent);
+  const plan=[]; let costCoins=0, costGems=0;
+  const take=s=>{
+    if(s.currency==='coin' && s.price<=coins){ coins-=s.price; costCoins+=s.price; plan.push(s); return true; }
+    if(s.currency==='gem'  && s.price<=gems ){ gems-=s.price;  costGems+=s.price;  plan.push(s); return true; }
+    return false;
+  };
+  if(kind==='one'){ for(const s of ALL_SKINS.filter(inTab)){ if(take(s)) break; } }
+  else { ALL_SKINS.filter(inTab).sort((a,b)=>a.price-b.price).forEach(take); }
+  return {plan:plan, costCoins:costCoins, costGems:costGems};
+}
+function updateBulkBar(){
+  const up=document.getElementById('bulkUp'), down=document.getElementById('bulkDown'), n=document.getElementById('bulkMaxN');
+  if(!up||!down) return;
+  const k=bulkPlan('max').plan.length;
+  up.disabled=down.disabled=(k===0);
+  if(n) n.textContent=k?('('+k+')'):'';
+}
+function bulkBuy(kind){
+  const r=bulkPlan(kind);
+  if(!r.plan.length){
+    uiModal('<div style="color:#ffe44d;font-weight:700;font-size:.78rem;line-height:1.5">'+t('shop_bulk_none')+'</div>',[{label:t('ok')}]);
+    return;
+  }
+  const names=r.plan.map(skinLabel).join(', ');
+  const cost=[r.costCoins?('🪙 '+r.costCoins+' CoinClothes'):'', r.costGems?('💎 '+r.costGems+' Exclusives'):''].filter(Boolean).join(' + ');
+  uiModal('<div style="color:#ffe44d;font-weight:700;font-size:.85rem">'+tf('shop_bulk_q',{k:r.plan.length})+'</div>'+
+          '<div style="color:#aab;font-size:.64rem;margin-top:10px;line-height:1.6">'+names+'</div>'+
+          '<div style="color:#ccc;font-size:.72rem;margin-top:10px">'+tf('shop_bulk_total',{a:cost})+'</div>',
+    [{label:t('shop_buy'), onClick:()=>{
+        if(r.costCoins>(playerData.coins||0) || r.costGems>(playerData.gems||0)) return;     // el saldo cambió
+        playerData.coins=(playerData.coins||0)-r.costCoins;
+        playerData.gems=(playerData.gems||0)-r.costGems;
+        if(!Array.isArray(playerData.unlockedSkins)) playerData.unlockedSkins=['skin_default'];
+        r.plan.forEach(s=>{ if(!playerData.unlockedSkins.includes(s.k)) playerData.unlockedSkins.push(s.k); });
+        updateCurrencyDisplay();
+        missionsAdd('buy', r.plan.length); missionsSetMax('skins_owned',(playerData.unlockedSkins||[]).length);
+        if(r.plan.length===1) equipSkin(r.plan[0].k); else savePlayerData();
+        buildShopGrid();
+      }},
+     {label:t('shop_cancel')}]);
+}
+function shopConfirmSell(s){
+  const v=shopSellValue(s), isCoin=s.currency==='coin', icon=isCoin?'🪙':'💎', name=isCoin?'CoinClothes':'Exclusives';
+  uiModal('<div style="color:#ffe44d;font-weight:700;font-size:.85rem">'+tf('shop_sell_q',{n:skinLabel(s)})+'</div>'+
+          '<div style="color:#ccc;font-size:.72rem;margin-top:10px">+'+icon+' '+v+' '+name+'</div>',
+    [{label:t('shop_sell'), onClick:()=>{
+        playerData.unlockedSkins=(playerData.unlockedSkins||[]).filter(k=>k!==s.k);
+        if(isCoin) playerData.coins=(playerData.coins||0)+v; else playerData.gems=(playerData.gems||0)+v;
+        if(playerData.selectedSkin1===s.k) playerData.selectedSkin1='skin_default';
+        if(playerData.selectedSkin2===s.k) playerData.selectedSkin2='skin_default';
+        applyPlayerSkins(); updateCurrencyDisplay(); savePlayerData(); buildShopGrid();
+      }},
+     {label:t('shop_cancel')}]);
+}
+
+function shopConfirmBuy(s){
+  const isCoin = s.currency==='coin';
+  const have = isCoin ? (playerData.coins||0) : (playerData.gems||0);
+  const icon = isCoin ? '🪙' : '💎';
+  const name = isCoin ? 'CoinClothes' : 'Exclusives';
+  if(have < s.price){
+    uiModal('<div style="color:#ff4455;font-weight:700;font-size:.8rem">'+t('shop_lack_title')+'</div>'+
+            '<div style="color:#aaa;font-size:.68rem;margin-top:10px;line-height:1.7">'+skinLabel(s)+'<br>'+
+            tf('shop_lack_need',{a:icon+' '+s.price+' '+name})+'<br>'+tf('shop_lack_have',{a:icon+' '+have+' '+name})+'</div>',
+            [{label:t('ok')}]);
+    return;
+  }
+  uiModal('<div style="color:#ffe44d;font-weight:700;font-size:.85rem">'+tf('shop_buy_q',{n:skinLabel(s)})+'</div>'+
+          '<div style="color:#ccc;font-size:.72rem;margin-top:10px">'+icon+' '+s.price+' '+name+'</div>',
+    [{label:t('shop_buy'), onClick:()=>{
+        if(isCoin) playerData.coins-=s.price; else playerData.gems-=s.price;
+        if(!Array.isArray(playerData.unlockedSkins)) playerData.unlockedSkins=['skin_default'];
+        if(!playerData.unlockedSkins.includes(s.k)) playerData.unlockedSkins.push(s.k);
+        updateCurrencyDisplay();
+        missionsAdd('buy',1); missionsSetMax('skins_owned',(playerData.unlockedSkins||[]).length);
+        equipSkin(s.k);              // la equipa y guarda todo (dispositivo o cuenta)
+        buildShopGrid();
+      }},
+     {label:t('shop_cancel')}]);
+}
+
+
+
+// ── Online: cada jugador ve la skin del otro (solo viaja el nombre de la skin) ─
+function sendMySkin(){
+  if(typeof netRole==='undefined' || !netRole) return;
+  const k=playerData.selectedSkin1||'skin_default';
+  const idx=ALL_SKINS.findIndex(s=>s.k===k);
+  if(idx<0) return;
+  if(netRole==='host') skin1=idx; else skin2=idx;
+  skin=skin1;
+  try{ netSend({t:'skin', k:k}); }catch(e){}
+}
+function receiveOpponentSkin(k){
+  const idx=ALL_SKINS.findIndex(s=>s.k===k);
+  if(idx<0) return;
+  if(netRole==='host') skin2=idx; else skin1=idx;
+  skin=skin1;
+}
+
+// ── Refresco de textos dinámicos al cambiar de idioma ────────────────────────
+function refreshDynamicI18n(){
+  if(window.onLangChange) window.onLangChange();
+  refreshMissionsIfOpen();
+  refreshAccountBtn();
+  buildShopGrid();
+  renderAccountScreen();
+  const sub=document.getElementById('accSubmit');
+  if(sub) sub.textContent=t(accTabMode==='login'?'acc_login':'acc_register');
+}
+
+// ── Arranque del progreso ────────────────────────────────────────────────────
+loadLocalProfile();
+applyPlayerSkins();
+updateCurrencyDisplay();
+refreshAccountBtn();
+(function(){ const cb=document.getElementById('currencyBar'); if(cb) cb.classList.add('show'); })();
+
+buildSkins();
+initTouchControls();
+setMusicContext('menu');
+goTo('sMenu');
+applyLang();
+// Start menu music after first user interaction (browser autoplay policy)
+document.addEventListener('click', ()=>{ if(musicOn&&!musIv) startMusic(); }, {once:true});
+document.addEventListener('keydown', ()=>{ if(musicOn&&!musIv) startMusic(); }, {once:true});
+document.addEventListener('touchstart', ()=>{ if(musicOn&&!musIv) startMusic(); }, {once:true});
+
+
+// ── Bug reports (solo para usuarios con sesión iniciada) ───────────────────
+
+
+
+</script>
+</body>
+</html>
