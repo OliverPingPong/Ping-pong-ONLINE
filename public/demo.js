@@ -3990,6 +3990,28 @@ function goal(scorer){
   },(gold||res.startGolden)?3500:2200);
 }
 
+// ── IA adaptativa (1 jugador): entre partidas sube o baja de nivel según tus últimos resultados ──
+let adaptHist=[];
+const ADAPT_ORDER=['easy','medium','hard'];
+function adaptToast(msg){
+  const el=document.createElement('div');
+  el.textContent=msg;
+  el.style.cssText='position:fixed;top:14%;left:50%;transform:translateX(-50%);z-index:700;font-family:Orbitron,monospace;font-size:.7rem;letter-spacing:.1em;color:#ffe44d;background:rgba(6,8,16,.85);border:1.5px solid #ffe44d;padding:10px 18px;border-radius:12px;pointer-events:none;';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),2600);
+}
+function adaptAfterMatch(humanWon){
+  adaptHist.push(!!humanWon); if(adaptHist.length>4) adaptHist.shift();
+  const i=ADAPT_ORDER.indexOf(diff); let next=i;
+  const last2=adaptHist.slice(-2);
+  if(last2.length===2 && last2.every(x=>x) && i<ADAPT_ORDER.length-1) next=i+1;
+  else if(last2.length===2 && last2.every(x=>!x) && i>0) next=i-1;
+  if(next!==i){
+    setDiff(ADAPT_ORDER[next]);            // setDiff reinicia el contador
+    adaptToast(next>i ? t('ad_up') : t('ad_down'));
+  }
+}
+
 function endMatch(winner){
   if(_matchEnded) return; _matchEnded=true; missionsOnMatchEnd(winner); statsOnMatchEnd(winner);
   if(typeof window.onMatchFinished==="function") window.onMatchFinished(winner);
@@ -4028,6 +4050,7 @@ function endMatch(winner){
   for(let i=0;i<5;i++)setTimeout(()=>spawnConfs(Math.random()*W,H*.4),i*300);
   // AI reacts to match result
   if(mode==='single') aiCommentMatchEnd(winner===1);
+  if(mode==='single' && !window.noProgress) adaptAfterMatch(winner===1);
   else if(mode==='tourn'){
     const fx=trnFixtures[trnMatchIdx>0?trnMatchIdx-1:0];
     const aiIsLeft=trnPlayers[fx.i].isCpu;
@@ -4194,7 +4217,7 @@ function setMode(m){
   else{goTo('sOnline');startOnlineLobby();}
 }
 function setDiff(d){
-  diff=d;
+  diff=d; adaptHist=[];
   ['dE','dM','dH','tdE','tdM','tdH'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('on');});
   const map={easy:'dE',medium:'dM',hard:'dH'};
   const tmap={easy:'tdE',medium:'tdM',hard:'tdH'};
@@ -4555,12 +4578,18 @@ function initTouchControls(){
 }
 
 // Inject joystick input into updateGame — called at top of controls section
+// Zona muerta pequeña: el dedo quieto no mueve la pala, y el resto del recorrido es lineal
+function joyCurve(v){
+  const a=Math.abs(v);
+  if(a<0.05) return 0;
+  return Math.sign(v)*Math.min(1,(a-0.05)/0.95);
+}
 function applyJoyInput(ps){
   if(!isTouchDevice()) return;
-  const yL=joyAxis.L.y, yR=joyAxis.R.y;
+  const yL=joyCurve(joyAxis.L.y), yR=joyCurve(joyAxis.R.y);
   // Speed is directly proportional to joystick deflection (0=stop, 1=full speed)
   // No dead zone — small movements = slow, full push = full speed
-  const spd=ps*1.6;
+  const spd=ps*2.2;
 
   const moveL=(mode==='single')||
     (mode==='tourn'&&trnFixtures.length>0&&!trnPlayers[trnFixtures[trnMatchIdx].i].isCpu)||
@@ -6849,6 +6878,16 @@ ja:{ tut_rep:"例を見る（{n}/{t}）", tut_turn:"あなたの番！", tut_ok:
 zh:{ tut_rep:"看示例（{n}/{t}）", tut_turn:"轮到你了！", tut_ok:"很好！", tut_hint1:"用手指拖动球拍（或用W和S）移动到每个绿点。", tut_hint2:"用球拍击球3次。", tut_hint3:"让球越过蓝色球拍：1球！", tut_hint4:"练习：得2分（真实比赛是7分）。", tut_hint5:"按两次P（或⏸）：一次暂停，一次继续。", tut_hits:"击球：{n}/3", tut_pts_c:"得分：{a} – {b}", tut_targets_c:"触到的点：{n}/3", tut_pause_btn:"⏸ 暂停", tut_resume_btn:"▶ 继续", tut_end:"教程完成！", tut_s1_x:"用W和S、方向键上下移动，或用手指拖动球拍（摇杆）。" }
 };
 Object.keys(LANGS_EXTRA11).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA11[l]); });
+const LANGS_EXTRA12 = {
+es:{ ad_up:"⬆ La IA sube de nivel", ad_down:"⬇ La IA baja de nivel" },
+en:{ ad_up:"⬆ The AI levels up", ad_down:"⬇ The AI levels down" },
+pt:{ ad_up:"⬆ A IA sobe de nível", ad_down:"⬇ A IA desce de nível" },
+de:{ ad_up:"⬆ Die KI steigt im Level auf", ad_down:"⬇ Die KI sinkt im Level" },
+fr:{ ad_up:"⬆ L'IA monte de niveau", ad_down:"⬇ L'IA baisse de niveau" },
+ja:{ ad_up:"⬆ AIのレベルが上がった", ad_down:"⬇ AIのレベルが下がった" },
+zh:{ ad_up:"⬆ AI等级提升", ad_down:"⬇ AI等级下降" }
+};
+Object.keys(LANGS_EXTRA12).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA12[l]); });
 const LANGS_EXTRA4 = {
 es:{ pw_big:"Paleta grande", pw_fast:"Paleta rápida", pw_slow:"Paleta lenta", pw_small:"Paleta pequeña", pw_got:"¡{p} consigue {n}!" },
 en:{ pw_big:"Big paddle", pw_fast:"Fast paddle", pw_slow:"Slow paddle", pw_small:"Small paddle", pw_got:"{p} gets {n}!" },
