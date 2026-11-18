@@ -6914,6 +6914,16 @@ ja:{ ad_up:"⬆ AIのレベルが上がった", ad_down:"⬇ AIのレベルが�
 zh:{ ad_up:"⬆ AI等级提升", ad_down:"⬇ AI等级下降" }
 };
 Object.keys(LANGS_EXTRA12).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA12[l]); });
+const LANGS_EXTRA13 = {
+es:{ acc_cloud_err:"Tu cuenta está conectada, pero no se pudo guardar tu perfil en la nube. Tu progreso se guardará en este dispositivo hasta que se restablezca la conexión." },
+en:{ acc_cloud_err:"Your account is connected, but your profile could not be saved to the cloud. Your progress will be kept on this device until the connection is restored." },
+pt:{ acc_cloud_err:"Sua conta está conectada, mas não foi possível salvar seu perfil na nuvem. Seu progresso ficará neste dispositivo até a conexão ser restabelecida." },
+de:{ acc_cloud_err:"Dein Konto ist verbunden, aber dein Profil konnte nicht in der Cloud gespeichert werden. Dein Fortschritt bleibt auf diesem Gerät, bis die Verbindung wiederhergestellt ist." },
+fr:{ acc_cloud_err:"Votre compte est connecté, mais votre profil n'a pas pu être enregistré dans le cloud. Votre progression reste sur cet appareil jusqu'au rétablissement de la connexion." },
+ja:{ acc_cloud_err:"アカウントには接続できましたが、プロフィールをクラウドに保存できませんでした。接続が回復するまで、進行状況はこの端末に保存されます。" },
+zh:{ acc_cloud_err:"账号已连接，但无法将你的资料保存到云端。在连接恢复之前，你的进度将保存在此设备上。" }
+};
+Object.keys(LANGS_EXTRA13).forEach(l=>{ if(LANGS[l]) Object.assign(LANGS[l], LANGS_EXTRA13[l]); });
 const LANGS_EXTRA4 = {
 es:{ pw_big:"Paleta grande", pw_fast:"Paleta rápida", pw_slow:"Paleta lenta", pw_small:"Paleta pequeña", pw_got:"¡{p} consigue {n}!" },
 en:{ pw_big:"Big paddle", pw_fast:"Fast paddle", pw_slow:"Slow paddle", pw_small:"Small paddle", pw_got:"{p} gets {n}!" },
@@ -7030,7 +7040,11 @@ async function loadPlayerData(){
       await db.collection('players').doc(currentUser.uid).set(playerData,{merge:true});
     }
     cloudOk=true;
-  }catch(e){ console.error('loadPlayerData:',e); }
+  }catch(e){
+    console.error('loadPlayerData:',e);
+    // La sesión sí está confirmada por Firebase, pero el perfil no: se avisa en vez de fallar en silencio
+    uiModal('<div style="color:#ffe44d;font-weight:700;font-size:.75rem;line-height:1.6">'+t('acc_cloud_err')+'</div>',[{label:t('ok')}]);
+  }
 }
 async function savePlayerData(){
   if(FB_OK && currentUser && cloudOk){
